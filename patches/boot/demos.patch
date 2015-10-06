@@ -1,0 +1,32 @@
+diff -Nru openjdk.orig/jdk/make/common/Release.gmk openjdk/jdk/make/common/Release.gmk
+--- openjdk-boot.orig/jdk/make/common/Release.gmk	2012-06-11 14:24:46.531375308 +0100
++++ openjdk-boot/jdk/make/common/Release.gmk	2012-06-11 14:28:47.215136389 +0100
+@@ -1104,16 +1104,6 @@
+ 	$(CP) $(FILES_launcher) $(JDK_IMAGE_DIR)/src/launcher
+ 	$(CD) $(JDK_IMAGE_DIR)/src && $(ZIPEXE) -qr ../src.zip *
+ 	$(RM) -r $(JDK_IMAGE_DIR)/src
+-	@#
+-	@# demo, include
+-	@#
+-	$(CP) -r -f $(DEMODIR) $(JDK_IMAGE_DIR)
+-	$(CP) -r -f $(SAMPLEDIR) $(JDK_IMAGE_DIR)
+-	$(CP) -r $(INCLUDEDIR) $(JDK_IMAGE_DIR)
+-	@#
+-	@# Swing BeanInfo generation
+-	@#
+-	$(CD) javax/swing/beaninfo && $(MAKE) swing-1.2-beans
+ ifneq ($(PLATFORM), windows)
+ 	$(call copy-man-pages,$(JDK_IMAGE_DIR),$(JDK_MAN_PAGES))
+ endif # !windows
+diff -Nru openjdk.orig/jdk/make/Makefile openjdk/jdk/make/Makefile
+--- openjdk-boot.orig/jdk/make/Makefile	2012-06-08 17:12:17.000000000 +0100
++++ openjdk-boot/jdk/make/Makefile	2012-06-11 14:28:47.223136515 +0100
+@@ -240,7 +240,7 @@
+   SUBDIRS += bridge
+ endif
+ SUBDIRS_tools = launchers
+-SUBDIRS_misc  = org sunw jpda mkdemo mksample
++SUBDIRS_misc  = org sunw jpda mksample
+ 
+ # Alternate classes implementation
+ ifndef OPENJDK

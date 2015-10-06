@@ -1,0 +1,75 @@
+diff -Nru openjdk-boot.orig/jdk/make/common/BuildToolJar.gmk openjdk-boot/jdk/make/common/BuildToolJar.gmk
+--- openjdk-boot.orig/jdk/make/common/BuildToolJar.gmk	2009-12-04 23:26:17.000000000 +0000
++++ openjdk-boot/jdk/make/common/BuildToolJar.gmk	2009-12-13 20:16:48.000000000 +0000
+@@ -43,7 +43,8 @@
+ 	@$(prep-target)
+ 	@$(MKDIR) -p $(BUILDTOOLCLASSDIR)
+ 	$(BOOT_JAVAC_CMD) -d $(BUILDTOOLCLASSDIR) \
+-	    -sourcepath $(BUILDTOOL_SOURCE_ROOT) $(BUILDTOOL_MAIN_SOURCE_FILE)
++	    -sourcepath $(BUILDTOOL_SOURCE_ROOT) -classpath $(ICEDTEA_RT) \
++	    $(BUILDTOOL_MAIN_SOURCE_FILE)
+ 	$(BOOT_JAR_CMD) cfm $@ $(BUILDTOOL_MANIFEST_FILE) \
+ 	    -C $(BUILDTOOLCLASSDIR) $(PKGDIR) \
+ 	    $(BOOT_JAR_JFLAGS) || $(RM) $@
+diff -Nru openjdk-boot.orig/jdk/make/common/Rules.gmk openjdk-boot/jdk/make/common/Rules.gmk
+--- openjdk-boot.orig/jdk/make/common/Rules.gmk	2009-12-04 23:26:17.000000000 +0000
++++ openjdk-boot/jdk/make/common/Rules.gmk	2009-12-13 20:16:48.000000000 +0000
+@@ -237,8 +237,9 @@
+ 	  $(ECHO) "# Java sources to be compiled: (listed in file $<)"; \
+ 	  $(CAT) $<.filtered; \
+ 	  $(ECHO) "# Running javac:"; \
+-	  $(ECHO) $(JAVAC_CMD) -sourcepath "$(SOURCEPATH)" -d $(CLASSDESTDIR) @$<.filtered; \
+-	  $(JAVAC_CMD) -sourcepath "$(SOURCEPATH)" -d $(CLASSDESTDIR) @$<.filtered; \
++	  $(ECHO) $(JAVAC_CMD) -sourcepath "$(SOURCEPATH)" -bootclasspath "$(CLASSDESTDIR):$(ICEDTEA_RT)" \
++          -d $(CLASSDESTDIR) @$(JAVA_SOURCE_LIST); \
++          $(JAVAC_CMD) -sourcepath "$(SOURCEPATH)" -bootclasspath "$(CLASSDESTDIR):$(ICEDTEA_RT)" -d $(CLASSDESTDIR) @$(JAVA_SOURCE_LIST); \
+ 	fi
+ 	@$(java-vm-cleanup)
+ 
+diff -Nru openjdk-boot.orig/jdk/make/sun/javazic/Makefile openjdk-boot/jdk/make/sun/javazic/Makefile
+--- openjdk-boot.orig/jdk/make/sun/javazic/Makefile	2009-12-04 23:26:37.000000000 +0000
++++ openjdk-boot/jdk/make/sun/javazic/Makefile	2009-12-13 20:16:48.000000000 +0000
+@@ -62,7 +62,8 @@
+ $(WORKDIR)/$(MAPFILE): $(BUILDTOOLJARDIR)/javazic.jar $(TZFILES)
+ 	$(RM) -r $(@D)
+ 	$(prep-target)
+-	$(BOOT_JAVA_CMD) -jar $(BUILDTOOLJARDIR)/javazic.jar -V "$(TZDATA_VER)" -d $(WORKDIR) $(TZFILES)
++	$(BOOT_JAVA_CMD) -cp $(ABS_OUTPUTDIR)/classes:$(BUILDTOOLJARDIR)/javazic.jar \
++		build.tools.javazic.Main -V "$(TZDATA_VER)" -d $(WORKDIR) $(TZFILES)
+ 	@$(java-vm-cleanup)
+ 
+ $(INSTALLDIR)/$(MAPFILE): $(WORKDIR)/$(MAPFILE)
+diff -Nru openjdk-boot.orig/jdk/make/common/shared/Defs-java.gmk openjdk-boot/jdk/make/common/shared/Defs-java.gmk
+--- openjdk-boot.orig/jdk/make/common/shared/Defs-java.gmk	2012-06-29 15:21:00.000000000 +0100
++++ openjdk-boot/jdk/make/common/shared/Defs-java.gmk	2012-06-29 18:53:43.337711469 +0100
+@@ -157,7 +157,7 @@
+ JAVACFLAGS  += $(OTHER_JAVACFLAGS)
+ 
+ # Needed for javah
+-JAVAHFLAGS += -bootclasspath "$(CLASSBINDIR)$(JCE_PATH)"
++JAVAHFLAGS += -bootclasspath "$(CLASSBINDIR)$(JCE_PATH):$(ICEDTEA_RT):$(CLASSDESTDIR)"
+ 
+ # Needed for javadoc to ensure it builds documentation
+ # against the newly built classes
+diff --git a/make/java/text/base/Makefile b/make/java/text/base/Makefile
+--- openjdk-boot/jdk/make/java/text/base/Makefile
++++ openjdk-boot/jdk/make/java/text/base/Makefile
+@@ -81,6 +81,7 @@
+ 		$(TEXT_SOURCES)
+ 	$(MKDIR) -p  $(TEXT_CLASSDIR)
+ 	$(BOOT_JAVA_CMD) -Xbootclasspath/p:$(TEXT_CLASSES) \
++		-Xbootclasspath/a:$(ABS_OUTPUTDIR)/classes \
+ 		-jar $(GENERATEBREAKITERATORDATA_JARFILE) \
+ 		-o $(TEXT_CLASSDIR) \
+ 		-spec $(UNICODEDATA)/UnicodeData.txt
+diff --git a/make/sun/text/Makefile b/make/sun/text/Makefile
+--- openjdk-boot/jdk/make/sun/text/Makefile
++++ openjdk-boot/jdk/make/sun/text/Makefile
+@@ -86,6 +86,7 @@
+ 		-sourcepath $(TEXT_SRCDIR) \
+ 		$(BIRULES) $(BIINFO)
+ 	$(BOOT_JAVA_CMD) -Xbootclasspath/p:$(TEXT_CLASSES) \
++		-Xbootclasspath/a:$(ABS_OUTPUTDIR)/classes \
+ 		-jar $(GENERATEBREAKITERATORDATA_JARFILE) \
+ 		-o $(CLASSDESTDIR)/sun/text/resources \
+ 		-spec $(UNICODEDATA)/UnicodeData.txt \

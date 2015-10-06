@@ -1,0 +1,46 @@
+diff -r 8114c2755c90 build.properties
+--- openjdk-boot/jaxws/build.properties	Wed Apr 30 15:40:30 2014 +0100
++++ openjdk-boot/jaxws/build.properties	Wed Apr 30 21:06:30 2014 +0100
+@@ -61,6 +61,9 @@
+ # JAXP built files
+ jaxp.classes.dir=${output.dir}/../jaxp/build/classes
+ 
++# Langtools sources
++langtools.sources=${langtools.topdir}/src/share/classes
++
+ # Distributed results
+ dist.dir=${output.dir}/dist
+ dist.lib.dir=${dist.dir}/lib
+@@ -90,6 +93,7 @@
+   output.dir=${output.dir}${line.separator}\
+   build.dir=${build.dir}${line.separator}\
+   dist.dir=${dist.dir}${line.separator}\
++  langtools.sources=${langtools.sources}${line.separator}\
+ ${line.separator}
+ 
+ #------------------------------------------------------------
+diff -r 8114c2755c90 build.xml
+--- openjdk-boot/jaxws/build.xml	Wed Apr 30 15:40:30 2014 +0100
++++ openjdk-boot/jaxws/build.xml	Wed Apr 30 21:06:30 2014 +0100
+@@ -144,6 +144,7 @@
+         <javac
+ 	     includeAntRuntime="false"
+ 	     classpath="${jaxp.classes.dir}:${build.classes.dir}:${tools.jar}"
++	     sourcepath="${langtools.sources}"
+ 	     fork="true"
+              destdir="${build.classes.dir}"
+              memoryInitialSize="${javac.memoryInitialSize}"
+diff -r 8114c2755c90 make/Makefile
+--- openjdk-boot/jaxws/make/Makefile	Wed Apr 30 15:40:30 2014 +0100
++++ openjdk-boot/jaxws/make/Makefile	Wed Apr 30 21:06:30 2014 +0100
+@@ -123,6 +123,10 @@
+   endif
+ endif
+ 
++ifdef LANGTOOLS_TOPDIR
++  ANT_OPTIONS += -Dlangtools.topdir=$(LANGTOOLS_TOPDIR)
++endif
++
+ # Default target and expected 'do everything' target
+ default: all
+ 

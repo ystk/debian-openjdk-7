@@ -1,0 +1,99 @@
+#!/bin/sh
+
+ZLIB_VERSION=1.2.3
+ZIP_SRC=openjdk/jdk/src/share/native/java/util/zip/zlib-${ZLIB_VERSION}
+JPEG_SRC=openjdk/jdk/src/share/native/sun/awt/image/jpeg/jpeg-6b
+GIF_SRC=openjdk/jdk/src/share/native/sun/awt/giflib
+PNG_SRC=openjdk/jdk/src/share/native/sun/awt/libpng
+LCMS_SRC=openjdk/jdk/src/share/native/sun/java2d/cmm/lcms
+PCSC_SRC=openjdk/jdk/src/solaris/native/sun/security/smartcardio/MUSCLE
+
+if test "x@ENABLE_SYSTEM_ZLIB@" = "xtrue"; then
+  if [ ! -d ${ZIP_SRC} ]; then
+      echo "${ZIP_SRC} does not exist. Refusing to proceed."
+      exit -1;
+  fi
+  echo "Removing zlib"
+  rm -rvf ${ZIP_SRC}
+fi
+
+if test "x@ENABLE_SYSTEM_JPEG@" = "xtrue"; then
+  if [ ! -d ${JPEG_SRC} ]; then
+      echo "${JPEG_SRC} does not exist. Refusing to proceed."
+      exit -2;
+  fi
+  echo "Removing libjpeg"
+  rm -rvf ${JPEG_SRC}
+fi
+
+if test "x@ENABLE_SYSTEM_GIF@" = "xtrue"; then
+  if [ ! -d ${GIF_SRC} ]; then
+      echo "${GIF_SRC} does not exist. Refusing to proceed."
+      exit -3;
+  fi
+  echo "Removing giflib"
+  rm -rvf ${GIF_SRC}
+fi
+
+if test "x@ENABLE_SYSTEM_PNG@" = "xtrue"; then
+  if [ ! -d ${PNG_SRC} ]; then
+      echo "${PNG_SRC} does not exist. Refusing to proceed."
+      exit -4;
+  fi
+  echo "Removing libpng"
+  rm -rvf ${PNG_SRC}
+fi
+
+if test "x@ENABLE_SYSTEM_LCMS@" = "xtrue"; then
+  if [ ! -f ${LCMS_SRC}/cmscam02.c ]; then
+      echo "${LCMS_SRC}/cmscam02.c does not exist. Refusing to proceed."
+      exit -5;
+  fi
+  echo "Removing lcms"
+  rm -vf ${LCMS_SRC}/cmscam02.c
+  rm -vf ${LCMS_SRC}/cmscgats.c
+  rm -vf ${LCMS_SRC}/cmscnvrt.c
+  rm -vf ${LCMS_SRC}/cmserr.c
+  rm -vf ${LCMS_SRC}/cmsgamma.c
+  rm -vf ${LCMS_SRC}/cmsgmt.c
+  rm -vf ${LCMS_SRC}/cmsintrp.c
+  rm -vf ${LCMS_SRC}/cmsio0.c
+  rm -vf ${LCMS_SRC}/cmsio1.c
+  rm -vf ${LCMS_SRC}/cmslut.c
+  rm -vf ${LCMS_SRC}/cmsmd5.c
+  rm -vf ${LCMS_SRC}/cmsmtrx.c
+  rm -vf ${LCMS_SRC}/cmsnamed.c
+  rm -vf ${LCMS_SRC}/cmsopt.c
+  rm -vf ${LCMS_SRC}/cmspack.c
+  rm -vf ${LCMS_SRC}/cmspcs.c
+  rm -vf ${LCMS_SRC}/cmsplugin.c
+  rm -vf ${LCMS_SRC}/cmsps2.c
+  rm -vf ${LCMS_SRC}/cmssamp.c
+  rm -vf ${LCMS_SRC}/cmssm.c
+  rm -vf ${LCMS_SRC}/cmstypes.c
+  rm -vf ${LCMS_SRC}/cmsvirt.c
+  rm -vf ${LCMS_SRC}/cmswtpnt.c
+  rm -vf ${LCMS_SRC}/cmsxform.c
+  rm -vf ${LCMS_SRC}/lcms2.h
+  rm -vf ${LCMS_SRC}/lcms2_internal.h
+  rm -vf ${LCMS_SRC}/lcms2_plugin.h
+fi
+
+if test "x@ENABLE_SYSTEM_PCSC@" = "xtrue"; then
+  if [ ! -d ${PCSC_SRC} ]; then
+      echo "${PCSC_SRC} does not exist. Refusing to proceed."
+      exit -6;
+  fi
+  echo "Removing libpcsc headers"
+  rm -rvf ${PCSC_SRC}
+fi
+
+if test "x@ENABLE_SUNEC@" = "xno"; then
+rm -vf openjdk/jdk/src/share/classes/sun/security/ec/ECDHKeyAgreement.java
+rm -vf openjdk/jdk/src/share/classes/sun/security/ec/ECDSASignature.java
+rm -vf openjdk/jdk/src/share/classes/sun/security/ec/ECKeyPairGenerator.java
+rm -vf openjdk/jdk/src/share/classes/sun/security/ec/SunEC.java
+rm -vf openjdk/jdk/src/share/classes/sun/security/ec/SunECEntries.java
+rm -rvf openjdk/jdk/src/share/native/sun/security/ec
+rm -rvf openjdk/jdk/make/sun/security/ec
+fi

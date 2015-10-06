@@ -1,0 +1,45 @@
+diff -Nru openjdk-boot.orig/jdk/make/sun/awt/Makefile openjdk-boot/jdk/make/sun/awt/Makefile
+--- openjdk-boot.orig/jdk/make/sun/awt/Makefile	2013-06-25 16:52:46.810177400 +0100
++++ openjdk-boot/jdk/make/sun/awt/Makefile	2013-06-25 16:54:43.856035962 +0100
+@@ -245,16 +245,12 @@
+    $(ICONPATH)/security-icon-yellow48.png
+ 
+ TEMPDIR_CLASSES = $(TEMPDIR)/classes
+-   
++
+ generated.clean:
+ 	$(RM) -r $(GEN_DIR)/*.java
+ 	$(RM) -r $(TEMPDIR)/.gen_icons   
+ 
+-$(TEMPDIR_CLASSES)/sun/awt/ToBin.class: ToBin.java
+-	@$(prep-target)
+-	$(BOOT_JAVAC_CMD) -d $(TEMPDIR_CLASSES) $<
+-
+-$(TEMPDIR)/.gen_icons: $(TEMPDIR_CLASSES)/sun/awt/ToBin.class $(ICONS)
++$(TEMPDIR)/.gen_icons: $(ICONS)
+ 	$(prep-target)
+ 	for i in $(ICONS); do \
+             filename=`basename $$i`; \
+@@ -264,20 +260,14 @@
+ 	    $(ECHO) "package sun.awt;" >> $$classname ; \
+ 	    $(ECHO) "public class AWTIcon32_$$name {" >> $$classname; \
+ 	    $(ECHO) "public final static int[] $$name = { " >> $$classname;  \
+-	    $(CAT) $$i | \
+-	      $(BOOT_JAVA_CMD) -cp $(TEMPDIR_CLASSES)  \
+-		-Djava.awt.headless=true \
+-		sun.awt.ToBin >> $$classname; \
++	    $(ECHO) "0,0" >> $$classname ;  \
+ 	    $(ECHO) "}; }" >> $$classname;  \
+             classname=$(GEN_DIR)/AWTIcon64_$$name.java; \
+ 	    $(RM) $$classname; \
+ 	    $(ECHO) "package sun.awt;" >> $$classname ; \
+ 	    $(ECHO) "public class AWTIcon64_$$name {" >> $$classname; \
+ 	    $(ECHO) "public final static long[] $$name = { " >> $$classname;  \
+-	    $(CAT) $$i | \
+-	      $(BOOT_JAVA_CMD) -cp $(TEMPDIR_CLASSES)  \
+-		-Djava.awt.headless=true \
+-		sun.awt.ToBin >> $$classname; \
++	    $(ECHO) "0,0" >> $$classname ;  \
+ 	    $(ECHO) "}; }" >> $$classname;  \
+ 	done
+ 	$(TOUCH) $@
