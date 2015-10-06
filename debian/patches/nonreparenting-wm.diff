@@ -1,0 +1,60 @@
+Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
+===================================================================
+--- openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
++++ openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
+@@ -105,7 +105,8 @@ final class XWM
+         LG3D_WM = 13,
+         CWM_WM = 14,
+         MUTTER_WM = 15,
+-        MARCO_WM = 16;
++        MARCO_WM = 16,
++        OTHER_NONREPARENTING_WM = 17;
+     public String toString() {
+         switch  (WMID) {
+           case NO_WM:
+@@ -591,7 +592,7 @@ final class XWM
+     // TODO: according to wikipedia, compiz is now reparenting. This should
+     // probably be updated.
+     static boolean isNonReparentingWM() {
+-        return (XWM.getWMID() == XWM.COMPIZ_WM || XWM.getWMID() == XWM.LG3D_WM || XWM.getWMID() == XWM.CWM_WM);
++        return (XWM.getWMID() == XWM.COMPIZ_WM || XWM.getWMID() == XWM.LG3D_WM || XWM.getWMID() == XWM.CWM_WM || XWM.getWMID() == XWM.OTHER_NONREPARENTING_WM);
+     }
+ 
+     /*
+@@ -782,9 +783,17 @@ final class XWM
+              * supports WIN or _NET wm spec.
+              */
+             else if (l_net_protocol.active()) {
+-                awt_wmgr = XWM.OTHER_WM;
++                if (XToolkit.getEnv("_JAVA_AWT_WM_NONREPARENTING") != null) {
++                    awt_wmgr = XWM.OTHER_NONREPARENTING_WM;
++                } else {
++                    awt_wmgr = XWM.OTHER_WM;
++		}
+             } else if (win.active()) {
+-                awt_wmgr = XWM.OTHER_WM;
++                if (XToolkit.getEnv("_JAVA_AWT_WM_NONREPARENTING") != null) {
++                    awt_wmgr = XWM.OTHER_NONREPARENTING_WM;
++                } else {
++                    awt_wmgr = XWM.OTHER_WM;
++		}
+             }
+             /*
+              * Check for legacy WMs.
+@@ -795,6 +804,8 @@ final class XWM
+                 awt_wmgr = XWM.MOTIF_WM;
+             } else if (isOpenLook()) {
+                 awt_wmgr = XWM.OPENLOOK_WM;
++            } else if (XToolkit.getEnv("_JAVA_AWT_WM_NONREPARENTING") != null) {
++                awt_wmgr = XWM.OTHER_NONREPARENTING_WM;
+             } else {
+                 awt_wmgr = XWM.OTHER_WM;
+             }
+@@ -1310,6 +1321,7 @@ final class XWM
+                   res = new Insets(28, 6, 6, 6);
+                   break;
+               case NO_WM:
++              case OTHER_NONREPARENTING_WM:
+               case LG3D_WM:
+                   res = zeroInsets;
+                   break;

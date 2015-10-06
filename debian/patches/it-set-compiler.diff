@@ -1,0 +1,16 @@
+Description: Pass the correct compiler to the OpenJDK build system
+Author: Matthias Klose <doko@ubuntu.com>
+Forwarded: #openjdk on OFTC
+
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -500,6 +500,7 @@ ICEDTEA_ENV = \
+ 	VERBOSE="$(VERBOSE)" \
+ 	STATIC_CXX="false" \
+ 	BUILD_GCC="$(CC)" \
++	BUILD_CPP="$(CXX)" \
+ 	BUILD_CXX="$(CXX)" \
+ 	SYSTEM_CUPS="true" \
+ 	CUPS_LIBS="${CUPS_LIBS}" \

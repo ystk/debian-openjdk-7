@@ -1,0 +1,64 @@
+Description: Build zero on AArch64 from the default Hotspot tarball
+ Zero should be built from the same source on all architectures.
+Author: Matthias Klose <doko@ubuntu.com>
+Forwarded: not-needed
+Last-Update: 2014-07-06
+
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2284,14 +2284,17 @@ if ADD_SHARK_BUILD
+ ADD_ZERO_CONFIGURE_ARGS += \
+ 	--enable-shark
+ endif
++_quote = '
++# ' make emacs mode happy
+ ADD_ZERO_CONFIGURE_ARGS += \
+ 	--disable-docs \
+-	$(filter-out '--with-jdk-home=% '--with-ecj=% \
+-			'--with-java=% '--with-javah=% \
+-			'--with-javac=% '--with-javac=% \
+-			'--with-rmic=% '--with-additional-vms=% \
+-			'--disable-bootstrap% '--enable-bootstrap% , \
+-		$(CONFIGURE_ARGS)) \
++	$(filter-out $(_quote)--with-jdk-home=% $(_quote)--with-ecj=% \
++			$(_quote)--with-java=% $(_quote)--with-javah=% \
++			$(_quote)--with-javac=% $(_quote)--with-javac=% \
++			$(_quote)--with-rmic=% $(_quote)--with-additional-vms=% \
++			$(_quote)--disable-bootstrap% $(_quote)--enable-bootstrap% \
++			$(_quote)--with-hotspot-build=% $(_quote)--with-%-src-zip=% , \
++		$(subst hotspot-aarch64.tar,hotspot.tar,$(CONFIGURE_ARGS))) \
+ 	$(foreach i, openjdk hotspot corba jaxp jaxws jdk langtools, \
+ 	  $(if $(findstring --with-$(i)-src-zip=, $(CONFIGURE_ARGS)),, --with-$(i)-src-zip=$(abs_top_builddir)/$(i).$(TAR_SUFFIX)))
+ 
+@@ -2301,7 +2304,7 @@ ADD_ZERO_EXTRA_BUILD_ENV = \
+ 	BUILD_JAXWS=false     ALT_JAXWS_DIST=$(BUILD_OUTPUT_DIR)/jaxws/dist \
+ 	BUILD_CORBA=false     ALT_CORBA_DIST=$(BUILD_OUTPUT_DIR)/corba/dist \
+ 	BUILD_JDK=false \
+-	DISTRIBUTION_PATCHES='$(foreach p,$(DISTRIBUTION_PATCHES),$(if $(findstring cacao,$(p)),,$(if $(findstring jamvm,$(p)),,$(p))))'
++	DISTRIBUTION_PATCHES='$(foreach p,$(subst -aarch64,-default,$(DISTRIBUTION_PATCHES)),$(if $(findstring cacao,$(p)),,$(if $(findstring jamvm,$(p)),,$(p))))'
+ 
+ stamps/add-zero.stamp: stamps/icedtea.stamp
+ 	mkdir -p stamps
+Index: b/acinclude.m4
+===================================================================
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -928,7 +928,7 @@ AC_DEFUN_ONCE([IT_WITH_GCJ],
+ AC_DEFUN_ONCE([IT_WITH_HOTSPOT_BUILD],
+ [
+   AC_REQUIRE([IT_ENABLE_ZERO_BUILD])
+-  if test "x$JRE_ARCH_DIR" = "xaarch64" -o "x$JRE_ARCH_DIR" = "xarm"; then
++  if test "x$JRE_ARCH_DIR" = "xaarch64" && test "x$use_zero" != xyes && test "x${ENABLE_CACAO}" != xyes && test "x${ENABLE_JAMVM}" != xyes; then
+     DEFAULT_BUILD="aarch64"
+   else
+     DEFAULT_BUILD="default"
+@@ -950,6 +950,7 @@ AC_DEFUN_ONCE([IT_WITH_HOTSPOT_BUILD],
+   AC_MSG_RESULT([${HSBUILD}])
+   AC_SUBST([HSBUILD])
+   AM_CONDITIONAL(WITH_ALT_HSBUILD, test "x${HSBUILD}" != "xdefault")
++  AM_CONDITIONAL(HSBUILD_AARCH64, test "x${HSBUILD}" == "xaarch64")
+ ])
+ 
+ AC_DEFUN([IT_WITH_HOTSPOT_SRC_ZIP],

@@ -1,0 +1,5 @@
+# jpda/examples.jar only contains source code
+@basename@-demo: codeless-jar usr/share/doc/openjdk-7-jre-headless/demo/jpda/examples.jar
+
+# yes, we are @basename@
+@basename@-demo: incompatible-java-bytecode-format

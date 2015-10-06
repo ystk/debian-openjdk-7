@@ -1,0 +1,87 @@
+Description: Fix bold fonts in GTK applications
+ Installing certain fonts on Ubuntu triggered a corner case in the 
+ OpenJDK font loader where only the bold and italic weights, not 
+ regular, of the Ubuntu font would be loaded.
+ .
+ This patch is from upstream JDK8 and fixes the font loader to allow 
+ styles loaded at a later time to join their proper family.
+Author: Philip Race <philip.race@oracle.com>
+Applied-Upstream: http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/rev/50c530973203
+Bug: https://bugs.openjdk.java.net/browse/JDK-8012351
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/937200
+
+Index: openjdk/jdk/src/share/classes/sun/font/FontFamily.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/font/FontFamily.java
++++ openjdk/jdk/src/share/classes/sun/font/FontFamily.java
+@@ -25,6 +25,7 @@
+ 
+ package sun.font;
+ 
++import java.io.File;
+ import java.awt.Font;
+ import java.util.HashMap;
+ import java.util.concurrent.ConcurrentHashMap;
+@@ -105,8 +106,39 @@ public class FontFamily {
+         return familyRank;
+     }
+ 
++    private boolean isFromSameSource(Font2D font) {
++        if (!(font instanceof FileFont)) {
++            return false;
++        }
++
++        FileFont existingFont = null;
++        if (plain instanceof FileFont) {
++            existingFont = (FileFont)plain;
++        } else if (bold instanceof FileFont) {
++            existingFont = (FileFont)bold;
++        } else if (italic instanceof FileFont) {
++             existingFont = (FileFont)italic;
++        } else if (bolditalic instanceof FileFont) {
++             existingFont = (FileFont)bolditalic;
++        }
++        // A family isn't created until there's a font.
++        // So if we didn't find a file font it means this
++        // isn't a file-based family.
++        if (existingFont == null) {
++            return false;
++        }
++        File existDir = (new File(existingFont.platName)).getParentFile();
++
++        FileFont newFont = (FileFont)font;
++        File newDir = (new File(newFont.platName)).getParentFile();
++        return java.util.Objects.equals(newDir, existDir);
++    }
++
+     public void setFont(Font2D font, int style) {
+-        if (font.getRank() > familyRank) {
++        /* Allow a lower-rank font only if its a file font
++         * from the exact same source as any previous font.
++         */
++        if ((font.getRank() > familyRank) && !isFromSameSource(font)) {
+             if (FontUtilities.isLogging()) {
+                 FontUtilities.getLogger()
+                                   .warning("Rejecting adding " + font +
+Index: openjdk/jdk/src/share/classes/sun/font/SunFontManager.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/font/SunFontManager.java
++++ openjdk/jdk/src/share/classes/sun/font/SunFontManager.java
+@@ -764,7 +764,7 @@ public abstract class SunFontManager imp
+             if (family == null) {
+                 family = new FontFamily(familyName, false, rank);
+                 family.setFont(f, f.style);
+-            } else if (family.getRank() >= rank) {
++            } else {
+                 family.setFont(f, f.style);
+             }
+             fullNameToFont.put(fontName.toLowerCase(Locale.ENGLISH), f);
+@@ -855,7 +855,7 @@ public abstract class SunFontManager imp
+                 if (family == null) {
+                     family = new FontFamily(familyName, false, rank);
+                     family.setFont(newFont, newFont.style);
+-                } else if (family.getRank() >= rank) {
++                } else {
+                     family.setFont(newFont, newFont.style);
+                 }
+                 return newFont;

@@ -1,0 +1,41 @@
+Description: 
+ - Add iddef TIOCINQ = FIONREAD
+ jamvm/src/classlib/openjdk/jvm.c
+ - Update configure for kfreebsd-amd64
+ jamvm/jamvm/configure.ac
+Author: Damien Raude-Morvan <drazzib@debian.org>
+Last-Update: 2011-08-05
+Forwarded: no
+--- jamvm/jamvm/configure.ac.orig
++++ jamvm/jamvm/configure.ac
+@@ -39,6 +39,7 @@
+ i386-*-freebsd*) host_os=bsd libdl_needed=no ;;
+ i386-*-solaris*) host_cpu=x86 host_os=solaris ;;
+ x86_64-*-linux*) host_os=linux ;;
++x86_64-*-kfreebsd*) host_os=linux ;;
+ hppa*-*-linux*) host_cpu=parisc host_os=linux ;;
+ mips*-*-linux*) host_cpu=mips host_os=linux ;;
+ x86_64-*-openbsd*) host_os=bsd libdl_needed=no ;;
+--- jamvm/jamvm/configure.orig
++++ jamvm/jamvm/configure
+@@ -39,6 +39,7 @@
+ i386-*-freebsd*) host_os=bsd libdl_needed=no ;;
+ i386-*-solaris*) host_cpu=x86 host_os=solaris ;;
+ x86_64-*-linux*) host_os=linux ;;
++x86_64-*-kfreebsd*) host_os=linux ;;
+ hppa*-*-linux*) host_cpu=parisc host_os=linux ;;
+ mips*-*-linux*) host_cpu=mips host_os=linux ;;
+ x86_64-*-openbsd*) host_os=bsd libdl_needed=no ;;
+--- jamvm/jamvm/src/classlib/openjdk/jvm.c.orig
++++ jamvm/jamvm/src/classlib/openjdk/jvm.c
+@@ -64,6 +64,10 @@
+ #define have_monotonic_clock FALSE
+ #endif
+ 
++#ifndef TIOCINQ
++#define TIOCINQ FIONREAD
++#endif
++
+ static Class *cloneable_class, *constant_pool_class;
+ static Class *exception_class, *runtime_excp_class;
+ 

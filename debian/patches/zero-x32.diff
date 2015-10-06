@@ -1,0 +1,129 @@
+Index: openjdk/hotspot/src/os/linux/vm/os_linux.cpp
+===================================================================
+--- openjdk/hotspot/src/os/linux/vm/os_linux.cpp
++++ openjdk/hotspot/src/os/linux/vm/os_linux.cpp
+@@ -2031,7 +2031,7 @@ void * os::dll_load(const char *filename
+ 
+   #if  (defined IA32)
+     static  Elf32_Half running_arch_code=EM_386;
+-  #elif   (defined AMD64)
++  #elif  (defined AMD64) || (defined X32)
+     static  Elf32_Half running_arch_code=EM_X86_64;
+   #elif  (defined IA64)
+     static  Elf32_Half running_arch_code=EM_IA_64;
+Index: openjdk/corba/make/common/shared/Platform.gmk
+===================================================================
+--- openjdk/corba/make/common/shared/Platform.gmk
++++ openjdk/corba/make/common/shared/Platform.gmk
+@@ -163,8 +163,12 @@ ifeq ($(SYSTEM_UNAME), Linux)
+                 ia64) \
+                     echo ia64 \
+                     ;; \
+-                x86_64) \
+-                    echo amd64 \
++                amd64|x86_64) \
++                    if [ "`dpkg-architecture -qDEB_HOST_ARCH`" = x32 ]; then \
++                        echo x32; \
++                    else \
++                        echo amd64; \
++                    fi \
+                     ;; \
+                 sparc*) \
+                     echo sparc \
+Index: openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
+===================================================================
+--- openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
++++ openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
+@@ -35,7 +35,6 @@
+ #endif
+ #ifdef __linux__
+ #include <unistd.h>
+-#include <sys/sysctl.h>
+ #include <sys/utsname.h>
+ #include <netinet/ip.h>
+ 
+Index: openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
+===================================================================
+--- openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
++++ openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
+@@ -43,7 +43,6 @@
+ #endif
+ #ifdef __linux__
+ #include <unistd.h>
+-#include <sys/sysctl.h>
+ #endif
+ 
+ #include "jvm.h"
+Index: openjdk/jdk/make/jdk_generic_profile.sh
+===================================================================
+--- openjdk/jdk/make/jdk_generic_profile.sh
++++ openjdk/jdk/make/jdk_generic_profile.sh
+@@ -271,7 +271,12 @@ if [ "${ZERO_BUILD}" = true ] ; then
+   # subdirectory under $JAVA_HOME/jre/lib
+   arch=$(uname -m)
+   case "${arch}" in
+-    x86_64)  ZERO_LIBARCH=amd64     ;;
++    x86_64)
++          if [ "`dpkg-architecture -qDEB_HOST_ARCH`" = x32 ]; then
++              ZERO_LIBARCH=x32
++          else
++              ZERO_LIBARCH=amd64
++          fi;;
+     i?86)    ZERO_LIBARCH=i386      ;;
+     sparc64) ZERO_LIBARCH=sparcv9   ;;
+     arm*)    ZERO_LIBARCH=arm       ;;
+@@ -284,7 +289,7 @@ if [ "${ZERO_BUILD}" = true ] ; then
+ 
+   # ARCH_DATA_MODEL is the number of bits in a pointer
+   case "${ZERO_LIBARCH}" in
+-    arm|i386|ppc|s390|sh|sparc)
++    arm|i386|ppc|s390|sh|sparc|x32)
+       ARCH_DATA_MODEL=32
+       ;;
+     aarch64|alpha|amd64|ia64|ppc64*|s390x|sparcv9)
+@@ -299,7 +304,7 @@ if [ "${ZERO_BUILD}" = true ] ; then
+ 
+   # ZERO_ENDIANNESS is the endianness of the processor
+   case "${ZERO_LIBARCH}" in
+-    arm|aarch64|amd64|i386|ia64|mipsel|ppc64le)
++    arm|aarch64|amd64|i386|ia64|mipsel|ppc64le|x32)
+       ZERO_ENDIANNESS=little
+       ;;
+     ppc|ppc64|s390*|sparc*|alpha)
+@@ -318,6 +323,7 @@ if [ "${ZERO_BUILD}" = true ] ; then
+     ppc*)   ZERO_ARCHDEF=PPC   ;;
+     s390*)  ZERO_ARCHDEF=S390  ;;
+     sparc*) ZERO_ARCHDEF=SPARC ;;
++    x32)    ZERO_ARCHDEF=AMD64 ;;
+     *)      ZERO_ARCHDEF=$(echo "${ZERO_LIBARCH}" | tr a-z A-Z)
+   esac
+   export ZERO_ARCHDEF
+Index: openjdk/jdk/make/common/shared/Platform.gmk
+===================================================================
+--- openjdk/jdk/make/common/shared/Platform.gmk
++++ openjdk/jdk/make/common/shared/Platform.gmk
+@@ -180,8 +180,12 @@ ifeq ($(SYSTEM_UNAME), Linux)
+                 ia64) \
+                     echo ia64 \
+                     ;; \
+-                x86_64) \
+-                    echo amd64 \
++                amd64|x86_64) \
++                    if [ "`dpkg-architecture -qDEB_HOST_ARCH`" = x32 ]; then \
++                        echo x32; \
++                    else \
++                        echo amd64; \
++                    fi \
+                     ;; \
+                 sparc*) \
+                     echo sparc \
+@@ -227,6 +231,9 @@ ifeq ($(SYSTEM_UNAME), Linux)
+       ifeq ($(ARCH), s390x)
+         ARCH_DATA_MODEL=64
+       endif
++      ifeq ($(ARCH), x32)
++        ARCH_DATA_MODEL=32
++      endif
+       ifeq ($(ARCH), sh)
+         ARCH_DATA_MODEL=32
+       endif

@@ -1,0 +1,48 @@
+Index: openjdk/jdk/src/solaris/classes/sun/awt/fontconfigs/linux.fontconfig.Ubuntu.properties
+===================================================================
+--- openjdk/jdk/src/solaris/classes/sun/awt/fontconfigs/linux.fontconfig.Ubuntu.properties
++++ openjdk/jdk/src/solaris/classes/sun/awt/fontconfigs/linux.fontconfig.Ubuntu.properties
+@@ -26,7 +26,7 @@
+ 
+ # Version
+ 
+-# Uses Ubuntu 8.04 (hardy), Debian 6.0 (Squeeze) (and more recent releases) fonts and file paths.
++# Uses Ubuntu 14.04 (trusty), Debian 8.0 (jessie) (and more recent releases) fonts and file paths.
+ version=1
+ 
+ # Component Font Mappings
+@@ -219,20 +219,20 @@ exclusion.japanese-ipafont=0390-03d6,220
+ 
+ # Font File Names
+ 
+-filename.DejaVu_Sans=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf
+-filename.DejaVu_Sans_Bold=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf
+-filename.DejaVu_Sans_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Oblique.ttf
+-filename.DejaVu_Sans_Bold_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-BoldOblique.ttf
+-
+-filename.DejaVu_Sans_Mono=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono.ttf
+-filename.DejaVu_Sans_Mono_Bold=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-Bold.ttf
+-filename.DejaVu_Sans_Mono_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-Oblique.ttf
+-filename.DejaVu_Sans_Mono_Bold_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-BoldOblique.ttf
+-
+-filename.DejaVu_Serif=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif.ttf
+-filename.DejaVu_Serif_Bold=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif-Bold.ttf
+-filename.DejaVu_Serif_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif-Oblique.ttf
+-filename.DejaVu_Serif_Bold_Oblique=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSerif-BoldOblique.ttf
++filename.DejaVu_Sans=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
++filename.DejaVu_Sans_Bold=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
++filename.DejaVu_Sans_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf
++filename.DejaVu_Sans_Bold_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf
++
++filename.DejaVu_Sans_Mono=/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
++filename.DejaVu_Sans_Mono_Bold=/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf
++filename.DejaVu_Sans_Mono_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf
++filename.DejaVu_Sans_Mono_Bold_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSansMono-BoldOblique.ttf
++
++filename.DejaVu_Serif=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf
++filename.DejaVu_Serif_Bold=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf
++filename.DejaVu_Serif_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Oblique.ttf
++filename.DejaVu_Serif_Bold_Oblique=/usr/share/fonts/truetype/dejavu/DejaVuSerif-BoldOblique.ttf
+ 
+ filename.AR_PL_UMing_CN=/usr/share/fonts/truetype/arphic/uming.ttc
+ filename.AR_PL_UMing_HK=/usr/share/fonts/truetype/arphic/uming.ttc

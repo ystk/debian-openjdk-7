@@ -1,0 +1,26 @@
+Index: openjdk/jdk/make/common/shared/Platform.gmk
+===================================================================
+--- openjdk/jdk/make/common/shared/Platform.gmk
++++ openjdk/jdk/make/common/shared/Platform.gmk
+@@ -247,7 +247,7 @@ ifeq ($(SYSTEM_UNAME), Linux)
+   # Suffix for file bundles used in previous release
+   BUNDLE_FILE_SUFFIX=.tar.gz
+   # How much RAM does this machine have:
+-  MB_OF_MEMORY := $(shell free -m | fgrep Mem: | awk '{print $$2;}' )
++  MB_OF_MEMORY := $(shell m=`free -m | fgrep Mem: | sed -e 's@\ \ *@ @g' | cut -d' ' -f2`; if [ "$$m" -lt 384 ]; then echo 384; else echo $$m; fi)
+ endif
+ 
+ ifeq ($(SYSTEM_UNAME), Darwin)
+Index: openjdk/corba/make/common/shared/Platform.gmk
+===================================================================
+--- openjdk/corba/make/common/shared/Platform.gmk
++++ openjdk/corba/make/common/shared/Platform.gmk
+@@ -240,7 +240,7 @@ ifeq ($(SYSTEM_UNAME), Linux)
+     endif
+   endif
+   # How much RAM does this machine have:
+-  MB_OF_MEMORY := $(shell free -m | fgrep Mem: | sed -e 's@\ \ *@ @g' | cut -d' ' -f2)
++  MB_OF_MEMORY := $(shell m=`free -m | fgrep Mem: | sed -e 's@\ \ *@ @g' | cut -d' ' -f2`; if [ "$$m" -lt 384 ]; then echo 384; else echo $$m; fi)
+ endif
+ 
+ ifeq ($(SYSTEM_UNAME), FreeBSD)

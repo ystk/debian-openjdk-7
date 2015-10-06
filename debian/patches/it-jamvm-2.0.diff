@@ -1,0 +1,125 @@
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -26,8 +26,8 @@ CACAO_BASE_URL = $(DROP_URL)/cacao
+ CACAO_URL = $(CACAO_BASE_URL)/$(CACAO_VERSION).tar.gz
+ CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
+ 
+-JAMVM_VERSION = ec18fb9e49e62dce16c5094ef1527eed619463aa
+-JAMVM_SHA256SUM = 31810266666c23822942aac62a78019c2c4589e1c5ee48329cbf42652d4437bc
++JAMVM_VERSION = 2.0.0
++JAMVM_SHA256SUM = 76428e96df0ae9dd964c7a7c74c1e9a837e2f312c39e9a357fa8178f7eff80da
+ JAMVM_BASE_URL = $(DROP_URL)/jamvm
+ JAMVM_URL = $(JAMVM_BASE_URL)/jamvm-$(JAMVM_VERSION).tar.gz
+ JAMVM_SRC_ZIP = jamvm-$(JAMVM_VERSION).tar.gz
+@@ -281,7 +281,6 @@ endif
+ 
+ if BUILD_JAMVM
+ ICEDTEA_PATCHES += \
+-	patches/jamvm/pr2050-find_class_from_caller.patch \
+ 	patches/jamvm/noexecstack.patch
+ endif
+ 
+@@ -297,6 +296,11 @@ if !WITH_ALT_HSBUILD
+ ICEDTEA_PATCHES += patches/pr2553.patch
+ endif
+ 
++if BUILD_JAMVM
++ICEDTEA_PATCHES += \
++	patches/jamvm-2.5.3-fix.diff
++endif
++
+ ICEDTEA_PATCHES += $(DISTRIBUTION_PATCHES)
+ 
+ # Bootstrapping patches
+@@ -2014,7 +2018,7 @@ clean-rewrite-rhino:
+ stamps/jamvm.stamp: $(OPENJDK_TREE) stamps/rt.stamp
+ if BUILD_JAMVM
+ 	cd jamvm/jamvm && \
+-	./autogen.sh --with-java-runtime-library=openjdk7 \
++	./configure --with-java-runtime-library=openjdk7 \
+ 	  --prefix=$(abs_top_builddir)/jamvm/install \
+ 	  CFLAGS='$(EXTRA_CFLAGS_JAMVM)' LDFLAGS='$(EXTRA_LDFLAGS_JAMVM)' CPPFLAGS='$(EXTRA_CPPFLAGS_JAMVM)' CXXFLAGS='$(EXTRA_CXXFLAGS_JAMVM)'; \
+ 	$(MAKE) ; \
+Index: b/patches/jamvm-2.5.3-fix.diff
+===================================================================
+--- /dev/null
++++ b/patches/jamvm-2.5.3-fix.diff
+@@ -0,0 +1,76 @@
++--- jamvm/jamvm-2.0.0/src/classlib/openjdk/jvm.c
+++++ jamvm/jamvm-2.0.0/src/classlib/openjdk/jvm.c
++@@ -517,6 +517,48 @@ jclass JVM_FindClassFromBootLoader(JNIEnv *env, const char *name) {
++ }
++ 
++ 
+++/* JVM_FindClassFromCaller
+++ * Find a class from a given class loader.  Throws ClassNotFoundException.
+++ *  name:   name of class
+++ *  init:   whether initialization is done
+++ *  loader: class loader to look up the class.
+++ *          This may not be the same as the caller's class loader.
+++ *  caller: initiating class. The initiating class may be null when a security
+++ *          manager is not installed.
+++ *
+++ * Find a class with this name in this loader,
+++ * using the caller's "protection domain".
+++ */
+++
+++jclass JVM_FindClassFromCaller(JNIEnv *env, const char *name,
+++                               jboolean init, jobject loader,
+++                               jclass caller) {
+++    Class *class;
+++
+++    TRACE("JVM_FindClassFromCaller(env=%p, name=%s, init=%d, loader=%p,"
+++          " caller=%p)", env, name, init, loader, caller);
+++
+++    /* XXX The caller's protection domain should be used during
+++       the findClassFromClassLoader but there is no specification or
+++       unit-test in OpenJDK documenting the desired effect */
+++
+++    class = findClassFromClassLoader((char *)name, loader);
+++
+++    if(class == NULL) {
+++        Object *excep = exceptionOccurred();
+++        char *dot_name = slash2DotsDup((char*)name);
+++
+++        clearException();
+++        signalChainedException(java_lang_ClassNotFoundException,
+++                               dot_name, excep);
+++        sysFree(dot_name);
+++    } else if(init)
+++        initClass(class);
+++
+++    return class;
+++}
+++
+++
++ /* JVM_FindClassFromClassLoader */
++ 
++ jclass JVM_FindClassFromClassLoader(JNIEnv *env, const char *name,
++@@ -2965,6 +3007,24 @@ void JVM_GetVersionInfo(JNIEnv *env, jvm_version_info *info, size_t info_size) {
++ }
++ 
++ 
+++/* JVM_GetTemporaryDirectory
+++ * Return the temporary directory that the VM uses for the attach
+++ * and perf data files.
+++ *
+++ * It is important that this directory is well-known and the
+++ * same for all VM instances. It cannot be affected by configuration
+++ * variables such as java.io.tmpdir.
+++ *
+++ * JamVM do not support the jvmstat framework thus this is left unimplemented.
+++ */
+++
+++jstring JVM_GetTemporaryDirectory(JNIEnv *env) {
+++    UNIMPLEMENTED("JVM_GetTemporaryDirectory");
+++
+++    return 0;
+++}
+++
+++
++ /* JVM_RegisterSignal */
++ 
++ extern void signalHandler(int sig);

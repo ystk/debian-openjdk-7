@@ -1,0 +1,38 @@
+Index: openjdk/hotspot/agent/src/os/linux/Makefile
+===================================================================
+--- openjdk/hotspot/agent/src/os/linux/Makefile
++++ openjdk/hotspot/agent/src/os/linux/Makefile
+@@ -75,7 +75,7 @@ LFLAGS_LIBSA += $(LDFLAGS_HASH_STYLE)
+ 
+ $(LIBSA): $(OBJS) mapfile
+ 	if [ ! -d $(ARCH) ] ; then mkdir $(ARCH) ; fi
+-	$(GCC) -shared $(LFLAGS_LIBSA) -o $(LIBSA) $(OBJS) $(LIBS)
++	$(GCC) -shared -Wl,-Bsymbolic-functions $(LFLAGS_LIBSA) -o $(LIBSA) $(OBJS) $(LIBS)
+ 
+ test.o: test.c
+ 	$(GCC) -c -o test.o -g -D_GNU_SOURCE -D_$(ARCH)_ $(if $(filter $(ARCH),alpha),,-D$(ARCH)) $(INCLUDES) test.c
+Index: openjdk/hotspot/make/linux/makefiles/gcc.make
+===================================================================
+--- openjdk/hotspot/make/linux/makefiles/gcc.make
++++ openjdk/hotspot/make/linux/makefiles/gcc.make
+@@ -217,6 +217,7 @@ endif
+ 
+ # Enable linker optimization
+ LFLAGS += -Xlinker -O1
++LFLAGS += -Wl,-Bsymbolic-functions
+ 
+ # If this is a --hash-style=gnu system, use --hash-style=both
+ #   The gnu .hash section won't work on some Linux systems like SuSE 10.
+Index: openjdk/jdk/make/common/Defs-linux.gmk
+===================================================================
+--- openjdk/jdk/make/common/Defs-linux.gmk
++++ openjdk/jdk/make/common/Defs-linux.gmk
+@@ -384,7 +384,7 @@ endif
+ 
+ EXTRA_LIBS += -lc
+ 
+-LDFLAGS_DEFS_OPTION  = -Xlinker -z -Xlinker defs
++LDFLAGS_DEFS_OPTION  = -Xlinker -z -Xlinker defs -Wl,-Bsymbolic-functions
+ LDFLAGS_COMMON  += $(LDFLAGS_DEFS_OPTION)
+ 
+ #

@@ -1,0 +1,17 @@
+Description: Hotspot not supported anymore on SPARC, default to zero
+Author: Matthias Klose <doko@ubuntu.com>
+Forwarded: no
+Last-Update: 2014-07-06
+
+Index: b/acinclude.m4
+===================================================================
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -2803,7 +2803,6 @@ AC_DEFUN_ONCE([IT_HAS_NATIVE_HOTSPOT_POR
+     aarch64) ;;
+     arm64) ;;
+     i?86) ;;
+-    sparc) ;;
+     x86_64) ;;
+     powerpc64) ;;
+     powerpc64le) ;;

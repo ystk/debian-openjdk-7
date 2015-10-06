@@ -1,0 +1,17 @@
+Index: openjdk/jdk/src/share/classes/java/awt/Toolkit.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/awt/Toolkit.java
++++ openjdk/jdk/src/share/classes/java/awt/Toolkit.java
+@@ -891,7 +891,11 @@ public abstract class Toolkit {
+                         return null;
+                     }
+                 });
+-                loadAssistiveTechnologies();
++                try {
++                    loadAssistiveTechnologies();
++                } catch ( AWTError error) {
++                    // ignore silently
++                }
+             } finally {
+                 // Make sure to always re-enable the JIT.
+                 java.lang.Compiler.enable();
