@@ -3,17 +3,17 @@
 tarballs="corba.tar.bz2 hotspot.tar.bz2 jaxp.tar.bz2 jaxws.tar.bz2 jdk.tar.bz2 langtools.tar.bz2 openjdk.tar.bz2"
 # AArch64 hotspot
 aarch64_hsname=hotspot-aarch64
-tarballs="$tarballs $aarch64_hsname.tar.bz2"
+#tarballs="$tarballs $aarch64_hsname.tar.bz2"
 tarballs="$tarballs icedtea-sound.tar.gz"
 jamvmtb=jamvm-2.0.0.tar.gz
-cacaotb=cacao-e215e36be9fc.tar.gz
-tarballdir=7u79-2
-version=7u79-2.5.6
+cacaotb=cacao-c182f119eaad.tar.gz
+tarballdir=7u85
+version=7u85-2.6.1
 base=openjdk-7
 pkgdir=$base-$version
 origtar=${base}_${version}.orig.tar.gz
 
-icedtea_checkout=icedtea-2.5.6
+icedtea_checkout=icedtea-2.6.1
 debian_checkout=openjdk7
 
 if [ -d $pkgdir ]; then

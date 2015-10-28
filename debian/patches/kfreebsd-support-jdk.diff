@@ -25,7 +25,7 @@ Forwarded: no
 
 --- openjdk/jdk/src/solaris/bin/ergo_i586.c.orig
 +++ openjdk/jdk/src/solaris/bin/ergo_i586.c
-@@ -106,7 +106,7 @@
+@@ -106,7 +106,7 @@ ServerClassMachineImpl(void) {
  
  #endif /* __solaris__ */
  
@@ -45,7 +45,7 @@ Forwarded: no
  #  include <sys/types.h>
  #  include <sys/stat.h>
  #  include <fcntl.h>
-@@ -89,7 +89,7 @@
+@@ -89,7 +89,7 @@ static const int BAD_MAGIC  = ENOEXEC;
  static const char * BAD_EXEC_MSG     = "jexec failed";
  static const char * CRAZY_EXEC_MSG   = "missing args";
  static const char * MISSING_JAVA_MSG = "can't locate java";
@@ -54,7 +54,7 @@ Forwarded: no
  static const char * BAD_PATHNAME_MSG = "invalid path";
  static const char * BAD_FILE_MSG     = "invalid file";
  static const char * BAD_MAGIC_MSG    = "invalid file (bad magic number)";
-@@ -98,7 +98,7 @@
+@@ -98,7 +98,7 @@ static const char * UNKNOWN_ERROR    = "
  
  /* Define a constant that represents the number of directories to pop off the
   * current location to find the java binary */
@@ -63,7 +63,7 @@ Forwarded: no
  static const int RELATIVE_DEPTH = 2;
  #else /* Solaris */
  static const int RELATIVE_DEPTH = 3;
-@@ -111,7 +111,7 @@
+@@ -111,7 +111,7 @@ static const char * BIN_PATH = "/bin/jav
  static const char * JAR_FLAG = "-jar";
  
  
@@ -72,7 +72,7 @@ Forwarded: no
  /* largest possible size for a local file header */
  static const size_t CHUNK_SIZE = 65535;
  
-@@ -123,7 +123,7 @@
+@@ -123,7 +123,7 @@ static const ssize_t MIN_SIZE = LOCHDR +
  int main(int argc, const char * argv[]);
  void errorExit(int error, const char * message);
  int getJavaPath(const char * path, char * buf, int depth);
@@ -81,7 +81,7 @@ Forwarded: no
  const char * isJar(const char * path);
  #endif
  
-@@ -172,7 +172,7 @@
+@@ -172,7 +172,7 @@ int main(int argc, const char * argv[])
      nargv = (const char **) malloc((argc + 2) * (sizeof (const char *)));
      nargv[nargc++] = java;
  
@@ -90,7 +90,7 @@ Forwarded: no
      /* The "-jar" flag is already in the original args list on Solaris,
       * so it only needs to be added on Linux. */
      nargv[nargc++] = JAR_FLAG;
-@@ -182,7 +182,7 @@
+@@ -182,7 +182,7 @@ int main(int argc, const char * argv[])
          const char * jarfile = argv[argi++];
          const char * message = NULL;
  
@@ -99,7 +99,7 @@ Forwarded: no
          /* On Linux we also need to make sure argv[1] is really a JAR
           * file (this will also resolve any symlinks, which helps). */
          char jarPath[PATH_MAX + 1];
-@@ -291,7 +291,7 @@
+@@ -291,7 +291,7 @@ int getJavaPath(const char * path, char
  }
  
  
@@ -110,7 +110,7 @@ Forwarded: no
   *
 --- openjdk/jdk/src/solaris/native/com/sun/management/UnixOperatingSystem_md.c.orig
 +++ openjdk/jdk/src/solaris/native/com/sun/management/UnixOperatingSystem_md.c
-@@ -216,7 +216,7 @@
+@@ -216,7 +216,7 @@ Java_com_sun_management_UnixOperatingSys
  
      JVM_Close(fd);
      return (jlong) psinfo.pr_size * 1024;
@@ -161,7 +161,7 @@ Forwarded: no
  #include <sys/types.h>
  #include <sys/socket.h>
  #include <sys/uio.h>
-@@ -213,6 +213,31 @@
+@@ -216,6 +216,31 @@ Java_sun_nio_ch_FileChannelImpl_transfer
  
      if (numBytes > 0)
          return numBytes;
@@ -193,58 +193,9 @@ Forwarded: no
  
      if (result == -1) {
          if (errno == EAGAIN)
---- openjdk/jdk/src/solaris/native/sun/nio/ch/Sctp.h.orig
-+++ openjdk/jdk/src/solaris/native/sun/nio/ch/Sctp.h
-@@ -319,8 +319,36 @@
- typedef int sctp_bindx_func(int sd, struct sockaddr *addrs, int addrcnt, int flags);
- typedef int sctp_peeloff_func(int sock, sctp_assoc_t id);
- 
-+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
- 
--#endif /* __linux__ */
-+#include <stdint.h>
-+#include <sys/types.h>
-+#include <sys/socket.h>
-+#include <bsd/sys/cdefs.h>
-+#include <netinet/sctp.h>
-+#include <netinet/sctp_peeloff.h>
-+#include <netinet/sctp_uio.h>
-+#include "jni.h"
-+
-+#define nio_sctp_getladdrs sctp_getladdrs
-+#define nio_sctp_freeladdrs sctp_freeladdrs
-+#define nio_sctp_getpaddrs sctp_getpaddrs
-+#define nio_sctp_freepaddrs sctp_freepaddrs
-+#define nio_sctp_bindx  sctp_bindx
-+#define nio_sctp_peeloff sctp_peeloff
-+
-+#endif /* __FreeBSD_kernel__ || __FreeBSD_kernel__ */
-+
-+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-+
-+#define nio_sctp_getladdrs sctp_getladdrs
-+#define nio_sctp_freeladdrs sctp_freeladdrs
-+#define nio_sctp_getpaddrs sctp_getpaddrs
-+#define nio_sctp_freepaddrs sctp_freepaddrs
-+#define nio_sctp_bindx  sctp_bindx
-+#define nio_sctp_peeloff sctp_peeloff
-+
-+#else
- 
- sctp_getladdrs_func* nio_sctp_getladdrs;
- sctp_freeladdrs_func* nio_sctp_freeladdrs;
-@@ -329,6 +357,8 @@
- sctp_bindx_func* nio_sctp_bindx;
- sctp_peeloff_func* nio_sctp_peeloff;
- 
-+#endif
-+
- jboolean loadSocketExtensionFuncs(JNIEnv* env);
- 
- #endif /* !SUN_NIO_CH_SCTP_H */
 --- openjdk/jdk/src/solaris/native/sun/nio/ch/SctpChannelImpl.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/nio/ch/SctpChannelImpl.c
-@@ -440,7 +440,7 @@
+@@ -440,7 +440,7 @@ JNIEXPORT jint JNICALL Java_sun_nio_ch_S
              } else if (errno == EINTR) {
                  return IOS_INTERRUPTED;
  
@@ -264,7 +215,7 @@ Forwarded: no
  #include <netinet/in.h>
  #endif
  
-@@ -81,7 +81,7 @@
+@@ -81,7 +81,7 @@ Java_sun_nio_ch_DatagramChannelImpl_disc
      rv = connect(fd, 0, 0);
  #endif
  
@@ -275,7 +226,7 @@ Forwarded: no
          SOCKADDR sa;
 --- openjdk/jdk/src/solaris/native/sun/nio/ch/Net.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/nio/ch/Net.c
-@@ -251,7 +251,7 @@
+@@ -251,7 +251,7 @@ Java_sun_nio_ch_Net_socket0(JNIEnv *env,
              return -1;
          }
      }
@@ -295,7 +246,7 @@ Forwarded: no
  #include <pthread.h>
  #include <sys/signal.h>
  
-@@ -51,7 +51,7 @@
+@@ -51,7 +51,7 @@ nullHandler(int sig)
  JNIEXPORT void JNICALL
  Java_sun_nio_ch_NativeThread_init(JNIEnv *env, jclass cl)
  {
@@ -304,7 +255,7 @@ Forwarded: no
  
      /* Install the null handler for INTERRUPT_SIGNAL.  This might overwrite the
       * handler previously installed by java/net/linux_close.c, but that's okay
-@@ -74,7 +74,7 @@
+@@ -74,7 +74,7 @@ Java_sun_nio_ch_NativeThread_init(JNIEnv
  JNIEXPORT jlong JNICALL
  Java_sun_nio_ch_NativeThread_current(JNIEnv *env, jclass cl)
  {
@@ -313,7 +264,7 @@ Forwarded: no
      return (long)pthread_self();
  #else
      return -1;
-@@ -84,7 +84,7 @@
+@@ -84,7 +84,7 @@ Java_sun_nio_ch_NativeThread_current(JNI
  JNIEXPORT void JNICALL
  Java_sun_nio_ch_NativeThread_signal(JNIEnv *env, jclass cl, jlong thread)
  {
@@ -344,27 +295,9 @@ Forwarded: no
  #include <netinet/in.h>
  #endif
  
---- openjdk/jdk/src/solaris/native/sun/nio/ch/SctpNet.c.orig
-+++ openjdk/jdk/src/solaris/native/sun/nio/ch/SctpNet.c
-@@ -58,6 +58,7 @@
-  */
- jboolean loadSocketExtensionFuncs
-   (JNIEnv* env) {
-+#if !defined(__FreeBSD__) && !defined(__FreeBSD_kernel__)
-     if (dlopen(nativeSctpLib, RTLD_GLOBAL | RTLD_LAZY) == NULL) {
-         JNU_ThrowByName(env, "java/lang/UnsupportedOperationException",
-               dlerror());
-@@ -105,6 +106,7 @@
-               dlerror());
-         return JNI_FALSE;
-     }
-+#endif /* __FreeBSD__ */
- 
-     funcsLoaded = JNI_TRUE;
-     return JNI_TRUE;
 --- openjdk/jdk/src/solaris/native/sun/awt/awt_util.h.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/awt_util.h
-@@ -198,7 +198,7 @@
+@@ -200,7 +200,7 @@ Widget awt_util_getXICStatusAreaWindow(W
  
  
  
@@ -375,7 +308,7 @@ Forwarded: no
    Cardinal      max_refs;       /* Maximum length of refs array. */
 --- openjdk/jdk/src/solaris/native/sun/awt/awt_util.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/awt_util.c
-@@ -603,7 +603,7 @@
+@@ -603,7 +603,7 @@ awt_WidgetAtXY(Widget root, Position poi
  
    return answer;
  }
@@ -384,7 +317,7 @@ Forwarded: no
  
  
  #define MAXARGS 10
-@@ -674,7 +674,7 @@
+@@ -674,7 +674,7 @@ awt_util_getXICStatusAreaWindow(Widget w
      return w;
  }
  
@@ -395,7 +328,7 @@ Forwarded: no
  {
 --- openjdk/jdk/src/solaris/native/sun/awt/multi_font.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/multi_font.c
-@@ -348,7 +348,7 @@
+@@ -348,7 +348,7 @@ awtJNI_IsMultiFontMetrics(JNIEnv * env,
      return JNI_TRUE;
  }
  #ifndef XAWT
@@ -404,7 +337,7 @@ Forwarded: no
  XmString
  unicodeXmStringCreate(char* text, char* tag, int len) {
      XmString ret_val;
-@@ -433,7 +433,7 @@
+@@ -433,7 +433,7 @@ awtJNI_MakeMultiFontString(JNIEnv * env,
              char *offsetStringData;
  
              offsetStringData = stringData + (4 * sizeof(char));
@@ -415,7 +348,7 @@ Forwarded: no
                 string" and its implementation uses "strlen()" to calculate the length
 --- openjdk/jdk/src/solaris/native/sun/awt/extutil.h.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/extutil.h
-@@ -58,7 +58,7 @@
+@@ -58,7 +58,7 @@ in this Software without prior written a
   */
  /* $XFree86: xc/include/extensions/extutil.h,v 1.5 2001/01/17 17:53:20 dawes Exp $ */
  
@@ -437,7 +370,7 @@ Forwarded: no
  #endif /* __linux__ */
 --- openjdk/jdk/src/solaris/native/sun/awt/awt_GraphicsEnv.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/awt_GraphicsEnv.c
-@@ -123,7 +123,8 @@
+@@ -123,7 +123,8 @@ static char *x11GraphicsConfigClassName
   */
  
  #define MAXFRAMEBUFFERS 16
@@ -447,7 +380,7 @@ Forwarded: no
  typedef struct {
     int   screen_number;
     short x_org;
-@@ -439,7 +440,7 @@
+@@ -439,7 +440,7 @@ getAllConfigs (JNIEnv *env, int screen,
                                        RTLD_LAZY | RTLD_GLOBAL);
          }
  
@@ -456,7 +389,7 @@ Forwarded: no
          if (xrenderLibHandle == NULL) {
              xrenderLibHandle = dlopen("/usr/sfw/lib/libXrender.so.1",
                                        RTLD_LAZY | RTLD_GLOBAL);
-@@ -652,7 +653,8 @@
+@@ -652,7 +653,8 @@ void checkNewXineramaScreen(JNIEnv* env,
  #endif /* HEADLESS */
  
  #ifndef HEADLESS
@@ -466,7 +399,7 @@ Forwarded: no
  static void xinerama_init_linux()
  {
      void* libHandle = NULL;
-@@ -703,7 +705,7 @@
+@@ -703,7 +705,7 @@ static void xinerama_init_linux()
      }
  }
  #endif
@@ -475,7 +408,7 @@ Forwarded: no
  static void xinerama_init_solaris()
  {
      void* libHandle = NULL;
-@@ -763,11 +765,11 @@
+@@ -763,11 +765,11 @@ static void xineramaInit(void) {
      }
  
      DTRACE_PRINTLN("Xinerama extension is available");
@@ -489,7 +422,7 @@ Forwarded: no
  }
  #endif /* HEADLESS */
  
-@@ -1644,7 +1646,7 @@
+@@ -1644,7 +1646,7 @@ Java_sun_awt_X11GraphicsEnvironment_getX
  {
      jobject point = NULL;
  #ifndef HEADLESS    /* return NULL in HEADLESS, Linux */
@@ -500,7 +433,7 @@ Forwarded: no
      AWT_LOCK();
 --- openjdk/jdk/src/solaris/native/sun/awt/awt_Font.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/awt_Font.c
-@@ -334,7 +334,7 @@
+@@ -334,7 +334,7 @@ loadFont(Display * display, char *name,
              if (strcmp(style, "regular") == 0) {
                  altstyle = "roman";
              }
@@ -511,7 +444,7 @@ Forwarded: no
              }
 --- openjdk/jdk/src/solaris/native/sun/awt/awt_InputMethod.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/awt/awt_InputMethod.c
-@@ -67,7 +67,7 @@
+@@ -67,7 +67,7 @@ static void PreeditDrawCallback(XIC, XPo
                                  XIMPreeditDrawCallbackStruct *);
  static void PreeditCaretCallback(XIC, XPointer,
                                   XIMPreeditCaretCallbackStruct *);
@@ -520,7 +453,7 @@ Forwarded: no
  static void StatusStartCallback(XIC, XPointer, XPointer);
  static void StatusDoneCallback(XIC, XPointer, XPointer);
  static void StatusDrawCallback(XIC, XPointer,
-@@ -81,7 +81,7 @@
+@@ -81,7 +81,7 @@ static void StatusDrawCallback(XIC, XPoi
  #define PreeditDoneIndex        1
  #define PreeditDrawIndex        2
  #define PreeditCaretIndex       3
@@ -529,7 +462,7 @@ Forwarded: no
  #define StatusStartIndex        4
  #define StatusDoneIndex         5
  #define StatusDrawIndex         6
-@@ -99,14 +99,14 @@
+@@ -99,14 +99,14 @@ static XIMProc callback_funcs[NCALLBACKS
      (XIMProc)PreeditDoneCallback,
      (XIMProc)PreeditDrawCallback,
      (XIMProc)PreeditCaretCallback,
@@ -546,7 +479,7 @@ Forwarded: no
  #define MAX_STATUS_LEN  100
  typedef struct {
      Window   w;                /*status window id        */
-@@ -146,7 +146,7 @@
+@@ -146,7 +146,7 @@ typedef struct _X11InputMethodData {
  #endif /* XAWT */
      jobject     x11inputmethod; /* global ref to X11InputMethod instance */
                                  /* associated with the XIC */
@@ -555,7 +488,7 @@ Forwarded: no
      StatusWindow *statusWindow; /* our own status window  */
  #else
  #ifndef XAWT
-@@ -425,7 +425,7 @@
+@@ -425,7 +425,7 @@ destroyX11InputMethodData(JNIEnv *env, X
  static void
  freeX11InputMethodData(JNIEnv *env, X11InputMethodData *pX11IMData)
  {
@@ -564,7 +497,7 @@ Forwarded: no
      if (pX11IMData->statusWindow != NULL){
          StatusWindow *sw = pX11IMData->statusWindow;
          XFreeGC(awt_display, sw->lightGC);
-@@ -531,7 +531,7 @@
+@@ -531,7 +531,7 @@ awt_x11inputmethod_lookupString(XKeyPres
      pX11IMData = getX11InputMethodData(env, currentX11InputMethodInstance);
  
      if (pX11IMData == NULL) {
@@ -573,7 +506,7 @@ Forwarded: no
          return False;
  #else
          return result;
-@@ -539,7 +539,7 @@
+@@ -539,7 +539,7 @@ awt_x11inputmethod_lookupString(XKeyPres
      }
  
      if ((ic = pX11IMData->current_ic) == (XIC)0){
@@ -582,7 +515,7 @@ Forwarded: no
          return False;
  #else
          return result;
-@@ -648,7 +648,7 @@
+@@ -648,7 +648,7 @@ awt_x11inputmethod_lookupString(XKeyPres
      return result;
  }
  
@@ -591,7 +524,7 @@ Forwarded: no
  static StatusWindow *createStatusWindow(
  #ifdef XAWT
                                  Window parent) {
-@@ -993,7 +993,7 @@
+@@ -993,7 +993,7 @@ void adjustStatusWindow(Widget shell){
          }
      }
  }
@@ -600,7 +533,7 @@ Forwarded: no
  /*
   * Creates two XICs, one for active clients and the other for passive
   * clients. All information on those XICs are stored in the
-@@ -1050,7 +1050,7 @@
+@@ -1050,7 +1050,7 @@ createXIC(Widget w, X11InputMethodData *
          return FALSE ;
      }
  
@@ -609,7 +542,7 @@ Forwarded: no
      on_the_spot_styles |= XIMStatusNothing;
  
      /*kinput does not support XIMPreeditCallbacks and XIMStatusArea
-@@ -1063,7 +1063,7 @@
+@@ -1063,7 +1063,7 @@ createXIC(Widget w, X11InputMethodData *
              break;
          }
      }
@@ -618,7 +551,7 @@ Forwarded: no
  #ifdef XAWT
      on_the_spot_styles |= XIMStatusNothing;
  #else /* !XAWT */
-@@ -1086,7 +1086,7 @@
+@@ -1086,7 +1086,7 @@ createXIC(Widget w, X11InputMethodData *
          on_the_spot_styles |= XIMStatusNothing;
  
  #endif /* XAWT */
@@ -627,7 +560,7 @@ Forwarded: no
  
      for (i = 0; i < im_styles->count_styles; i++) {
          active_styles |= im_styles->supported_styles[i] & on_the_spot_styles;
-@@ -1134,7 +1134,7 @@
+@@ -1134,7 +1134,7 @@ createXIC(Widget w, X11InputMethodData *
                          NULL);
          if (preedit == (XVaNestedList)NULL)
              goto err;
@@ -636,7 +569,7 @@ Forwarded: no
          /*always try XIMStatusCallbacks for active client...*/
          {
              status = (XVaNestedList)XVaCreateNestedList(0,
-@@ -1156,7 +1156,7 @@
+@@ -1156,7 +1156,7 @@ createXIC(Widget w, X11InputMethodData *
              XFree((void *)status);
              XFree((void *)preedit);
          }
@@ -645,7 +578,7 @@ Forwarded: no
  #ifndef XAWT
          if (on_the_spot_styles & XIMStatusArea) {
              Widget parent;
-@@ -1184,7 +1184,7 @@
+@@ -1184,7 +1184,7 @@ createXIC(Widget w, X11InputMethodData *
          }
  #endif /* XAWT */
          XFree((void *)preedit);
@@ -654,7 +587,7 @@ Forwarded: no
          pX11IMData->ic_passive = XCreateIC(X11im,
                                             XNClientWindow, w,
                                             XNFocusWindow, w,
-@@ -1343,7 +1343,7 @@
+@@ -1343,7 +1343,7 @@ PreeditCaretCallback(XIC ic, XPointer cl
  
  }
  
@@ -663,7 +596,7 @@ Forwarded: no
  static void
  StatusStartCallback(XIC ic, XPointer client_data, XPointer call_data)
  {
-@@ -1411,7 +1411,7 @@
+@@ -1411,7 +1411,7 @@ StatusDrawCallback(XIC ic, XPointer clie
   finally:
      AWT_UNLOCK();
  }
@@ -672,7 +605,7 @@ Forwarded: no
  
  static void CommitStringCallback(XIC ic, XPointer client_data, XPointer call_data) {
      JNIEnv *env = GetJNIEnv();
-@@ -1517,14 +1517,14 @@
+@@ -1517,14 +1517,14 @@ Java_sun_awt_motif_MInputMethod_openXIMN
  /* Use IMInstantiate call back only on Linux, as there is a bug in Solaris
     (4768335)
  */
@@ -689,7 +622,7 @@ Forwarded: no
      }
  #endif
  
-@@ -1588,13 +1588,13 @@
+@@ -1588,13 +1588,13 @@ Java_sun_awt_motif_MInputMethod_createXI
  #endif /* XAWT */
      globalRef = (*env)->NewGlobalRef(env, this);
      pX11IMData->x11inputmethod = globalRef;
@@ -706,7 +639,7 @@ Forwarded: no
  
      pX11IMData->lookup_buf = 0;
      pX11IMData->lookup_buf_len = 0;
-@@ -1741,14 +1741,14 @@
+@@ -1741,14 +1741,14 @@ Java_sun_awt_X11_XInputMethod_setXICFocu
          setXICFocus(pX11IMData->current_ic, req);
          currentX11InputMethodInstance = pX11IMData->x11inputmethod;
          currentFocusWindow =  w;
@@ -723,7 +656,7 @@ Forwarded: no
          onoffStatusWindow(pX11IMData, 0, False);
          if (pX11IMData->current_ic != NULL)
  #endif
-@@ -1765,7 +1765,7 @@
+@@ -1765,7 +1765,7 @@ JNIEXPORT void JNICALL
  Java_sun_awt_X11InputMethod_turnoffStatusWindow(JNIEnv *env,
                                                  jobject this)
  {
@@ -732,7 +665,7 @@ Forwarded: no
      X11InputMethodData *pX11IMData;
      StatusWindow *statusWindow;
  
-@@ -1862,7 +1862,7 @@
+@@ -1862,7 +1862,7 @@ Java_sun_awt_motif_MInputMethod_configur
      X11InputMethodData *pX11IMData;
      XVaNestedList status;
  
@@ -741,7 +674,7 @@ Forwarded: no
        /*do nothing for linux? */
  #else
      AWT_LOCK();
-@@ -1968,7 +1968,7 @@
+@@ -1968,7 +1968,7 @@ JNIEXPORT jboolean JNICALL Java_sun_awt_
  JNIEXPORT void JNICALL Java_sun_awt_X11_XInputMethod_adjustStatusWindow
    (JNIEnv *env, jobject this, jlong window)
  {
@@ -761,7 +694,7 @@ Forwarded: no
  extern void statusWindowEventHandler(XEvent event);
  Boolean awt_dnd_process_event(XEvent* event);
  #endif
-@@ -1643,7 +1643,7 @@
+@@ -1643,7 +1643,7 @@ processOneEvent(XtInputMask iMask) {
                */
                Widget widget=XtWindowToWidget(awt_display, xev.xany.window);
                eventNumber++;
@@ -781,7 +714,7 @@ Forwarded: no
  #include <execinfo.h>
  #endif
  #include <stdio.h>
-@@ -835,7 +835,7 @@
+@@ -842,7 +842,7 @@ Java_sun_awt_motif_GrabbedKey_initKeySym
      AWT_UNLOCK();
  }
  
@@ -810,7 +743,7 @@ Forwarded: no
  #define MAP_FAILED ((caddr_t)-1)
  #endif
  
-@@ -132,9 +132,9 @@
+@@ -132,9 +132,9 @@ static char *full_MACOSX_X11FontPath[] =
      PACKAGE_PATH "/share/fonts/Type1",
      NULL, /* terminates the list */
  };
@@ -822,7 +755,7 @@ Forwarded: no
   */
  static char *fullLinuxFontPath[] = {
      "/usr/X11R6/lib/X11/fonts/TrueType",  /* RH 7.1+ */
-@@ -396,7 +396,7 @@
+@@ -396,7 +396,7 @@ static char **getX11FontPath ()
  
  #endif /* !HEADLESS */
  
@@ -831,7 +764,7 @@ Forwarded: no
  /* from awt_LoadLibrary.c */
  JNIEXPORT jboolean JNICALL AWTIsHeadless();
  #endif
-@@ -521,7 +521,7 @@
+@@ -521,7 +521,7 @@ static char *getPlatformFontPathChars(JN
       */
      fcdirs = getFontConfigLocations();
  
@@ -840,7 +773,7 @@ Forwarded: no
      knowndirs = fullLinuxFontPath;
  #elif defined(MACOSX)
      knowndirs = full_MACOSX_X11FontPath;
-@@ -537,7 +537,7 @@
+@@ -537,7 +537,7 @@ static char *getPlatformFontPathChars(JN
       * be initialised.
       */
  #ifndef HEADLESS
@@ -849,7 +782,7 @@ Forwarded: no
      /* There's no headless build on linux ... */
      if (!AWTIsHeadless()) { /* .. so need to call a function to check */
  #endif
-@@ -553,7 +553,7 @@
+@@ -553,7 +553,7 @@ static char *getPlatformFontPathChars(JN
          x11dirs = getX11FontPath();
      }
      AWT_UNLOCK();
@@ -883,7 +816,7 @@ Forwarded: no
  
 --- openjdk/jdk/src/solaris/native/sun/java2d/loops/vis_FuncArray.c.orig
 +++ openjdk/jdk/src/solaris/native/sun/java2d/loops/vis_FuncArray.c
-@@ -804,7 +804,7 @@
+@@ -804,7 +804,7 @@ static AnyFunc* hash_table_vis[HASH_SIZE
  static int initialized;
  static int usevis = JNI_TRUE;
  
@@ -925,7 +858,7 @@ Forwarded: no
  #include <execinfo.h>
  #endif
  
-@@ -785,7 +785,7 @@
+@@ -785,7 +785,7 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X
      return ret;
  }
  
@@ -936,7 +869,7 @@ Forwarded: no
    void *array[10];
 --- openjdk/jdk/src/solaris/native/java/nio/MappedByteBuffer.c.orig
 +++ openjdk/jdk/src/solaris/native/java/nio/MappedByteBuffer.c
-@@ -40,7 +40,7 @@
+@@ -40,7 +40,7 @@ Java_java_nio_MappedByteBuffer_isLoaded0
      int result = 0;
      int i = 0;
      void *a = (void *) jlong_to_ptr(address);
@@ -956,7 +889,7 @@ Forwarded: no
  
  
  static const char *ETC_TIMEZONE_FILE = "/etc/timezone";
-@@ -125,7 +125,7 @@
+@@ -124,7 +124,7 @@ findZoneinfoFile(char *buf, size_t size,
          return NULL;
      }
  
@@ -965,7 +898,7 @@ Forwarded: no
      && (defined(_POSIX_PTHREAD_SEMANTICS) || defined(_LP64)))
      while (readdir_r(dirp, entry, &dp) == 0 && dp != NULL) {
  #else
-@@ -214,7 +214,7 @@
+@@ -212,7 +212,7 @@ findZoneinfoFile(char *buf, size_t size,
      return tz;
  }
  
@@ -974,7 +907,7 @@ Forwarded: no
  
  /*
   * Performs Linux specific mapping and returns a zone ID
-@@ -230,7 +230,7 @@
+@@ -228,7 +228,7 @@ getPlatformTimeZoneID()
      char *buf;
      size_t size;
  
@@ -983,7 +916,7 @@ Forwarded: no
      /*
       * Try reading the /etc/timezone file for Debian distros. There's
       * no spec of the file format available. This parsing assumes that
-@@ -705,7 +705,7 @@
+@@ -698,7 +698,7 @@ findJavaTZ_md(const char *java_home_dir,
  
      tz = getenv("TZ");
  
@@ -992,7 +925,7 @@ Forwarded: no
      if (tz == NULL) {
  #else
  #if defined (__solaris__) || defined(AIX)
-@@ -731,7 +731,7 @@
+@@ -724,7 +724,7 @@ findJavaTZ_md(const char *java_home_dir,
  #endif
  
      if (tz != NULL) {
@@ -1003,7 +936,7 @@ Forwarded: no
           */
 --- openjdk/jdk/src/solaris/native/java/io/io_util_md.c.orig
 +++ openjdk/jdk/src/solaris/native/java/io/io_util_md.c
-@@ -68,7 +68,7 @@
+@@ -68,7 +68,7 @@ fileOpen(JNIEnv *env, jobject this, jstr
      WITH_PLATFORM_STRING(env, path, ps) {
          FD fd;
  
@@ -1040,7 +973,7 @@ Forwarded: no
      "bokmal", "nb_NO",
      "bokm\xE5l", "nb_NO",
      "catalan", "ca_ES",
-@@ -146,13 +146,13 @@
+@@ -146,13 +146,13 @@ static char *language_names[] = {
      "POSIX", "en",
      "cz", "cs",
      "he", "iw",
@@ -1056,7 +989,7 @@ Forwarded: no
      "ua", "en", // used on Linux, not clear what it stands for
      "catalan", "ca",
      "croatian", "hr",
-@@ -195,7 +195,7 @@
+@@ -195,7 +195,7 @@ static char *language_names[] = {
   * Linux/Solaris script string to Java script name mapping table.
   */
  static char *script_names[] = {
@@ -1065,7 +998,7 @@ Forwarded: no
      "cyrillic", "Cyrl",
      "devanagari", "Deva",
      "iqtelif", "Latn",
-@@ -208,7 +208,7 @@
+@@ -208,7 +208,7 @@ static char *script_names[] = {
   * Linux/Solaris country string to ISO3166 string mapping table.
   */
  static char *country_names[] = {
@@ -1076,7 +1009,7 @@ Forwarded: no
      "YU", "CS", // YU has been removed from ISO 3166
 --- openjdk/jdk/src/solaris/native/java/lang/UNIXProcess_md.c.orig
 +++ openjdk/jdk/src/solaris/native/java/lang/UNIXProcess_md.c
-@@ -400,7 +400,7 @@
+@@ -400,7 +400,7 @@ __attribute_noinline__
  #ifdef START_CHILD_USE_CLONE
  static pid_t
  cloneChild(ChildStuff *c) {
@@ -1105,7 +1038,7 @@ Forwarded: no
    #ifndef CODESET
    #define CODESET _NL_CTYPE_CODESET_NAME
    #endif
-@@ -151,7 +151,7 @@
+@@ -151,7 +151,7 @@ static int ParseLocale(int cat, char **
      lc = setlocale(cat, NULL);
  #endif
  
@@ -1114,7 +1047,7 @@ Forwarded: no
      if (lc == NULL) {
          return 0;
      }
-@@ -293,7 +293,7 @@
+@@ -293,7 +293,7 @@ static int ParseLocale(int cat, char **
           * in order to use optimizations. */
          *std_encoding = (*p != '\0') ? p : "ISO8859-1";
  
@@ -1123,7 +1056,7 @@ Forwarded: no
          /*
           * Remap the encoding string to a different value for japanese
           * locales on linux so that customized converters are used instead
-@@ -536,7 +536,7 @@
+@@ -536,7 +536,7 @@ GetJavaProperties(JNIEnv *env)
       sprops.unicode_encoding = "UnicodeBig";
   #endif
  #else /* !_ALLBSD_SOURCE */
@@ -1143,7 +1076,7 @@ Forwarded: no
  #include <unistd.h>
  #include <sys/utsname.h>
  #include <netinet/ip.h>
-@@ -335,7 +335,7 @@
+@@ -335,7 +335,7 @@ Java_java_net_PlainDatagramSocketImpl_di
      /* The fdObj'fd */
      jint fd;
  
@@ -1152,7 +1085,7 @@ Forwarded: no
      SOCKADDR addr;
      int len;
  #endif
-@@ -345,7 +345,7 @@
+@@ -345,7 +345,7 @@ Java_java_net_PlainDatagramSocketImpl_di
      }
      fd = (*env)->GetIntField(env, fdObj, IO_fd_fdID);
  
@@ -1161,7 +1094,7 @@ Forwarded: no
  #ifdef __linux__
      if (isOldKernel) {
          int t = 1;
-@@ -356,14 +356,21 @@
+@@ -356,14 +356,21 @@ Java_java_net_PlainDatagramSocketImpl_di
  #ifdef AF_INET6
          if (ipv6_available()) {
              struct sockaddr_in6 *him6 = (struct sockaddr_in6 *)&addr;
@@ -1185,7 +1118,7 @@ Forwarded: no
  
 --- openjdk/jdk/src/solaris/native/java/net/Inet6AddressImpl.c.orig
 +++ openjdk/jdk/src/solaris/native/java/net/Inet6AddressImpl.c
-@@ -73,7 +73,7 @@
+@@ -75,7 +75,7 @@ Java_java_net_Inet6AddressImpl_getLocalH
      } else {
          // ensure null-terminated
          hostname[NI_MAXHOST] = '\0';
@@ -1194,7 +1127,7 @@ Forwarded: no
          /* On Linux/FreeBSD gethostname() says "host.domain.sun.com".  On
           * Solaris gethostname() says "host", so extra work is needed.
           */
-@@ -670,7 +670,7 @@
+@@ -807,7 +807,7 @@ Java_java_net_Inet6AddressImpl_isReachab
          case ENETUNREACH: /* Network Unreachable */
          case EAFNOSUPPORT: /* Address Family not supported */
          case EADDRNOTAVAIL: /* address is not available on  the  remote machine */
@@ -1205,7 +1138,7 @@ Forwarded: no
            /*
 --- openjdk/jdk/src/solaris/native/java/net/Inet4AddressImpl.c.orig
 +++ openjdk/jdk/src/solaris/native/java/net/Inet4AddressImpl.c
-@@ -333,7 +333,7 @@
+@@ -358,7 +358,7 @@ Java_java_net_Inet4AddressImpl_getLocalH
          /* Something went wrong, maybe networking is not setup? */
          strcpy(hostname, "localhost");
      } else {
@@ -1214,7 +1147,7 @@ Forwarded: no
          /* On Linux gethostname() says "host.domain.sun.com".  On
           * Solaris gethostname() says "host", so extra work is needed.
           */
-@@ -874,7 +874,7 @@
+@@ -888,7 +888,7 @@ Java_java_net_Inet4AddressImpl_isReachab
             * EHOSTUNREACH which is not an error, but the answer to our question.
             */
  #endif
@@ -1246,7 +1179,7 @@ Forwarded: no
  #endif
  
  #include "jvm.h"
-@@ -1029,7 +1029,7 @@
+@@ -1039,7 +1039,7 @@ static int  openSocket(JNIEnv *env, int
  
  
  /** Linux, AIX **/
@@ -1255,7 +1188,7 @@ Forwarded: no
  /* Open socket for further ioct calls, try v4 socket first and
   * if it falls return v6 socket
   */
-@@ -1755,7 +1755,11 @@
+@@ -1771,7 +1771,11 @@ static int getMacAddress(JNIEnv *env, in
       * try the old way.
       */
      memset(&lif, 0, sizeof(lif));
@@ -1267,7 +1200,7 @@ Forwarded: no
  
      if (ioctl(sock, SIOCGLIFHWADDR, &lif) != -1) {
          struct sockaddr_dl *sp;
-@@ -1841,7 +1845,7 @@
+@@ -1857,7 +1861,7 @@ static int getFlags(int sock, const char
  
  
  /** BSD **/
@@ -1276,7 +1209,7 @@ Forwarded: no
  /* Open socket for further ioct calls, try v4 socket first and
   * if it falls return v6 socket
   */
-@@ -1970,7 +1974,11 @@
+@@ -1986,7 +1990,11 @@ static netif *enumIPv6Interfaces(JNIEnv
              continue;
  
          memset(&ifr6, 0, sizeof(ifr6));
@@ -1322,7 +1255,7 @@ Forwarded: no
  #include <unistd.h>
  #endif
  
-@@ -467,7 +467,7 @@
+@@ -467,7 +467,7 @@ Java_java_net_PlainSocketImpl_socketConn
      /* report the appropriate exception */
      if (connect_rv < 0) {
  
@@ -1342,7 +1275,7 @@ Forwarded: no
  extern int NET_Timeout(int s, long timeout);
  extern int NET_Read(int s, void* buf, size_t len);
  extern int NET_RecvFrom(int s, void *buf, int len, unsigned int flags,
-@@ -159,7 +159,7 @@
+@@ -198,7 +198,7 @@ extern jint NET_Wait(JNIEnv *env, jint f
  /************************************************************************
   *  Utilities
   */
@@ -1353,7 +1286,7 @@ Forwarded: no
  #endif
 --- openjdk/jdk/src/solaris/classes/sun/font/FcFontConfiguration.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/font/FcFontConfiguration.java
-@@ -295,7 +295,7 @@
+@@ -306,7 +306,7 @@ public class FcFontConfiguration extends
  
          super.setOsNameAndVersion();
  
@@ -1364,7 +1297,7 @@ Forwarded: no
          try {
 --- openjdk/jdk/src/solaris/classes/sun/print/UnixPrintServiceLookup.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/print/UnixPrintServiceLookup.java
-@@ -170,6 +170,7 @@
+@@ -170,6 +170,7 @@ public class UnixPrintServiceLookup exte
  
      static boolean isBSD() {
          return (osname.equals("Linux") ||
@@ -1374,7 +1307,7 @@ Forwarded: no
  
 --- openjdk/jdk/src/solaris/classes/sun/nio/fs/LinuxFileStore.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/nio/fs/LinuxFileStore.java
-@@ -101,9 +101,7 @@
+@@ -101,9 +101,7 @@ class LinuxFileStore
                  LinuxNativeDispatcher.fgetxattr(fd, "user.java".getBytes(), 0L, 0);
                  return true;
              } catch (UnixException e) {
@@ -1387,7 +1320,7 @@ Forwarded: no
              }
 --- openjdk/jdk/src/solaris/classes/sun/nio/fs/LinuxDosFileAttributeView.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/nio/fs/LinuxDosFileAttributeView.java
-@@ -238,9 +238,6 @@
+@@ -238,9 +238,6 @@ class LinuxDosFileAttributeView
              }
              throw new UnixException("Value of " + DOS_XATTR_NAME + " attribute is invalid");
          } catch (UnixException x) {
@@ -1399,7 +1332,7 @@ Forwarded: no
              buffer.release();
 --- openjdk/jdk/src/solaris/classes/sun/nio/fs/DefaultFileSystemProvider.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/nio/fs/DefaultFileSystemProvider.java
-@@ -66,7 +66,7 @@
+@@ -66,7 +66,7 @@ public class DefaultFileSystemProvider {
              .doPrivileged(new GetPropertyAction("os.name"));
          if (osname.equals("SunOS"))
              return createProvider("sun.nio.fs.SolarisFileSystemProvider");
@@ -1410,7 +1343,7 @@ Forwarded: no
              return createProvider("sun.nio.fs.MacOSXFileSystemProvider");
 --- openjdk/jdk/src/solaris/classes/sun/nio/ch/DefaultAsynchronousChannelProvider.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/nio/ch/DefaultAsynchronousChannelProvider.java
-@@ -48,7 +48,7 @@
+@@ -48,7 +48,7 @@ public class DefaultAsynchronousChannelP
              .doPrivileged(new GetPropertyAction("os.name"));
          if (osname.equals("SunOS"))
              return new SolarisAsynchronousChannelProvider();
@@ -1421,7 +1354,7 @@ Forwarded: no
              return new BsdAsynchronousChannelProvider();
 --- openjdk/jdk/src/solaris/classes/sun/awt/X11/XScrollbarPeer.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/awt/X11/XScrollbarPeer.java
-@@ -74,7 +74,7 @@
+@@ -74,7 +74,7 @@ class XScrollbarPeer extends XComponentP
       * Currently uses hardcoded values
       */
      private int getDefaultDimension() {
@@ -1443,7 +1376,7 @@ Forwarded: no
  #define __ieee754_acosh         __j__ieee754_acosh
 --- openjdk/jdk/src/share/classes/sun/font/FontUtilities.java.orig
 +++ openjdk/jdk/src/share/classes/sun/font/FontUtilities.java
-@@ -76,7 +76,7 @@
+@@ -76,7 +76,7 @@ public final class FontUtilities {
                  String osName = System.getProperty("os.name", "unknownOS");
                  isSolaris = osName.startsWith("SunOS");
  
@@ -1454,7 +1387,7 @@ Forwarded: no
  
 --- openjdk/jdk/src/share/classes/sun/print/PSPrinterJob.java.orig
 +++ openjdk/jdk/src/share/classes/sun/print/PSPrinterJob.java
-@@ -1568,7 +1568,9 @@
+@@ -1568,7 +1568,9 @@ public class PSPrinterJob extends Raster
          }
  
         String osname = System.getProperty("os.name");
@@ -1467,7 +1400,7 @@ Forwarded: no
              if ((pFlags & PRINTER) != 0) {
 --- openjdk/jdk/src/share/classes/sun/nio/cs/ext/ExtendedCharsets.java.orig
 +++ openjdk/jdk/src/share/classes/sun/nio/cs/ext/ExtendedCharsets.java
-@@ -1298,6 +1298,7 @@
+@@ -1298,6 +1298,7 @@ public class ExtendedCharsets
          String osName = AccessController.doPrivileged(
              new GetPropertyAction("os.name"));
          if ("SunOS".equals(osName) || "Linux".equals(osName)
@@ -1477,7 +1410,7 @@ Forwarded: no
                      new String[] {
 --- openjdk/jdk/src/share/classes/sun/security/jgss/GSSManagerImpl.java.orig
 +++ openjdk/jdk/src/share/classes/sun/security/jgss/GSSManagerImpl.java
-@@ -48,6 +48,7 @@
+@@ -48,6 +48,7 @@ public class GSSManagerImpl extends GSSM
                      public Boolean run() {
                              String osname = System.getProperty("os.name");
                              if (osname.startsWith("SunOS") ||
@@ -1485,19 +1418,9 @@ Forwarded: no
                                  osname.startsWith("Linux")) {
                                  return new Boolean(System.getProperty
                                      (USE_NATIVE_PROP));
---- openjdk/jdk/src/share/classes/sun/security/krb5/internal/ccache/FileCredentialsCache.java.orig
-+++ openjdk/jdk/src/share/classes/sun/security/krb5/internal/ccache/FileCredentialsCache.java
-@@ -413,6 +413,7 @@
- 
-         if (osname != null) {
-             if (osname.startsWith("SunOS") ||
-+                osname.startsWith("GNU/kFreeBSD") ||
-                 (osname.startsWith("Linux"))) {
-                 try {
-                     // Load the native code if necessary
 --- openjdk/jdk/src/share/classes/java/awt/GraphicsEnvironment.java.orig
 +++ openjdk/jdk/src/share/classes/java/awt/GraphicsEnvironment.java
-@@ -178,6 +178,7 @@
+@@ -178,6 +178,7 @@ public abstract class GraphicsEnvironmen
                              } else {
                                  headless = defaultHeadless =
                                      Boolean.valueOf(("Linux".equals(osName) ||
@@ -1507,7 +1430,7 @@ Forwarded: no
                                                       "NetBSD".equals(osName) ||
 --- openjdk/jdk/make/com/sun/nio/Makefile.orig
 +++ openjdk/jdk/make/com/sun/nio/Makefile
-@@ -38,7 +38,7 @@
+@@ -38,7 +38,7 @@ endif
  
  
  all build clean clobber::
@@ -1519,7 +1442,7 @@ Forwarded: no
 +#	$(RM) -r $(CLASSDESTDIR)/com/sun/nio
 --- openjdk/jdk/make/java/nio/Makefile.orig
 +++ openjdk/jdk/make/java/nio/Makefile
-@@ -94,6 +94,70 @@
+@@ -94,6 +94,70 @@ FILES_export += \
  
  else
  
@@ -1590,7 +1513,7 @@ Forwarded: no
  FILES_java += \
          sun/nio/ch/AbstractPollSelectorImpl.java \
  	sun/nio/ch/DevPollArrayWrapper.java \
-@@ -164,6 +228,8 @@
+@@ -164,6 +228,8 @@ FILES_export += \
  	sun/nio/fs/UnixCopyFile.java \
  	sun/nio/fs/UnixNativeDispatcher.java
  
@@ -1599,7 +1522,7 @@ Forwarded: no
  FILES_gen += \
  	sun/nio/fs/UnixConstants.java
  
-@@ -172,7 +238,7 @@
+@@ -172,7 +238,7 @@ FILES_c += \
  	syscalls_fp.c
  endif
  
@@ -1608,7 +1531,7 @@ Forwarded: no
  
  ifeq ($(PLATFORM), solaris)
  
-@@ -221,6 +287,22 @@
+@@ -221,6 +287,22 @@ endif # PLATFORM = windows
  
  ifeq ($(PLATFORM), linux)
  
@@ -1631,7 +1554,7 @@ Forwarded: no
  FILES_c += \
  	EPoll.c \
  	EPollArrayWrapper.c \
-@@ -345,6 +427,7 @@
+@@ -345,6 +427,7 @@ FILES_export += \
  
  endif # PLATFORM = aix
  
@@ -1641,7 +1564,7 @@ Forwarded: no
  FILES_java += \
 --- openjdk/jdk/make/common/shared/Sanity.gmk.orig
 +++ openjdk/jdk/make/common/shared/Sanity.gmk
-@@ -114,12 +114,14 @@
+@@ -114,12 +114,14 @@ ifeq ($(PLATFORM), linux)
      elif [ -f /etc/lsb-release ] ; then \
        $(EGREP) DISTRIB_RELEASE /etc/lsb-release | $(SED) -e 's@.*DISTRIB_RELEASE=\(.*\)@\1@'; \
      fi)
@@ -1658,7 +1581,7 @@ Forwarded: no
    # What kind of system we are using
 --- openjdk/jdk/make/common/shared/Defs-versions.gmk.orig
 +++ openjdk/jdk/make/common/shared/Defs-versions.gmk
-@@ -158,7 +158,9 @@
+@@ -158,7 +158,9 @@ ifeq ($(PLATFORM), linux)
    REQUIRED_OS_VERSION         = 2.6
    REQUIRED_OS_VARIANT_NAME    = Fedora
    REQUIRED_OS_VARIANT_VERSION = 9
@@ -1671,7 +1594,7 @@ Forwarded: no
    REQUIRED_GCC_VER            = 2.95
 --- openjdk/jdk/make/common/shared/Platform.gmk.orig
 +++ openjdk/jdk/make/common/shared/Platform.gmk
-@@ -162,7 +162,7 @@
+@@ -162,7 +162,7 @@ endif
  
  
  # Platform settings specific to Linux
@@ -1682,7 +1605,7 @@ Forwarded: no
    ifdef CROSS_COMPILE_ARCH
 --- openjdk/jdk/make/common/shared/Sanity-Settings.gmk.orig
 +++ openjdk/jdk/make/common/shared/Sanity-Settings.gmk
-@@ -186,8 +186,10 @@
+@@ -186,8 +186,10 @@ ifeq ($(PLATFORM),windows)
  endif
  ifeq ($(PLATFORM),linux)
    ifdef REQUIRED_ALSA_VERSION
@@ -1695,7 +1618,7 @@ Forwarded: no
  ALL_SETTINGS+=$(call addOptionalSetting,OS_VARIANT_NAME)
 --- openjdk/jdk/make/javax/sound/Makefile.orig
 +++ openjdk/jdk/make/javax/sound/Makefile
-@@ -105,10 +105,12 @@
+@@ -105,10 +105,12 @@ ifeq ($(PLATFORM), windows)
  endif # PLATFORM win32
  
  ifeq ($(PLATFORM), linux)
@@ -1719,7 +1642,7 @@ Forwarded: no
  #include <sys/sysctl.h>
  #endif
  
-@@ -66,7 +66,7 @@
+@@ -66,7 +66,7 @@ static int getPortRange(struct portrange
          range->higher = net_getParam("/dev/tcp", "tcp_largest_anon_port");
          return 0;
      }
@@ -1730,7 +1653,7 @@ Forwarded: no
          size_t size = sizeof(range->lower);
 --- openjdk/jdk/src/solaris/classes/sun/net/PortConfig.java.orig
 +++ openjdk/jdk/src/solaris/classes/sun/net/PortConfig.java
-@@ -55,6 +55,9 @@
+@@ -62,6 +62,9 @@ public final class PortConfig {
                      } else if (os.contains("OS X")) {
                          defaultLower = 49152;
                          defaultUpper = 65535;

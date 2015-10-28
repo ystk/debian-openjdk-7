@@ -26,6 +26,9 @@ PKGVERSION := $(call vafilt,$(CHANGELOG_VARS),Version)
 
 distribution := $(shell lsb_release --id --short)
 distrel := $(shell lsb_release --codename --short)
+derivative := $(shell if dpkg-vendor --derives-from Ubuntu; then echo Ubuntu; \
+			elif dpkg-vendor --derives-from Debian; then echo Debian; \
+			else echo Unknown; fi)
 ifeq ($(distrel),n/a)
   distrel := sid
 endif
@@ -38,7 +41,7 @@ ifneq (,$(DEB_HOST_MULTIARCH))
   endif
 endif
 
-hotspot_archs	= amd64 i386 arm64 lpia ppc64 ppc64el sparc sparc64 kfreebsd-amd64 kfreebsd-i386
+hotspot_archs	= amd64 i386 arm64 lpia ppc64 ppc64el sparc kfreebsd-amd64 kfreebsd-i386
 # requires llvm; llvm in jaunty is recent enough, but in universe
 ifeq (,$(filter $(distrel),lenny jaunty intrepid hardy))
   shark_archs	= amd64 i386 lpia kfreebsd-amd64 kfreebsd-i386
@@ -119,7 +122,7 @@ endif
 with_wgy_zenhai = $(if $(filter $(distrel),lenny),,yes)
 
 arch_map	:= alpha=alpha arm=arm armel=arm armhf=arm arm64=aarch64 amd64=amd64 hppa=parisc i386=i586 lpia=i586 m68k=m68k mips=mips mipsel=mipsel mips64=mips64 mips64el=mips64el powerpc=ppc powerpcspe=ppc ppc64=ppc64 ppc64el=ppc64le sparc=sparc sparc64=sparc64 sh4=sh s390=s390 s390x=s390x ia64=ia64 m68k=m68k x32=x32
-archdir_map	:= alpha=alpha arm=arm armel=arm armhf=arm arm64=aarch64 amd64=amd64 hppa=parisc i386=i386 lpia=i386 m68k=m68k mips=mips mipsel=mipsel mips64=mips64 mips64el=mips64el powerpc=ppc powerpcspe=ppc ppc64=ppc64 ppc64el=ppc64 sparc=sparc sparc64=sparcv9 sh4=sh s390=s390 s390x=s390x ia64=ia64 m68k=m68k x32=x32
+archdir_map	:= alpha=alpha arm=arm armel=arm armhf=arm arm64=aarch64 amd64=amd64 hppa=parisc i386=i386 lpia=i386 m68k=m68k mips=mips mipsel=mipsel mips64=mips64 mips64el=mips64el powerpc=ppc powerpcspe=ppc ppc64=ppc64 ppc64el=ppc64le sparc=sparc sparc64=sparcv9 sh4=sh s390=s390 s390x=s390x ia64=ia64 m68k=m68k x32=x32
 
 jvmarch		:= $(strip $(patsubst $(DEB_HOST_ARCH_CPU)=%, %, \
 			$(filter $(DEB_HOST_ARCH_CPU)=%, $(arch_map))))
@@ -133,13 +136,10 @@ endif
 default_vm = $(if $(filter $(DEB_HOST_ARCH), $(hotspot_archs)),hotspot,zero)
 hotspot_version = $(if $(filter $(DEB_HOST_ARCH), $(hotspot_archs)),default,zero)
 hotspot_version = default
-ifneq (,$(filter $(DEB_HOST_ARCH),arm64))
-  hotspot_version = aarch64
-endif
 
 any_archs = alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
-stage1_gcj_archs = amd64 armel arm64 armhf hppa i386 ia64 lpia powerpc powerpcspe ppc64 ppc64el m68k mips mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
-stage1_openjdk_archs = alpha mips64 mips64el
+stage1_gcj_archs = amd64 armel arm64 armhf hppa i386 ia64 lpia powerpc powerpcspe ppc64 ppc64el m68k mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+stage1_openjdk_archs = alpha mips mips64 mips64el
 stage1_cacao_archs =
 ifneq (,$(filter nobootstrap, $(DEB_BUILD_OPTIONS)))
   stage1_openjdk_archs := $(stage1_openjdk_archs) $(stage1_gcj_archs)
@@ -163,6 +163,7 @@ endif
 
 ifeq (,$(filter $(distrel),squeeze lenny maverick lucid karmic hardy))
   jamvm_archs = amd64 armel armhf i386 lpia mips mipsel powerpc kfreebsd-i386 kfreebsd-amd64
+  jamvm_archs = amd64 armel armhf i386 lpia powerpc kfreebsd-i386 kfreebsd-amd64
 endif
 ifeq (,$(filter $(distrel),wheezy squeeze lenny maverick natty maverick lucid karmic hardy))
   jamvm_defaults =
@@ -174,7 +175,7 @@ ifeq (,$(filter $(distrel),lenny jaunty intrepid hardy))
   # Shark build but just crash
   altshark_archs   =
 endif
-altzero_archs = $(filter-out sparc sparc64, $(hotspot_archs)) $(altshark_archs)
+altzero_archs = $(filter-out arm64 sparc sparc64, $(hotspot_archs)) $(altshark_archs)
 ifneq (,$(filter $(distrel),lenny hardy intrepid))
   altzero_archs =
   altshark_archs =
@@ -323,14 +324,18 @@ else ifneq (,$(filter $(distrel),saucy trusty))
   export CC = gcc-4.8
   export CXX = g++-4.8
   GCJ_SUFFIX = -4.8
-else
+else ifneq (,$(filter $(distrel),utopic vivid jessie))
   export CC = gcc-4.9
   export CXX = g++-4.9
   GCJ_SUFFIX = -4.9
+else
+  export CC = gcc-5
+  export CXX = g++-5
+  GCJ_SUFFIX = -5
 endif
 
 ifneq (,$(filter $(DEB_HOST_ARCH), armel armhf))
-ifeq ($(distribution),Ubuntu)
+ifeq ($(derivative),Ubuntu)
   ifneq (,$(filter $(distrel),jaunty))
     OPT_CFLAGS/cppInterpreter_arm.o = -O2 -falign-functions=32 -falign-loops=8 -g0
   else
@@ -377,7 +382,7 @@ endif
 
 on_buildd := $(shell [ -f /CurrentlyBuilding -o "$$LOGNAME" = buildd ] && echo yes)
 
-ifeq ($(distribution),Debian)
+ifeq ($(distributio),Debian)
   with_wm = $(notdir $(firstword $(wildcard /usr/bin/metacity /usr/bin/twm)))
   ifneq (,$(findstring twm, $(with_wm)))
     with_wm_args = -f $(CURDIR)/bin/jtreg.tmwrc
@@ -442,10 +447,9 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/zero-fpu-control-is-noop.diff \
 	debian/patches/zero-missing-headers.diff \
 	debian/patches/libpcsclite-dlopen.diff \
-	debian/patches/7130140-MouseEvent-systemout.diff \
 	debian/patches/dnd-files.patch \
 	debian/patches/jdk-bold-swing-fonts.patch \
-	debian/patches/8059327.diff \
+	debian/patches/javadoc-sort-enum-and-annotation-types.patch \
 
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \
@@ -457,9 +461,7 @@ ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
 	debian/patches/hotspot-powerpcspe.diff \
 	debian/patches/hotspot-mips-align.diff \
 	debian/patches/zero-x32.diff \
-	debian/patches/zero-sparc.diff \
-	debian/patches/arm-microjit.diff \
-	debian/patches/arm-microjit-p1.diff
+	debian/patches/zero-sparc.diff
 endif
 
 # FIXME CACAO update needed
@@ -572,23 +574,24 @@ endif
 CONFIGURE_ARGS += \
 	--disable-downloading \
 	--with-openjdk-src-zip=$(CURDIR)/openjdk.tar.bz2 \
-	--with-hotspot-src-zip=$(CURDIR)/$(if $(filter $(DEB_HOST_ARCH),arm64),hotspot-aarch64.tar.bz2,hotspot.tar.bz2) \
+	--with-hotspot-src-zip=$(CURDIR)/hotspot.tar.bz2 \
 	--with-corba-src-zip=$(CURDIR)/corba.tar.bz2 \
 	--with-jaxp-src-zip=$(CURDIR)/jaxp.tar.bz2 \
 	--with-jaxws-src-zip=$(CURDIR)/jaxws.tar.bz2 \
 	--with-jdk-src-zip=$(CURDIR)/jdk.tar.bz2 \
 	--with-langtools-src-zip=$(CURDIR)/langtools.tar.bz2
 
-ifneq (,$(filter $(DEB_HOST_ARCH),arm64))
-  CONFIGURE_ARGS += \
-	--with-hotspot-build=aarch64
-endif
-
 ifneq (,$(filter $(DEB_HOST_ARCH), armel armhf))
   #CONFIGURE_ARGS += \
 	--disable-arm32-jit
   CONFIGURE_ARGS += \
 	--enable-arm32-jit
+endif
+
+# Only Linux has libsctp-dev currently
+ifeq (,$(filter $(DEB_HOST_ARCH_OS), linux))
+  CONFIGURE_ARGS += \
+	--disable-system-sctp
 endif
 
 ifneq (,$(filter $(DEB_HOST_ARCH), $(cacao_archs)))
@@ -690,7 +693,7 @@ all_jdk_tools	= $(filter-out javaws, $(notdir $(wildcard build/$(sdkimg)/bin/*))
 jdk_tools	= $(filter-out $(all_jre_tools), $(all_jdk_tools))
 jdk_tools_alt	= $(filter-out apt java-rmi.cgi, $(jdk_tools))
 
-ifeq ($(distribution),Ubuntu)
+ifeq ($(derivative),Ubuntu)
   pkg_compress = lzma
 else
   pkg_compress  = bzip2
@@ -752,8 +755,10 @@ else ifneq (,$(filter $(distrel), quantal raring))
   bd_gcc = g++-4.7,
 else ifneq (,$(filter $(distrel), saucy trusty))
   bd_gcc = g++-4.8,
-else
+else ifneq (,$(filter $(distrel),utopic vivid jessie))
   bd_gcc = g++-4.9,
+else
+  bd_gcc = g++-5,
 endif
 bd_syslibs = zlib1g-dev, libattr1-dev,
 ifneq (,$(filter $(distrel),lenny squeeze oneiric natty maverick lucid karmic jaunty intrepid hardy))
@@ -765,6 +770,8 @@ else
 endif
 bd_syslibs += \
 	libgif-dev$(if $(filter $(distrel),etch), | libungif4-dev),
+bd_syslibs += \
+	libsctp-dev [linux-any],
 ifneq (,$(filter $(distrel),lucid karmic jaunty intrepid hardy))
   bd_rhino = rhino (>= 1.7R2~),
 else
@@ -780,7 +787,7 @@ ifeq (,$(filter $(distrel),lenny squeeze quantal precise oneiric natty maverick 
   rhino_source := $(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W librhino-java)
 endif
 
-pkg_ffidev = $(if $(filter $(distribution),Ubuntu),$(if $(filter $(distrel),hardy),libffi4-dev,libffi-dev),libffi-dev)
+pkg_ffidev = $(if $(filter $(derivative),Ubuntu),$(if $(filter $(distrel),hardy),libffi4-dev,libffi-dev),libffi-dev)
 
 bd_zero = \
 	$(pkg_ffidev) [$(foreach a,$(hotspot_archs),!$(a))],
@@ -890,7 +897,7 @@ browser_plugin_dirs = mozilla
 # .desktop files need to be multiarch installable
 java_launcher = /$(basedir)/bin/java
 java_launcher = /usr/bin/java
-ifeq ($(distribution),Ubuntu)
+ifeq ($(derivative),Ubuntu)
   ifeq (,$(filter $(distrel),karmic jaunty intrepid hardy))
     java_launcher = cautious-launcher %f /$(basedir)/bin/java
     java_launcher = cautious-launcher %f /usr/bin/java
@@ -1172,7 +1179,7 @@ stamps/unpack: stamps/icedtea-configure
 
 	touch $@
 
-stamps/sound-configure: stamps/unpack
+stamps/sound-configure: stamps/build
 	rm -rf icedtea-sound
 	tar xf icedtea-sound.tar.gz
 	mv $$(tar tf icedtea-sound.tar.gz | head -1 | sed 's,/.*,,') \
@@ -1566,8 +1573,8 @@ debian-clean:
 	rm -f debian/*.install debian/*.links debian/*.debhelper.log
 
 lib_ext_dirs = common $(sort $(foreach arch,$(arch_map),$(firstword $(subst =,$(SPACE),$(arch)))))
-ifeq ($(distribution),Ubuntu)
-  lib_ext_dirs := $(filter-out arm hppa m68k mips% powerpcspe s390% sh%, $(lib_ext_dirs))
+ifeq ($(derivative),Ubuntu)
+  lib_ext_dirs := $(filter-out arm hppa m68k mips% powerpcspe sh%, $(lib_ext_dirs))
 else
   lib_ext_dirs := $(filter-out arm hppa lpia, $(lib_ext_dirs))
 endif
@@ -1649,8 +1656,13 @@ endif
 	done
 
 ifeq ($(with_bridge),atk)
-	cp -p debian/accessibility-atk.properties \
+  ifneq (,$(filter $(distrel),lenny wheezy squeeze jessie stretch sid lucid precise quantal raring saucy trusty utopic vivid wily))
+	cp -p debian/accessibility-atk.properties.disabled \
 		$(d)/$(basedir)/jre/lib/accessibility.properties
+  else
+	cp -p debian/accessibility-atk.properties.enabled \
+		$(d)/$(basedir)/jre/lib/accessibility.properties
+  endif
 else
 	cp -p debian/accessibility.properties $(d)/$(basedir)/jre/lib/
 endif
@@ -1875,7 +1887,7 @@ endif
 	: # add GNOME stuff
 	cp -p debian/$(basename)-policytool.desktop \
 	      $(d_jre)/usr/share/applications/
-ifeq ($(java_launcher),cautious-launcher)
+ifneq (,$(findstring cautious-launcher, $(java_launcher)))
 	cp -p debian/$(basename)-java.desktop \
 	      $(d_jre)/usr/share/applications/
 endif

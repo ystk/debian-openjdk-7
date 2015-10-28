@@ -6,7 +6,7 @@ Index: b/Makefile.am
 ===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -500,6 +500,7 @@ ICEDTEA_ENV = \
+@@ -614,6 +614,7 @@ ICEDTEA_ENV = \
  	VERBOSE="$(VERBOSE)" \
  	STATIC_CXX="false" \
  	BUILD_GCC="$(CC)" \

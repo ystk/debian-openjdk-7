@@ -4,7 +4,7 @@ Index: b/acinclude.m4
 ===================================================================
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -2740,9 +2740,12 @@ AC_DEFUN_ONCE([IT_ENABLE_SUNEC],
+@@ -2743,9 +2743,12 @@ AC_DEFUN_ONCE([IT_ENABLE_SUNEC],
    if test x"${ENABLE_SUNEC}" = "xyes"; then
      PKG_CHECK_MODULES(NSS_SOFTOKN, nss-softokn >= 3.16.1, [NSS_SOFTOKN_FOUND=yes], [NSS_SOFTOKN_FOUND=no])
      PKG_CHECK_MODULES(NSS_JAVA, nss-java, [NSS_JAVA_FOUND=yes], [NSS_JAVA_FOUND=no])

@@ -38,4 +38,4 @@ Index: b/acinclude.m4
 +    arm|i386|ppc|s390|sh|sparc|x32)
        ZERO_BITSPERWORD=32
        ;;
-     aarch64|alpha|amd64|ia64|ppc64*|s390x|sparcv9)
+     aarch64|alpha|amd64|ia64|ppc64|ppc64le|s390x|sparcv9)

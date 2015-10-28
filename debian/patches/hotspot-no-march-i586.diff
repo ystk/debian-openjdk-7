@@ -2,7 +2,7 @@
 
 Index: openjdk/hotspot/make/linux/makefiles/gcc.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/gcc.make
+--- openjdk/hotspot/make/linux/makefiles/gcc.make.orig
 +++ openjdk/hotspot/make/linux/makefiles/gcc.make
 @@ -95,7 +95,7 @@ CFLAGS += -fvisibility=hidden
  endif
@@ -11,5 +11,5 @@ Index: openjdk/hotspot/make/linux/makefiles/gcc.make
 -ARCHFLAG/i486    = -m32 -march=i586
 +ARCHFLAG/i486    = -m32
  ARCHFLAG/amd64   = -m64
+ ARCHFLAG/aarch64 =
  ARCHFLAG/ia64    =
- ARCHFLAG/sparc   = -m32 -mcpu=v9

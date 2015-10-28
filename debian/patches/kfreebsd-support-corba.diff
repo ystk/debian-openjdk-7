@@ -7,7 +7,7 @@ Last-Update: 2011-06-28
 Forwarded: no
 --- openjdk/corba/make/common/shared/Platform.gmk.orig
 +++ openjdk/corba/make/common/shared/Platform.gmk
-@@ -147,7 +147,7 @@
+@@ -147,7 +147,7 @@ ifeq ($(SYSTEM_UNAME), SunOS)
  endif
  
  # Platform settings specific to Linux

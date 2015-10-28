@@ -1,8 +1,8 @@
 Index: openjdk/hotspot/make/linux/makefiles/vm.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/vm.make
+--- openjdk/hotspot/make/linux/makefiles/vm.make.orig
 +++ openjdk/hotspot/make/linux/makefiles/vm.make
-@@ -120,6 +120,12 @@ ifeq ($(INCLUDE_TRACE), 1)
+@@ -123,6 +123,12 @@ ifeq ($(INCLUDE_TRACE), 1)
  CFLAGS += -DINCLUDE_TRACE=1
  endif
  
@@ -17,13 +17,13 @@ Index: openjdk/hotspot/make/linux/makefiles/vm.make
  endif
 Index: openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 ===================================================================
---- openjdk/hotspot/src/os/linux/vm/os_linux.cpp
+--- openjdk/hotspot/src/os/linux/vm/os_linux.cpp.orig
 +++ openjdk/hotspot/src/os/linux/vm/os_linux.cpp
-@@ -399,10 +399,10 @@ void os::init_system_properties_values()
+@@ -409,10 +409,10 @@ void os::init_system_properties_values()
   *        ...
   *        7: The default directories, normally /lib and /usr/lib.
   */
--#if defined(AMD64) || defined(_LP64) && (defined(SPARC) || defined(PPC) || defined(S390) || defined(AARCH64))
+-#if defined(AMD64) || defined(_LP64) && (defined(SPARC) || defined(PPC) || defined(S390) || defined(AARCH64)) || defined(BUILTIN_SIM)
 -#define DEFAULT_LIBPATH "/usr/lib64:/lib64:/lib:/usr/lib"
 +#ifdef DEB_MULTIARCH
 +#define DEFAULT_LIBPATH	"/usr/lib/" DEB_MULTIARCH "/jni" ":/lib/" DEB_MULTIARCH ":/usr/lib/" DEB_MULTIARCH ":/usr/lib/jni:/lib:/usr/lib"

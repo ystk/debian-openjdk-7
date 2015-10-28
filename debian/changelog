@@ -1,8 +1,58 @@
-openjdk-7 (7u79-2.5.6-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u85-2.6.1-5~deb8u1) jessie-security; urgency=medium
 
-  * Rebuild for stable
+  * Rebuild for jessie-security
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Fri, 24 Jul 2015 08:01:45 +0200
+ -- Moritz Muehlenhoff <jmm@debian.org>  Thu, 22 Oct 2015 08:28:11 +0200
+
+openjdk-7 (7u85-2.6.1-5) unstable; urgency=medium
+
+  * Fix passing --disable-system-sctp for non-linux targets.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 08 Oct 2015 07:01:54 +0200
+
+openjdk-7 (7u85-2.6.1-4) unstable; urgency=medium
+
+  * Build again with pulseaudio on alpha.
+  * Update the kfreebsd support patches (Steven Chamberlain). Closes: #798123.
+  * Fix parallel build. Closes: #798124.
+  * Disable again the atk bridge, too many regressions. Reopens: #797595.
+
+ -- Matthias Klose <doko@ubuntu.com>  Wed, 07 Oct 2015 16:24:40 +0200
+
+openjdk-7 (7u85-2.6.1-3) unstable; urgency=medium
+
+  * Configure with --disable-system-sctp on KFreeBSD.
+  * Stop building jamvm on mips and mipsel, fails to build.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 05 Sep 2015 16:54:38 +0200
+
+openjdk-7 (7u85-2.6.1-2) unstable; urgency=medium
+
+  * Stop building zero on AArch64, broken on the merged IcedTea Hotspot.
+  * Only build-depend on libsctp-dev on linux architectures. 
+  * Configure for zero on sparc64, Hotspot build fails too.
+
+ -- Matthias Klose <doko@ubuntu.com>  Fri, 04 Sep 2015 17:47:56 +0200
+
+openjdk-7 (7u85-2.6.1-1) unstable; urgency=medium
+
+  * IcedTea7 2.6.1 release (based on OpenJDK 7u85).
+  * Configure for Hotspot on sparc64.
+  * Add mips to the openjdk stage1 architectures.
+  * Sort the enums and the annotations in the package-tree.html files (Emmanuel
+    Bourg). Closes: #787159.
+  * Re-enable the atk bridge for releases with a fixed atk bridge.
+    Closes: #797595.
+  * Make derivatives builds the same as the parent distro. Closes: #797662.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 03 Sep 2015 12:47:16 +0200
+
+openjdk-7 (7u79-2.5.6-2) unstable; urgency=medium
+
+  * Fix installing the openjdk.desktop file when cautious-launch is available.
+    LP: #1448548.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 13 Aug 2015 14:09:54 +0200
 
 openjdk-7 (7u79-2.5.6-1) unstable; urgency=medium
 

@@ -55,9 +55,9 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
       ARCHFLAG="-m64"
        ;;
     powerpc64le)
-      BUILD_ARCH_DIR=ppc64
-      INSTALL_ARCH_DIR=ppc64
-      JRE_ARCH_DIR=ppc64
+      BUILD_ARCH_DIR=ppc64le
+      INSTALL_ARCH_DIR=ppc64le
+      JRE_ARCH_DIR=ppc64le
       ARCHFLAG="-m64"
        ;;
     sparc)
@@ -556,7 +556,7 @@ AC_DEFUN([IT_FIND_NATIVE2ASCII],
   AC_SUBST([NATIVE2ASCII])
 ])
 
-AC_DEFUN([IT_WITH_OPENJDK_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_OPENJDK_SRC_ZIP],
 [
   AC_MSG_CHECKING([for an OpenJDK source zip])
   AC_ARG_WITH([openjdk-src-zip],
@@ -723,7 +723,7 @@ AC_DEFUN_ONCE([IT_ENABLE_ZERO_BUILD],
     arm|i386|ppc|s390|sh|sparc)
       ZERO_BITSPERWORD=32
       ;;
-    aarch64|alpha|amd64|ia64|ppc64|s390x|sparcv9)
+    aarch64|alpha|amd64|ia64|ppc64|ppc64le|s390x|sparcv9)
       ZERO_BITSPERWORD=64
       ;;
     *)
@@ -818,7 +818,7 @@ AC_DEFUN([IT_WITH_CACAO_HOME],
   AC_SUBST(CACAO_IMPORT_PATH)
 ])
 
-AC_DEFUN([IT_WITH_CACAO_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_CACAO_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a CACAO source zip])
   AC_ARG_WITH([cacao-src-zip],
@@ -928,11 +928,7 @@ AC_DEFUN_ONCE([IT_WITH_GCJ],
 AC_DEFUN_ONCE([IT_WITH_HOTSPOT_BUILD],
 [
   AC_REQUIRE([IT_ENABLE_ZERO_BUILD])
-  if test "x$JRE_ARCH_DIR" = "xaarch64" -o "x$JRE_ARCH_DIR" = "xarm"; then
-    DEFAULT_BUILD="aarch64"
-  else
-    DEFAULT_BUILD="default"
-  fi
+  DEFAULT_BUILD="default"
   AC_MSG_CHECKING([which HotSpot build to use])
   AC_ARG_WITH([hotspot-build],
 	      [AS_HELP_STRING(--with-hotspot-build=BUILD,the HotSpot build to use [[BUILD=default]])],
@@ -952,7 +948,7 @@ AC_DEFUN_ONCE([IT_WITH_HOTSPOT_BUILD],
   AM_CONDITIONAL(WITH_ALT_HSBUILD, test "x${HSBUILD}" != "xdefault")
 ])
 
-AC_DEFUN([IT_WITH_HOTSPOT_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_HOTSPOT_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a HotSpot source zip])
   AC_ARG_WITH([hotspot-src-zip],
@@ -973,7 +969,7 @@ AC_DEFUN([IT_WITH_HOTSPOT_SRC_ZIP],
   AC_SUBST(ALT_HOTSPOT_SRC_ZIP)
 ])
 
-AC_DEFUN([IT_WITH_CORBA_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_CORBA_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a CORBA source zip])
   AC_ARG_WITH([corba-src-zip],
@@ -994,7 +990,7 @@ AC_DEFUN([IT_WITH_CORBA_SRC_ZIP],
   AC_SUBST(ALT_CORBA_SRC_ZIP)
 ])
 
-AC_DEFUN([IT_WITH_JAXP_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_JAXP_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a JAXP source zip])
   AC_ARG_WITH([jaxp-src-zip],
@@ -1015,7 +1011,7 @@ AC_DEFUN([IT_WITH_JAXP_SRC_ZIP],
   AC_SUBST(ALT_JAXP_SRC_ZIP)
 ])
 
-AC_DEFUN([IT_WITH_JAXWS_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_JAXWS_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a JAXWS source zip])
   AC_ARG_WITH([jaxws-src-zip],
@@ -1036,7 +1032,7 @@ AC_DEFUN([IT_WITH_JAXWS_SRC_ZIP],
   AC_SUBST(ALT_JAXWS_SRC_ZIP)
 ])
 
-AC_DEFUN([IT_WITH_JDK_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_JDK_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a JDK source zip])
   AC_ARG_WITH([jdk-src-zip],
@@ -1057,7 +1053,7 @@ AC_DEFUN([IT_WITH_JDK_SRC_ZIP],
   AC_SUBST(ALT_JDK_SRC_ZIP)
 ])
 
-AC_DEFUN([IT_WITH_LANGTOOLS_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_LANGTOOLS_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a langtools source zip])
   AC_ARG_WITH([langtools-src-zip],
@@ -2130,19 +2126,27 @@ AC_DEFUN_ONCE([IT_CHECK_FOR_GIO],
   if test x"${ENABLE_SYSTEM_GIO}" = "xyes"; then
     dnl Check for Gio+ headers and libraries.
     PKG_CHECK_MODULES(GIO, gio-2.0,[GIO_FOUND=yes],[GIO_FOUND=no])
+    if test "x${GIO_FOUND}" = xno; then
+      AC_MSG_ERROR([Could not find GIO; install GIO or build with --disable-system-gio to use the in-tree headers.])
+    fi
     OLD_LIBS=${LIBS}
     LIBS="${LIBS} ${GIO_LIBS}"
     AC_CHECK_FUNC([g_settings_new],[GIO_FUNC_FOUND=yes],[GIO_FUNC_FOUND=no])
     LIBS=${OLD_LIBS}
-    if test "x${GIO_FOUND}" = xno -o "x${GIO_FUNC_FOUND}" = xno; then
-      AC_MSG_ERROR([Could not find GIO; install GIO or build with --disable-system-gio to use the in-tree headers.])
+    if test "x${GIO_FUNC_FOUND}" = xno; then
+      AC_MSG_WARN([Could not find GSettings API; native proxy support will use GConf])
+      ENABLE_SYSTEM_GSETTINGS=false
+    else
+      ENABLE_SYSTEM_GSETTINGS=true
     fi
     AC_SUBST(GIO_CFLAGS)
     AC_SUBST(GIO_LIBS)
     ENABLE_SYSTEM_GIO=true
   fi
   AM_CONDITIONAL(USE_SYSTEM_GIO, test x"${ENABLE_SYSTEM_GIO}" = "xtrue")
+  AM_CONDITIONAL(USE_SYSTEM_GSETTINGS, test x"${ENABLE_SYSTEM_GSETTINGS}" = "xtrue")
   AC_SUBST(ENABLE_SYSTEM_GIO)
+  AC_SUBST(ENABLE_SYSTEM_GSETTINGS)
 ])
 
 AC_DEFUN_ONCE([IT_CHECK_FOR_FONTCONFIG],
@@ -2216,7 +2220,7 @@ AC_DEFUN_ONCE([IT_CHECK_FOR_PCSC],
     ENABLE_SYSTEM_PCSC="${enableval}"
   ],
   [
-    ENABLE_SYSTEM_PCSC="no"
+    ENABLE_SYSTEM_PCSC="yes"
   ])
   AC_MSG_RESULT(${ENABLE_SYSTEM_PCSC})
   if test x"${ENABLE_SYSTEM_PCSC}" = "xyes"; then
@@ -2258,7 +2262,7 @@ AC_DEFUN([IT_ENABLE_JAMVM],
   AC_SUBST(ENABLE_JAMVM)
 ])
 
-AC_DEFUN([IT_WITH_JAMVM_SRC_ZIP],
+AC_DEFUN_ONCE([IT_WITH_JAMVM_SRC_ZIP],
 [
   AC_MSG_CHECKING([for a JamVM source zip])
   AC_ARG_WITH([jamvm-src-zip],
@@ -2798,34 +2802,6 @@ AC_DEFUN_ONCE([IT_ENABLE_JAVA_DEBUGINFO],
   AM_CONDITIONAL([ENABLE_JAVA_DEBUGINFO], test x"${enable_java_debuginfo}" = "xyes")
 ])
 
-AC_DEFUN_ONCE([IT_HAS_NATIVE_HOTSPOT_PORT],
-[
-  AC_MSG_CHECKING([if a native HotSpot port is available for this architecture])
-  has_native_hotspot_port=yes;
-  case "${host_cpu}" in
-    aarch64) ;;
-    arm64) ;;
-    i?86) ;;
-    sparc) ;;
-    x86_64) ;;
-    powerpc64) ;;
-    powerpc64le) ;;
-    *) has_native_hotspot_port=no;
-  esac
-  AC_MSG_RESULT([$has_native_hotspot_port])
-])
-
-AC_DEFUN_ONCE([IT_DETERMINE_VERSION],
-[
-  AC_MSG_CHECKING([which branch and release of IcedTea is being built])
-  ICEDTEA_RELEASE=$(echo ${PACKAGE_VERSION} | sed 's#pre.*##')
-  ICEDTEA_BRANCH=$(echo ${ICEDTEA_RELEASE}|sed 's|\.[[0-9]]$||')
-  AC_MSG_RESULT([branch ${ICEDTEA_BRANCH}, release ${ICEDTEA_RELEASE}])
-  AC_SUBST([ICEDTEA_RELEASE])
-  AC_SUBST([ICEDTEA_BRANCH])
-])
-
-
 AC_DEFUN_ONCE([IT_ENABLE_INFINALITY],
 [
   AC_REQUIRE([IT_CHECK_FOR_FONTCONFIG])
@@ -2853,7 +2829,36 @@ AC_DEFUN_ONCE([IT_ENABLE_INFINALITY],
     fi
   fi
 ])
- 
+
+AC_DEFUN_ONCE([IT_HAS_NATIVE_HOTSPOT_PORT],
+[
+  AC_MSG_CHECKING([if a native HotSpot port is available for this architecture])
+  has_native_hotspot_port=yes;
+  case "${host_cpu}" in
+    aarch64) ;;
+    arm64) ;;
+    i?86) ;;
+    sparc) ;;
+    x86_64) ;;
+    powerpc64) ;;
+    powerpc64le) ;;
+    *) has_native_hotspot_port=no;
+  esac
+  AC_MSG_RESULT([$has_native_hotspot_port])
+])
+
+AC_DEFUN_ONCE([IT_DETERMINE_VERSION],
+[
+  AC_MSG_CHECKING([which branch and release of IcedTea is being built])
+  JAVA_VER=1.7.0
+  ICEDTEA_RELEASE=$(echo ${PACKAGE_VERSION} | sed 's#pre.*##')
+  ICEDTEA_BRANCH=$(echo ${ICEDTEA_RELEASE}|sed 's|\.[[0-9]]$||')
+  AC_MSG_RESULT([branch ${ICEDTEA_BRANCH}, release ${ICEDTEA_RELEASE} for OpenJDK ${JAVA_VER}])
+  AC_SUBST([JAVA_VER])
+  AC_SUBST([ICEDTEA_RELEASE])
+  AC_SUBST([ICEDTEA_BRANCH])
+])
+
 AC_DEFUN_ONCE([IT_ENABLE_QUEENS_TEST],
 [
   AC_MSG_CHECKING([whether to run the HotSpot Queens test])
@@ -2962,13 +2967,77 @@ AM_CONDITIONAL([JAVAC_LACKS_UNDERSCORED_LITERALS], test x"${it_cv_underscore}" =
 AC_PROVIDE([$0])dnl
 ])
 
+AC_DEFUN_ONCE([IT_CHECK_FOR_GCONF],
+[
+  AC_REQUIRE([IT_CHECK_FOR_GIO])
+  AC_MSG_CHECKING([whether to use the system GConf install])
+  AC_ARG_ENABLE([system-gconf],
+	      [AS_HELP_STRING(--enable-system-gconf,use the system GConf [[default=no if g_settings is available]])],
+  [
+    ENABLE_SYSTEM_GCONF="${enableval}"
+  ],
+  [
+    if test x"${ENABLE_SYSTEM_GSETTINGS}" = "xtrue"; then
+      ENABLE_SYSTEM_GCONF="no"
+    else
+      ENABLE_SYSTEM_GCONF="yes"
+    fi
+  ])
+  AC_MSG_RESULT(${ENABLE_SYSTEM_GCONF})
+  if test x"${ENABLE_SYSTEM_GCONF}" = "xyes"; then
+    dnl Check for Gconf+ headers and libraries.
+    PKG_CHECK_MODULES(GCONF, gconf-2.0 gobject-2.0,[GCONF_FOUND=yes],[GCONF_FOUND=no])
+    if test "x${GCONF_FOUND}" = xno; then
+      AC_MSG_ERROR([Could not find GConf; install GConf or build with --disable-system-gconf to use the in-tree headers.])
+    fi
+    AC_SUBST(GCONF_CFLAGS)
+    AC_SUBST(GCONF_LIBS)
+    ENABLE_SYSTEM_GCONF=true
+  fi
+  AM_CONDITIONAL(USE_SYSTEM_GCONF, test x"${ENABLE_SYSTEM_GCONF}" = "xtrue")
+  AC_SUBST(ENABLE_SYSTEM_GCONF)
+])
+
+AC_DEFUN_ONCE([IT_CHECK_FOR_SCTP],
+[
+  AC_MSG_CHECKING([whether to use the system libsctp install])
+  AC_ARG_ENABLE([system-sctp],
+	      [AS_HELP_STRING(--enable-system-sctp,use the system SCTP [[default=yes]])],
+  [
+    ENABLE_SYSTEM_SCTP="${enableval}"
+  ],
+  [
+    ENABLE_SYSTEM_SCTP="yes"
+  ])
+  AC_MSG_RESULT(${ENABLE_SYSTEM_SCTP})
+  if test x"${ENABLE_SYSTEM_SCTP}" = "xyes"; then
+    dnl Check for SCTP headers and libraries.
+    AC_CHECK_LIB([sctp], [sctp_bindx],
+        , [AC_MSG_ERROR([Could not find SCTP library; install SCTP or build with --disable-system-sctp to use the in-tree copy.])])
+    AC_CHECK_HEADER([netinet/sctp.h],
+        , [AC_MSG_ERROR([Could not find SCTP header; install SCTP or build with --disable-system-sctp to use the in-tree copy.])])
+    SCTP_LIBS="-lsctp"
+    AC_SUBST(SCTP_LIBS)
+    ENABLE_SYSTEM_SCTP=true
+  fi
+  AM_CONDITIONAL(USE_SYSTEM_SCTP, test x"${ENABLE_SYSTEM_SCTP}" = "xtrue")
+  AC_SUBST(ENABLE_SYSTEM_SCTP)
+])
+
 AC_DEFUN_ONCE([IT_ENABLE_NON_NSS_CURVES],
 [
   AC_MSG_CHECKING([whether to enable elliptic curves beyond those supported by NSS])
   AC_ARG_ENABLE([non-nss-curves],
 	      [AS_HELP_STRING(--enable-non-nss-curves,register curves beyond the 3 NSS defines [[default=no]])],
   [
-    ENABLE_NON_NSS_CURVES="${enableval}"
+    case "${enableval}" in
+      no)
+	ENABLE_NON_NSS_CURVES=no
+        ;;
+      *)
+        ENABLE_NON_NSS_CURVES=yes
+        ;;
+    esac
   ],
   [
     ENABLE_NON_NSS_CURVES="no"
@@ -2976,4 +3045,257 @@ AC_DEFUN_ONCE([IT_ENABLE_NON_NSS_CURVES],
   AC_MSG_RESULT(${ENABLE_NON_NSS_CURVES})
   AM_CONDITIONAL(USE_NON_NSS_CURVES, test x"${ENABLE_NON_NSS_CURVES}" = "xyes")
   AC_SUBST(ENABLE_NON_NSS_CURVES)
+])
+
+AC_DEFUN([IT_ENABLE_SPLIT_DEBUGINFO],
+[
+  AC_REQUIRE([IT_ENABLE_NATIVE_DEBUGINFO])
+  AC_MSG_CHECKING([whether to split debuginfo into separate files])
+  AC_ARG_ENABLE([split-debuginfo],
+	      [AS_HELP_STRING(--enable-split-debuginfo,split debuginfo into separate files [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_split_debuginfo=no
+        ;;
+      *)
+        enable_split_debuginfo=yes
+        ;;
+    esac
+  ],
+  [
+        enable_split_debuginfo=no
+  ])
+  AC_MSG_RESULT([${enable_split_debuginfo}])
+  if test x"${enable_split_debuginfo}" = "xyes"; then
+    if test x"${enable_native_debuginfo}" = "xno"; then
+      AC_MSG_WARN([disabling split debuginfo as native debuginfo is not enabled])
+      enable_split_debuginfo=no
+    else
+      IT_FIND_TOOL([OBJCOPY], [objcopy])
+    fi
+  fi
+  AM_CONDITIONAL([SPLIT_DEBUGINFO], test x"${enable_split_debuginfo}" = "xyes")
+  AC_SUBST([enable_split_debuginfo])
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_OPENJDK_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_OPENJDK_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified OpenJDK tarball])
+  AC_ARG_WITH([openjdk-checksum],
+	      [AS_HELP_STRING(--with-openjdk-checksum,checksum the specified OpenJDK tarball [[default=yes]])],
+  [
+    OPENJDK_CHECKSUM=${withval}
+  ],
+  [
+    OPENJDK_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${OPENJDK_CHECKSUM})
+  if test "x${OPENJDK_CHECKSUM}" = "xno" -a "x${ALT_OPENJDK_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No OpenJDK source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_OPENJDK_CHECKSUM, test x"${OPENJDK_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_OPENJDK_CHECKSUM, test x"${OPENJDK_CHECKSUM}" != "xyes" -a x"${OPENJDK_CHECKSUM}" != "xno")
+  AC_SUBST(OPENJDK_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_CORBA_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_CORBA_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified CORBA tarball])
+  AC_ARG_WITH([corba-checksum],
+	      [AS_HELP_STRING(--with-corba-checksum,checksum the specified CORBA tarball [[default=yes]])],
+  [
+    CORBA_CHECKSUM=${withval}
+  ],
+  [
+    CORBA_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${CORBA_CHECKSUM})
+  if test "x${CORBA_CHECKSUM}" = "xno" -a "x${ALT_CORBA_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No CORBA source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_CORBA_CHECKSUM, test x"${CORBA_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_CORBA_CHECKSUM, test x"${CORBA_CHECKSUM}" != "xyes" -a x"${CORBA_CHECKSUM}" != "xno")
+  AC_SUBST(CORBA_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_JAXP_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_JAXP_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified JAXP tarball])
+  AC_ARG_WITH([jaxp-checksum],
+	      [AS_HELP_STRING(--with-jaxp-checksum,checksum the specified JAXP tarball [[default=yes]])],
+  [
+    JAXP_CHECKSUM=${withval}
+  ],
+  [
+    JAXP_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${JAXP_CHECKSUM})
+  if test "x${JAXP_CHECKSUM}" = "xno" -a "x${ALT_JAXP_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No JAXP source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_JAXP_CHECKSUM, test x"${JAXP_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_JAXP_CHECKSUM, test x"${JAXP_CHECKSUM}" != "xyes" -a x"${JAXP_CHECKSUM}" != "xno")
+  AC_SUBST(JAXP_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_JAXWS_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_JAXWS_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified JAXWS tarball])
+  AC_ARG_WITH([jaxws-checksum],
+	      [AS_HELP_STRING(--with-jaxws-checksum,checksum the specified JAXWS tarball [[default=yes]])],
+  [
+    JAXWS_CHECKSUM=${withval}
+  ],
+  [
+    JAXWS_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${JAXWS_CHECKSUM})
+  if test "x${JAXWS_CHECKSUM}" = "xno" -a "x${ALT_JAXWS_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No JAXWS source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_JAXWS_CHECKSUM, test x"${JAXWS_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_JAXWS_CHECKSUM, test x"${JAXWS_CHECKSUM}" != "xyes" -a x"${JAXWS_CHECKSUM}" != "xno")
+  AC_SUBST(JAXWS_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_JDK_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_JDK_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified JDK tarball])
+  AC_ARG_WITH([jdk-checksum],
+	      [AS_HELP_STRING(--with-jdk-checksum,checksum the specified JDK tarball [[default=yes]])],
+  [
+    JDK_CHECKSUM=${withval}
+  ],
+  [
+    JDK_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${JDK_CHECKSUM})
+  if test "x${JDK_CHECKSUM}" = "xno" -a "x${ALT_JDK_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No JDK source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_JDK_CHECKSUM, test x"${JDK_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_JDK_CHECKSUM, test x"${JDK_CHECKSUM}" != "xyes" -a x"${JDK_CHECKSUM}" != "xno")
+  AC_SUBST(JDK_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_LANGTOOLS_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_LANGTOOLS_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified langtools tarball])
+  AC_ARG_WITH([langtools-checksum],
+	      [AS_HELP_STRING(--with-langtools-checksum,checksum the specified langtools tarball [[default=yes]])],
+  [
+    LANGTOOLS_CHECKSUM=${withval}
+  ],
+  [
+    LANGTOOLS_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${LANGTOOLS_CHECKSUM})
+  if test "x${LANGTOOLS_CHECKSUM}" = "xno" -a "x${ALT_LANGTOOLS_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No langtools source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_LANGTOOLS_CHECKSUM, test x"${LANGTOOLS_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_LANGTOOLS_CHECKSUM, test x"${LANGTOOLS_CHECKSUM}" != "xyes" -a x"${LANGTOOLS_CHECKSUM}" != "xno")
+  AC_SUBST(LANGTOOLS_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_CACAO_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_CACAO_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified CACAO tarball])
+  AC_ARG_WITH([cacao-checksum],
+	      [AS_HELP_STRING(--with-cacao-checksum,checksum the specified CACAO tarball [[default=yes]])],
+  [
+    CACAO_CHECKSUM=${withval}
+  ],
+  [
+    CACAO_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${CACAO_CHECKSUM})
+  if test "x${CACAO_CHECKSUM}" = "xno" -a "x${ALT_CACAO_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No CACAO source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_CACAO_CHECKSUM, test x"${CACAO_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_CACAO_CHECKSUM, test x"${CACAO_CHECKSUM}" != "xyes" -a x"${CACAO_CHECKSUM}" != "xno")
+  AC_SUBST(CACAO_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_JAMVM_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_JAMVM_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified JamVM tarball])
+  AC_ARG_WITH([jamvm-checksum],
+	      [AS_HELP_STRING(--with-jamvm-checksum,checksum the specified JamVM tarball [[default=yes]])],
+  [
+    JAMVM_CHECKSUM=${withval}
+  ],
+  [
+    JAMVM_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${JAMVM_CHECKSUM})
+  if test "x${JAMVM_CHECKSUM}" = "xno" -a "x${ALT_JAMVM_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No JamVM source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_JAMVM_CHECKSUM, test x"${JAMVM_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_JAMVM_CHECKSUM, test x"${JAMVM_CHECKSUM}" != "xyes" -a x"${JAMVM_CHECKSUM}" != "xno")
+  AC_SUBST(JAMVM_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_ENABLE_HOTSPOT_CHECKSUM],
+[
+  AC_REQUIRE([IT_WITH_HOTSPOT_SRC_ZIP])
+  AC_MSG_CHECKING([whether to enable checksumming of the specified HotSpot tarball])
+  AC_ARG_WITH([hotspot-checksum],
+	      [AS_HELP_STRING(--with-hotspot-checksum,checksum the specified HotSpot tarball [[default=yes]])],
+  [
+    HOTSPOT_CHECKSUM=${withval}
+  ],
+  [
+    HOTSPOT_CHECKSUM="yes"
+  ])
+  AC_MSG_RESULT(${HOTSPOT_CHECKSUM})
+  if test "x${HOTSPOT_CHECKSUM}" = "xno" -a "x${ALT_HOTSPOT_SRC_ZIP}" = "xnot specified"; then
+    AC_MSG_WARN([No HotSpot source tarball specified; downloaded tarballs are always checksummed.])
+  fi
+  AM_CONDITIONAL(DISABLE_HOTSPOT_CHECKSUM, test x"${HOTSPOT_CHECKSUM}" = "xno")
+  AM_CONDITIONAL(WITH_HOTSPOT_CHECKSUM, test x"${HOTSPOT_CHECKSUM}" != "xyes" -a x"${HOTSPOT_CHECKSUM}" != "xno")
+  AC_SUBST(HOTSPOT_CHECKSUM)
+])
+
+AC_DEFUN_ONCE([IT_WITH_CACERTS_FILE],
+[
+  CACERTS_DEFAULT=${SYSTEM_JDK_DIR}/jre/lib/security/cacerts
+  AC_MSG_CHECKING([whether to copy a certificate authority certificates (cacerts) file])
+  AC_ARG_WITH([cacerts-file],
+              [AS_HELP_STRING([--with-cacerts-file[[=PATH]]],specify the location of the cacerts file)],
+  [
+    ALT_CACERTS_FILE=${withval}
+  ],
+  [ 
+    ALT_CACERTS_FILE="yes"
+  ])
+  AC_MSG_RESULT(${ALT_CACERTS_FILE})
+  if test "x${ALT_CACERTS_FILE}" != "xno"; then
+    if test "x${ALT_CACERTS_FILE}" = "xyes"; then
+      AC_MSG_NOTICE([No cacerts file specified; using ${CACERTS_DEFAULT}])
+      ALT_CACERTS_FILE=${CACERTS_DEFAULT} ;
+    fi
+    AC_MSG_CHECKING([if $ALT_CACERTS_FILE is a valid keystore file])
+    if test -f "${ALT_CACERTS_FILE}" && \
+     ${FILE} ${ALT_CACERTS_FILE} | ${GREP} 'Java KeyStore' >&AS_MESSAGE_LOG_FD 2>&1; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+      AC_MSG_WARN([No valid cacerts file found; one won't be passed to the OpenJDK build])
+      ALT_CACERTS_FILE="no"
+    fi
+  fi
+  AM_CONDITIONAL(USE_ALT_CACERTS_FILE, test "x${ALT_CACERTS_FILE}" != "xno")
+  AC_SUBST(ALT_CACERTS_FILE)
 ])

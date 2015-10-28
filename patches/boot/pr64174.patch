@@ -15,7 +15,7 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/util/CurrencyData.propert
  LI=CHF
  # LITHUANIA
 -LT=LTL;2014-12-31-22-00-00;EUR
-+LT=EUR
++LT=LTL;2015-01-01-00-00-00;EUR
  # LUXEMBOURG
  LU=EUR
  # MACAU

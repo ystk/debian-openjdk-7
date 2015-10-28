@@ -3,9 +3,8 @@
 
 it-debian-build-flags.diff
 it-set-compiler.diff
-it-aarch64-zero-default.diff
+#it-aarch64-zero-default.diff aarch64 hotspot merged?
 #it-sparc-zero.diff
-it-ppc64el-zero.diff
 it-x32-zero.diff
 it-mips64-zero.diff
 it-use-quilt.diff

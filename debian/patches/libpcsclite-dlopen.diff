@@ -1,14 +1,16 @@
---- openjdk/jdk/src/solaris/classes/sun/security/smartcardio/PlatformPCSC.java~	2014-01-28 18:02:26.000000000 +0000
-+++ openjdk/jdk/src/solaris/classes/sun/security/smartcardio/PlatformPCSC.java	2014-01-30 13:53:42.028872034 +0000
-@@ -48,6 +48,7 @@
+Index: openjdk/jdk/src/solaris/classes/sun/security/smartcardio/PlatformPCSC.java
+===================================================================
+--- openjdk/jdk/src/solaris/classes/sun/security/smartcardio/PlatformPCSC.java.orig
++++ openjdk/jdk/src/solaris/classes/sun/security/smartcardio/PlatformPCSC.java
+@@ -48,6 +48,7 @@ class PlatformPCSC {
  
      private final static String PROP_NAME = "sun.security.smartcardio.library";
  
 +    private final static String LIB0 = "libpcsclite.so.1";
      private final static String LIB1 = "/usr/$LIBISA/libpcsclite.so.1";
      private final static String LIB2 = "/usr/local/$LIBISA/libpcsclite.so.1";
-     private final static String PCSC_FRAMEWORK = "/System/Library/Frameworks/PCSC.framework/Versions/Current/PCSC";
-@@ -104,22 +105,9 @@
+     private final static String LIB3 = "/usr/lib/$ARCH-linux-gnu/libpcsclite.so.1";
+@@ -137,42 +138,9 @@ class PlatformPCSC {
          if (lib.length() != 0) {
              return lib;
          }
@@ -20,6 +22,26 @@
 -        lib = expand(LIB2);
 -        if (new File(lib).isFile()) {
 -            // if LIB2 exists, use that
+-            return lib;
+-        }
+-        lib = expand(LIB3);
+-        if (new File(lib).isFile()) {
+-            // if LIB3 exists, use that
+-            return lib;
+-        }
+-        lib = LIB4; // Debian armel special case
+-        if (new File(lib).isFile()) {
+-            // if LIB4 exists, use that
+-            return lib;
+-        }
+-        lib = LIB5; // Debian armhf special case
+-        if (new File(lib).isFile()) {
+-            // if LIB5 exists, use that
+-            return lib;
+-        }
+-        lib = expand(LIB6);
+-        if (new File(lib).isFile()) {
+-            // if LIB6 exists, use that
 -            return lib;
 -        }
 -        lib = PCSC_FRAMEWORK;

@@ -1,0 +1,12 @@
+Index: b/acinclude.m4
+===================================================================
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -2876,6 +2876,7 @@ AC_DEFUN_ONCE([IT_HAS_NATIVE_HOTSPOT_POR
+     arm64) ;;
+     i?86) ;;
+     sparc) ;;
++    sparc64) ;;
+     x86_64) ;;
+     powerpc64) ;;
+     powerpc64le) ;;

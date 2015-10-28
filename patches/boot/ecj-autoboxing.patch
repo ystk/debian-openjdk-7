@@ -1,6 +1,6 @@
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java openjdk-boot/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java
---- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java	2014-04-18 05:16:59.309775872 +0100
-+++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java	2014-04-18 05:19:44.804221566 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java	2014-05-07 08:51:32.125735531 +0100
++++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/BoundMethodHandle.java	2014-05-07 09:00:03.601219315 +0100
 @@ -71,11 +71,11 @@
              case 'I':
                  return (BoundMethodHandle) SpeciesData.EMPTY.extendWithType('I').constructor[0].invokeBasic(type, form, ValueConversions.widenSubword(x));
@@ -37,16 +37,16 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/BoundMethodHa
 -    /*non-public*/ final float  argF(int i) throws Throwable { return (float)  speciesData().getters[i].invokeBasic(this); }
 -    /*non-public*/ final double argD(int i) throws Throwable { return (double) speciesData().getters[i].invokeBasic(this); }
 -    /*non-public*/ final long   argJ(int i) throws Throwable { return (long)   speciesData().getters[i].invokeBasic(this); }
-+    /*non-public*/ final int    argI(int i) throws Throwable { return (Integer) speciesData().getters[i].invokeBasic(this); }
-+    /*non-public*/ final float  argF(int i) throws Throwable { return (Float)   speciesData().getters[i].invokeBasic(this); }
-+    /*non-public*/ final double argD(int i) throws Throwable { return (Double)  speciesData().getters[i].invokeBasic(this); }
-+    /*non-public*/ final long   argJ(int i) throws Throwable { return (Long)    speciesData().getters[i].invokeBasic(this); }
++    /*non-public*/ final int    argI(int i) throws Throwable { return (Integer)    speciesData().getters[i].invokeBasic(this); }
++    /*non-public*/ final float  argF(int i) throws Throwable { return (Float)  speciesData().getters[i].invokeBasic(this); }
++    /*non-public*/ final double argD(int i) throws Throwable { return (Double) speciesData().getters[i].invokeBasic(this); }
++    /*non-public*/ final long   argJ(int i) throws Throwable { return (Long)   speciesData().getters[i].invokeBasic(this); }
  
      //
      // cloning API
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/CallSite.java openjdk-boot/jdk/src/share/classes/java/lang/invoke/CallSite.java
---- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/CallSite.java	2014-04-17 22:51:43.000000000 +0100
-+++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/CallSite.java	2014-04-18 05:18:50.303416137 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/CallSite.java	2014-05-02 20:39:34.000000000 +0100
++++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/CallSite.java	2014-05-07 08:59:22.660620050 +0100
 @@ -303,7 +303,7 @@
  
      private static Object maybeReBox(Object x) {
@@ -57,8 +57,8 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/CallSite.java
                  x = xi;  // must rebox; see JLS 5.1.7
          }
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java openjdk-boot/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java
---- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java	2014-04-17 22:51:43.000000000 +0100
-+++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java	2014-04-18 05:18:50.303416137 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java	2014-05-02 20:39:34.000000000 +0100
++++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/InvokerBytecodeGenerator.java	2014-05-07 08:59:22.664620110 +0100
 @@ -315,11 +315,11 @@
              return;
          }
@@ -101,8 +101,8 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/InvokerByteco
          }
          // fall through:
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/LambdaForm.java openjdk-boot/jdk/src/share/classes/java/lang/invoke/LambdaForm.java
---- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/LambdaForm.java	2014-04-18 05:16:59.309775872 +0100
-+++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/LambdaForm.java	2014-04-18 05:18:50.303416137 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/LambdaForm.java	2014-05-07 08:51:32.125735531 +0100
++++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/LambdaForm.java	2014-05-07 08:59:22.664620110 +0100
 @@ -1444,7 +1444,7 @@
                          if (a1 instanceof Integer && a2 instanceof Integer) {
                              if (sawInt)  continue;
@@ -113,8 +113,8 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/LambdaForm.ja
                          return false;
                      }
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java openjdk-boot/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java
---- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java	2014-04-18 05:16:59.345776405 +0100
-+++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java	2014-04-18 05:18:50.303416137 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java	2014-05-07 08:51:32.961747758 +0100
++++ openjdk-boot/jdk/src/share/classes/java/lang/invoke/MethodHandleImpl.java	2014-05-07 08:59:22.664620110 +0100
 @@ -885,7 +885,7 @@
                  MH_checkCallerClass = IMPL_LOOKUP
                      .findStatic(THIS_CLASS, "checkCallerClass",
@@ -125,8 +125,8 @@ diff -Nru openjdk-boot.orig/jdk/src/share/classes/java/lang/invoke/MethodHandleI
                  throw newInternalError(ex);
              }
 diff -Nru openjdk-boot.orig/jdk/src/share/classes/sun/invoke/util/ValueConversions.java openjdk-boot/jdk/src/share/classes/sun/invoke/util/ValueConversions.java
---- openjdk-boot.orig/jdk/src/share/classes/sun/invoke/util/ValueConversions.java	2014-04-18 05:16:59.313775930 +0100
-+++ openjdk-boot/jdk/src/share/classes/sun/invoke/util/ValueConversions.java	2014-04-18 05:18:50.303416137 +0100
+--- openjdk-boot.orig/jdk/src/share/classes/sun/invoke/util/ValueConversions.java	2014-05-07 08:51:32.133735648 +0100
++++ openjdk-boot/jdk/src/share/classes/sun/invoke/util/ValueConversions.java	2014-05-07 08:59:22.664620110 +0100
 @@ -191,9 +191,9 @@
          if (x instanceof Number) {
              res = (Number) x;

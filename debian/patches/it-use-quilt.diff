@@ -7,7 +7,7 @@ Index: b/Makefile.am
 ===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -1352,132 +1352,37 @@ clean-generated:
+@@ -1632,132 +1632,37 @@ clean-generated:
  	rm -f stamps/generated.stamp
  
  stamps/patch-fsg.stamp: stamps/extract.stamp
@@ -162,7 +162,7 @@ Index: b/Makefile.am
  	fi
  
  stamps/versioning.stamp: stamps/patch.stamp
-@@ -1547,54 +1452,20 @@ clean-clone-boot:
+@@ -1827,54 +1732,20 @@ clean-clone-boot:
  	rm -f stamps/clone-boot.stamp
  
  stamps/patch-boot.stamp: stamps/clone-boot.stamp
