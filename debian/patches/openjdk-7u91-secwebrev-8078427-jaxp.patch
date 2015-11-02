@@ -1,0 +1,202 @@
+# HG changeset patch
+# User aefimov
+# Date 1433340341 -10800
+#      Wed Jun 03 17:05:41 2015 +0300
+# Node ID 3a8a090c9ae4694f92054f03dbd4edfad3a9c8a7
+# Parent  e2babdebf1cf568d39fd1901ceea1766f17890ef
+8078427: More supportive home environment
+Reviewed-by: dfuchs, lancea, skoivu
+
+Index: openjdk/jaxp/src/com/sun/org/apache/xml/internal/resolver/Catalog.java
+===================================================================
+--- openjdk/jaxp/src/com/sun/org/apache/xml/internal/resolver/Catalog.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xml/internal/resolver/Catalog.java
+@@ -813,9 +813,7 @@ public class Catalog {
+       // tack on a basename because URLs point to files not dirs
+       catalogCwd = FileURL.makeURL("basename");
+     } catch (MalformedURLException e) {
+-      String userdir = SecuritySupport.getSystemProperty("user.dir");
+-      userdir.replace('\\', '/');
+-      catalogManager.debug.message(1, "Malformed URL on cwd", userdir);
++      catalogManager.debug.message(1, "Malformed URL on cwd", "user.dir");
+       catalogCwd = null;
+     }
+ 
+Index: openjdk/jaxp/src/com/sun/org/apache/xml/internal/serializer/TreeWalker.java
+===================================================================
+--- openjdk/jaxp/src/com/sun/org/apache/xml/internal/serializer/TreeWalker.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xml/internal/serializer/TreeWalker.java
+@@ -1,15 +1,15 @@
+ /*
+- * reserved comment block
+- * DO NOT REMOVE OR ALTER!
++ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+  */
+ /*
+- * Copyright 1999-2005 The Apache Software Foundation.
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
+  *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
++ *      http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+@@ -17,9 +17,7 @@
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-/*
+- * $Id: TreeWalker.java,v 1.1.4.1 2005/09/08 10:58:44 suresh_emailid Exp $
+- */
++
+ package com.sun.org.apache.xml.internal.serializer;
+ 
+ import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
+@@ -94,34 +92,17 @@ public final class TreeWalker
+       m_contentHandler = contentHandler;
+       if (m_contentHandler instanceof SerializationHandler) {
+           m_Serializer = (SerializationHandler) m_contentHandler;
+-      }
+-      else
++      } else {
+           m_Serializer = null;
++      }
+ 
+       // Set the system ID, if it is given
+       m_contentHandler.setDocumentLocator(m_locator);
+-      if (systemId != null)
++      if (systemId != null) {
+           m_locator.setSystemId(systemId);
+-      else {
+-          try {
+-            // Bug see Bugzilla  26741
+-            m_locator.setSystemId(SecuritySupport.getSystemProperty("user.dir") + File.separator + "dummy.xsl");
+-           }
+-           catch (SecurityException se) {// user.dir not accessible from applet
+-           }
+       }
+ 
+-      // Set the document locator
+-                if (m_contentHandler != null)
+-                        m_contentHandler.setDocumentLocator(m_locator);
+-                try {
+-                   // Bug see Bugzilla  26741
+-                  m_locator.setSystemId(SecuritySupport.getSystemProperty("user.dir") + File.separator + "dummy.xsl");
+-                }
+-                catch (SecurityException se){// user.dir not accessible from applet
+-
+-    }
+-    m_dh = new DOM2Helper();
++      m_dh = new DOM2Helper();
+   }
+ 
+   /**
+Index: openjdk/jaxp/src/com/sun/org/apache/xml/internal/utils/TreeWalker.java
+===================================================================
+--- openjdk/jaxp/src/com/sun/org/apache/xml/internal/utils/TreeWalker.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xml/internal/utils/TreeWalker.java
+@@ -1,15 +1,15 @@
+ /*
+- * reserved comment block
+- * DO NOT REMOVE OR ALTER!
++ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+  */
+ /*
+- * Copyright 1999-2004 The Apache Software Foundation.
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
+  *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *     http://www.apache.org/licenses/LICENSE-2.0
++ *      http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+@@ -17,9 +17,7 @@
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-/*
+- * $Id: TreeWalker.java,v 1.2.4.1 2005/09/15 08:15:59 suresh_emailid Exp $
+- */
++
+ package com.sun.org.apache.xml.internal.utils;
+ 
+ import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
+@@ -81,7 +79,7 @@ public class TreeWalker
+ 
+         /**
+    * Constructor.
+-   * @param   contentHandler The implemention of the
++   * @param   contentHandler The implementation of the
+    * @param   systemId System identifier for the document.
+    * contentHandler operation (toXMLString, digest, ...)
+    */
+@@ -89,15 +87,8 @@ public class TreeWalker
+   {
+     this.m_contentHandler = contentHandler;
+     m_contentHandler.setDocumentLocator(m_locator);
+-    if (systemId != null)
++    if (systemId != null) {
+         m_locator.setSystemId(systemId);
+-    else {
+-        try {
+-          // Bug see Bugzilla  26741
+-          m_locator.setSystemId(SecuritySupport.getSystemProperty("user.dir") + File.separator + "dummy.xsl");
+-         }
+-         catch (SecurityException se) {// user.dir not accessible from applet
+-         }
+     }
+     m_dh = dh;
+   }
+@@ -111,31 +102,19 @@ public class TreeWalker
+   {
+     this.m_contentHandler = contentHandler;
+     m_contentHandler.setDocumentLocator(m_locator);
+-    try {
+-       // Bug see Bugzilla  26741
+-      m_locator.setSystemId(SecuritySupport.getSystemProperty("user.dir") + File.separator + "dummy.xsl");
+-    }
+-    catch (SecurityException se){// user.dir not accessible from applet
+-    }
+     m_dh = dh;
+   }
+ 
+   /**
+    * Constructor.
+-   * @param   contentHandler The implemention of the
++   * @param   contentHandler The implementation of the
+    * contentHandler operation (toXMLString, digest, ...)
+    */
+   public TreeWalker(ContentHandler contentHandler)
+   {
+     this.m_contentHandler = contentHandler;
+-                if (m_contentHandler != null)
+-                        m_contentHandler.setDocumentLocator(m_locator);
+-                try {
+-                   // Bug see Bugzilla  26741
+-                  m_locator.setSystemId(SecuritySupport.getSystemProperty("user.dir") + File.separator + "dummy.xsl");
+-                }
+-                catch (SecurityException se){// user.dir not accessible from applet
+-
++    if (m_contentHandler != null) {
++        m_contentHandler.setDocumentLocator(m_locator);
+     }
+     m_dh = new DOM2Helper();
+   }

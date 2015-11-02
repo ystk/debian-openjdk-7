@@ -1,0 +1,74 @@
+# HG changeset patch
+# User igerasim
+# Date 1439220116 -10800
+#      Mon Aug 10 18:21:56 2015 +0300
+# Node ID a47efaafb6dffb5855f3ad757b0f0ecab292daa6
+# Parent  d2d1e6a2e6f383cbada4285adafca375982bf0c9
+8131291: Perfect parameter patterning
+Reviewed-by: mullan
+
+Index: openjdk/jdk/src/share/classes/sun/security/provider/certpath/AlgorithmChecker.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/security/provider/certpath/AlgorithmChecker.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/provider/certpath/AlgorithmChecker.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -77,6 +77,13 @@ final public class AlgorithmChecker exte
+     private final static Set<CryptoPrimitive> SIGNATURE_PRIMITIVE_SET =
+         Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.SIGNATURE));
+ 
++    private final static Set<CryptoPrimitive> KU_PRIMITIVE_SET =
++        Collections.unmodifiableSet(EnumSet.of(
++            CryptoPrimitive.SIGNATURE,
++            CryptoPrimitive.KEY_ENCAPSULATION,
++            CryptoPrimitive.PUBLIC_KEY_ENCRYPTION,
++            CryptoPrimitive.KEY_AGREEMENT));
++
+     private final static DisabledAlgorithmConstraints
+         certPathDefaultConstraints = new DisabledAlgorithmConstraints(
+             DisabledAlgorithmConstraints.PROPERTY_CERTPATH_DISABLED_ALGS);
+@@ -210,9 +217,11 @@ final public class AlgorithmChecker exte
+                 null, null, -1, PKIXReason.INVALID_KEY_USAGE);
+         }
+ 
++        // Assume all key usage bits are set if key usage is not present
++        Set<CryptoPrimitive> primitives = KU_PRIMITIVE_SET;
++
+         if (keyUsage != null) {
+-            Set<CryptoPrimitive> primitives =
+-                        EnumSet.noneOf(CryptoPrimitive.class);
++                primitives = EnumSet.noneOf(CryptoPrimitive.class);
+ 
+             if (keyUsage[0] || keyUsage[1] || keyUsage[5] || keyUsage[6]) {
+                 // keyUsage[0]: KeyUsage.digitalSignature
+@@ -237,15 +246,19 @@ final public class AlgorithmChecker exte
+             // KeyUsage.encipherOnly and KeyUsage.decipherOnly are
+             // undefined in the absence of the keyAgreement bit.
+ 
+-            if (!primitives.isEmpty()) {
+-                if (!constraints.permits(primitives, currPubKey)) {
+-                    throw new CertPathValidatorException(
+-                        "algorithm constraints check failed",
+-                        null, null, -1, BasicReason.ALGORITHM_CONSTRAINED);
+-                }
++            if (primitives.isEmpty()) {
++                throw new CertPathValidatorException(
++                    "incorrect KeyUsage extension",
++                    null, null, -1, PKIXReason.INVALID_KEY_USAGE);
+             }
+         }
+ 
++        if (!constraints.permits(primitives, currPubKey)) {
++            throw new CertPathValidatorException(
++                "algorithm constraints check failed",
++                null, null, -1, BasicReason.ALGORITHM_CONSTRAINED);
++        }
++
+         // Check with previous cert for signature algorithm and public key
+         if (prevPubKey != null) {
+             if (currSigAlg != null) {

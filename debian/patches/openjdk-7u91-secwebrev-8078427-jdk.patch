@@ -1,0 +1,110 @@
+# HG changeset patch
+# User aefimov
+# Date 1433340393 -10800
+#      Wed Jun 03 17:06:33 2015 +0300
+# Node ID 2fafbcc1216d3e47c92b6663dc1453d0600cc933
+# Parent  7ba929dd69bff7b49a0b1ad962b36ac05ce20f2a
+8078427: More supportive home environment
+Reviewed-by: dfuchs, lancea, skoivu
+
+Index: openjdk/jdk/src/share/lib/security/java.security-linux
+===================================================================
+--- openjdk/jdk/src/share/lib/security/java.security-linux.orig
++++ openjdk/jdk/src/share/lib/security/java.security-linux
+@@ -152,6 +152,7 @@ package.access=sun.,\
+                com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                com.sun.org.apache.xalan.internal.xsltc.util.,\
+                com.sun.org.apache.xml.internal.res.,\
++               com.sun.org.apache.xml.internal.serializer.dom3.,\
+                com.sun.org.apache.xml.internal.serializer.utils.,\
+                com.sun.org.apache.xml.internal.utils.,\
+                com.sun.org.apache.xml.internal.security.,\
+@@ -192,6 +193,7 @@ package.definition=sun.,\
+                    com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                    com.sun.org.apache.xalan.internal.xsltc.util.,\
+                    com.sun.org.apache.xml.internal.res.,\
++                   com.sun.org.apache.xml.internal.serializer.dom3.,\
+                    com.sun.org.apache.xml.internal.serializer.utils.,\
+                    com.sun.org.apache.xml.internal.utils.,\
+                    com.sun.org.apache.xml.internal.security.,\
+Index: openjdk/jdk/src/share/lib/security/java.security-macosx
+===================================================================
+--- openjdk/jdk/src/share/lib/security/java.security-macosx.orig
++++ openjdk/jdk/src/share/lib/security/java.security-macosx
+@@ -152,6 +152,7 @@ package.access=sun.,\
+                com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                com.sun.org.apache.xalan.internal.xsltc.util.,\
+                com.sun.org.apache.xml.internal.res.,\
++               com.sun.org.apache.xml.internal.serializer.dom3.,\
+                com.sun.org.apache.xml.internal.serializer.utils.,\
+                com.sun.org.apache.xml.internal.utils.,\
+                com.sun.org.apache.xml.internal.security.,\
+@@ -194,6 +195,7 @@ package.definition=sun.,\
+                    com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                    com.sun.org.apache.xalan.internal.xsltc.util.,\
+                    com.sun.org.apache.xml.internal.res.,\
++                   com.sun.org.apache.xml.internal.serializer.dom3.,\
+                    com.sun.org.apache.xml.internal.serializer.utils.,\
+                    com.sun.org.apache.xml.internal.utils.,\
+                    com.sun.org.apache.xml.internal.security.,\
+Index: openjdk/jdk/src/share/lib/security/java.security-solaris
+===================================================================
+--- openjdk/jdk/src/share/lib/security/java.security-solaris.orig
++++ openjdk/jdk/src/share/lib/security/java.security-solaris
+@@ -153,6 +153,7 @@ package.access=sun.,\
+                com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                com.sun.org.apache.xalan.internal.xsltc.util.,\
+                com.sun.org.apache.xml.internal.res.,\
++               com.sun.org.apache.xml.internal.serializer.dom3.,\
+                com.sun.org.apache.xml.internal.serializer.utils.,\
+                com.sun.org.apache.xml.internal.utils.,\
+                com.sun.org.apache.xml.internal.security.,\
+@@ -194,6 +195,7 @@ package.definition=sun.,\
+                    com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                    com.sun.org.apache.xalan.internal.xsltc.util.,\
+                    com.sun.org.apache.xml.internal.res.,\
++                   com.sun.org.apache.xml.internal.serializer.dom3.,\
+                    com.sun.org.apache.xml.internal.serializer.utils.,\
+                    com.sun.org.apache.xml.internal.utils.,\
+                    com.sun.org.apache.xml.internal.security.,\
+Index: openjdk/jdk/src/share/lib/security/java.security-windows
+===================================================================
+--- openjdk/jdk/src/share/lib/security/java.security-windows.orig
++++ openjdk/jdk/src/share/lib/security/java.security-windows
+@@ -152,6 +152,7 @@ package.access=sun.,\
+                com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                com.sun.org.apache.xalan.internal.xsltc.util.,\
+                com.sun.org.apache.xml.internal.res.,\
++               com.sun.org.apache.xml.internal.serializer.dom3.,\
+                com.sun.org.apache.xml.internal.serializer.utils.,\
+                com.sun.org.apache.xml.internal.utils.,\
+                com.sun.org.apache.xml.internal.security.,\
+@@ -194,6 +195,7 @@ package.definition=sun.,\
+                    com.sun.org.apache.xalan.internal.xsltc.trax.,\
+                    com.sun.org.apache.xalan.internal.xsltc.util.,\
+                    com.sun.org.apache.xml.internal.res.,\
++                   com.sun.org.apache.xml.internal.serializer.dom3.,\
+                    com.sun.org.apache.xml.internal.serializer.utils.,\
+                    com.sun.org.apache.xml.internal.utils.,\
+                    com.sun.org.apache.xml.internal.security.,\
+Index: openjdk/jdk/test/java/lang/SecurityManager/CheckPackageAccess.java
+===================================================================
+--- openjdk/jdk/test/java/lang/SecurityManager/CheckPackageAccess.java.orig
++++ openjdk/jdk/test/java/lang/SecurityManager/CheckPackageAccess.java
+@@ -23,7 +23,7 @@
+ 
+ /*
+  *  @test
+- *  @bug 6741606 7146431 8000450 8022945
++ *  @bug 6741606 7146431 8000450 8022945 8078427
+  *  @summary Make sure all restricted packages listed in the package.access
+  *           property in the java.security file are blocked
+  *  @run main/othervm CheckPackageAccess
+@@ -73,6 +73,7 @@ public class CheckPackageAccess {
+         "com.sun.org.apache.xalan.internal.xsltc.util.",
+         "com.sun.org.apache.xml.internal.res.",
+         "com.sun.org.apache.xml.internal.security.",
++        "com.sun.org.apache.xml.internal.serializer.dom3.",
+         "com.sun.org.apache.xml.internal.serializer.utils.",
+         "com.sun.org.apache.xml.internal.utils.",
+         "com.sun.org.glassfish.",

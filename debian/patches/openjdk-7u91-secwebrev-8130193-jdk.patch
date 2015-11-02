@@ -1,0 +1,23 @@
+# HG changeset patch
+# User michaelm
+# Date 1436444583 -3600
+#      Thu Jul 09 13:23:03 2015 +0100
+# Node ID c00bcb8d459632adcd59fcba54fae85904236f40
+# Parent  0dc0fa38ee6a5f400f9c3f915dea1663f524c43e
+8130193: Improve HTTP connections
+Reviewed-by: alanb
+
+Index: openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java
+@@ -460,7 +460,8 @@ public class HttpURLConnection extends j
+     private void checkMessageHeader(String key, String value) {
+         char LF = '\n';
+         int index = key.indexOf(LF);
+-        if (index != -1) {
++        int index1 = key.indexOf(':');
++        if (index != -1 || index1 != -1) {
+             throw new IllegalArgumentException(
+                 "Illegal character(s) in message header field: " + key);
+         }

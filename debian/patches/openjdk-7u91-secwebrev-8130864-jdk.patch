@@ -1,0 +1,23 @@
+# HG changeset patch
+# User xuelei
+# Date 1436794642 0
+#      Mon Jul 13 13:37:22 2015 +0000
+# Node ID 0dc0fa38ee6a5f400f9c3f915dea1663f524c43e
+# Parent  185e3105d8065eb070d70473155537d16989fc96
+8130864: Better server identity handling
+Reviewed-by: jnimeh, asmotrak, ahgross
+
+Index: openjdk/jdk/src/share/classes/sun/security/ssl/ClientHandshaker.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/security/ssl/ClientHandshaker.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/ssl/ClientHandshaker.java
+@@ -616,6 +616,9 @@ final class ClientHandshaker extends Han
+                 }
+             } else {
+                 // we wanted to resume, but the server refused
++                //
++                // Invalidate the session in case of reusing next time.
++                session.invalidate();
+                 session = null;
+                 if (!enableNewSession) {
+                     throw new SSLException("New session creation is disabled");

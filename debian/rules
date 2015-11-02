@@ -518,6 +518,34 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
   endif    
 endif
 
+# security patches
+DISTRIBUTION_PATCHES += \
+	debian/patches/openjdk-7u91-backport-6966259-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8048030-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8068842-jaxp.patch \
+	debian/patches/openjdk-7u91-secwebrev-8076339-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8076383-corba.patch \
+	debian/patches/openjdk-7u91-secwebrev-8076387-corba.patch \
+	debian/patches/openjdk-7u91-secwebrev-8076392-corba.patch \
+	debian/patches/openjdk-7u91-secwebrev-8076413-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8078427-jaxp.patch \
+	debian/patches/openjdk-7u91-secwebrev-8078427-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8078440-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8078822-jaxp.patch \
+	debian/patches/openjdk-7u91-secwebrev-8080541-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8080688-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8081760-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8086092-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8086733-jaxp.patch \
+	debian/patches/openjdk-7u91-secwebrev-8087350-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8103671-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8103675-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8130078-jaxp.patch \
+	debian/patches/openjdk-7u91-secwebrev-8130193-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8130864-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8130891-jdk.patch \
+	debian/patches/openjdk-7u91-secwebrev-8131291-jdk.patch \
+
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 
 ifeq ($(STAGE1_JAVA),gcj)
@@ -1656,7 +1684,7 @@ endif
 	done
 
 ifeq ($(with_bridge),atk)
-  ifneq (,$(filter $(distrel),lenny wheezy squeeze jessie stretch sid lucid precise quantal raring saucy trusty utopic vivid wily))
+  ifneq (,$(filter $(distrel),lenny wheezy squeeze jessie lucid precise quantal raring saucy trusty utopic vivid))
 	cp -p debian/accessibility-atk.properties.disabled \
 		$(d)/$(basedir)/jre/lib/accessibility.properties
   else

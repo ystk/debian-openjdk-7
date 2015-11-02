@@ -1,0 +1,92 @@
+# HG changeset patch
+# User msheppar
+# Date 1435236980 -3600
+#      Thu Jun 25 13:56:20 2015 +0100
+# Node ID da53c079df5d5656bcbcd184c067b05bb5d2156f
+# Parent  2c402beb8cd01d1ddeaf92a61b198c1da471b907
+8076383: Better CORBA exception handling
+Reviewed-by: rriggs, coffeys, skoivu, ahgross
+
+Index: openjdk/corba/src/share/classes/sun/rmi/rmic/iiop/StubGenerator.java
+===================================================================
+--- openjdk/corba/src/share/classes/sun/rmi/rmic/iiop/StubGenerator.java.orig
++++ openjdk/corba/src/share/classes/sun/rmi/rmic/iiop/StubGenerator.java
+@@ -446,6 +446,9 @@ public class StubGenerator extends sun.r
+         if (emitPermissionCheck) {
+ 
+             // produce the following generated code
++            //
++            // private transient boolean _instantiated = false;
++            //
+             // private static Void checkPermission() {
+             // SecurityManager sm = System.getSecurityManager();
+             // if (sm != null) {
+@@ -460,10 +463,20 @@ public class StubGenerator extends sun.r
+             //
+             // public _XXXXXX_Stub() {
+             // this(checkPermission());
++            // _instantiated = true;
++            // }
++            //
++            // private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
++            //    checkPermission();
++            //    s.defaultReadObject();
++            //    _instantiated = true;
+             // }
+             // where XXXXXX is the name of the remote interface
+ 
+                 p.pln();
++                p.plnI("private transient boolean _instantiated = false;");
++                p.pln();
++                p.pO();
+                 p.plnI("private static Void checkPermission() {");
+                 p.plnI("SecurityManager sm = System.getSecurityManager();");
+                 p.pln("if (sm != null) {");
+@@ -480,13 +493,23 @@ public class StubGenerator extends sun.r
+                 p.pO();
+ 
+                 p.pI();
+-                p.pln("private " + currentClass + "(Void ignore) {  }");
++                p.plnI("private " + currentClass + "(Void ignore) {  }");
+                 p.pln();
++                p.pO();
+ 
+-                p.plnI("public " + currentClass + "() { ");
++                p.plnI("public " + currentClass + "() {");
+                 p.pln("this(checkPermission());");
++                p.pln("_instantiated = true;");
+                 p.pOln("}");
+                 p.pln();
++                p.plnI("private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {");
++                p.plnI("checkPermission();");
++                p.pO();
++                p.pln("s.defaultReadObject();");
++                p.pln("_instantiated = true;");
++                p.pOln("}");
++                p.pln();
++                //p.pO();
+         }
+ 
+        if (!emitPermissionCheck) {
+@@ -893,6 +916,7 @@ public class StubGenerator extends sun.r
+         String paramNames[] = method.getArgumentNames();
+         Type returnType = method.getReturnType();
+         ValueType[] exceptions = getStubExceptions(method,false);
++        boolean hasIOException = false;
+ 
+         addNamesInUse(method);
+         addNameInUse("_type_ids");
+@@ -920,6 +944,13 @@ public class StubGenerator extends sun.r
+         p.plnI(" {");
+ 
+         // Now create the method body...
++        if (emitPermissionCheck) {
++            p.pln("if ((System.getSecurityManager() != null) && (!_instantiated)) {");
++            p.plnI("    throw new java.io.IOError(new java.io.IOException(\"InvalidObject \"));");
++            p.pOln("}");
++            p.pln();
++        }
++
+ 
+         if (localStubs) {
+             writeLocalStubMethodBody(p,method,theType);

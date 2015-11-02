@@ -1,8 +1,48 @@
-openjdk-7 (7u85-2.6.1-5~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u85-2.6.1-6+deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Thu, 22 Oct 2015 08:28:11 +0200
+ -- Moritz Muehlenhoff <jmm@debian.org>  Sat, 31 Oct 2015 20:29:47 +0100
+
+openjdk-7 (7u85-2.6.1-6) unstable; urgency=high
+
+  [ Tiago Stürmer Daitx ]
+  * Security fixes
+    - S8048030, CVE-2015-4734: Expectations should be consistent
+    - S8068842, CVE-2015-4803: Better JAXP data handling
+    - S8076339, CVE-2015-4903: Better handling of remote object invocation
+    - S8076383, CVE-2015-4835: Better CORBA exception handling
+    - S8076387, CVE-2015-4882: Better CORBA value handling
+    - S8076392, CVE-2015-4881: Improve IIOPInputStream consistency
+    - S8076413, CVE-2015-4883: Better JRMP message handling
+    - S8078427, CVE-2015-4842: More supportive home environment
+    - S8078440: Safer managed types
+    - S8080541: More direct property handling
+    - S8080688, CVE-2015-4860: Service for DGC services
+    - S8081744, CVE-2015-4868: Clear out list corner case
+    - S8081760: Better group dynamics
+    - S8086092. CVE-2015-4840: More palette improvements
+    - S8086733, CVE-2015-4893: Improve namespace handling
+    - S8087350: Improve array conversions
+    - S8103671, CVE-2015-4805: More objective stream classes
+    - S8103675: Better Binary searches
+    - S8129611: Accessbridge error handling improvement
+    - S8130078, CVE-2015-4911: Document better processing
+    - S8130185: More accessible access switch
+    - S8130193, CVE-2015-4806: Improve HTTP connections
+    - S8130864: Better server identity handling
+    - S8130891, CVE-2015-4843: (bf) More direct buffering
+    - S8131291, CVE-2015-4872: Perfect parameter patterning
+    - S8132042, CVE-2015-4844: Preserve layout presentation
+  * S6966259: Make PrincipalName and Realm immutable, required for S8048030
+  * S8078822: 8068842 fix missed one new file
+    PrimeNumberSequenceGenerator.java
+
+  [ Matthias Klose ]
+  * Re-enable the atk bridge for releases with a fixed atk bridge.
+    Again closes: #797595.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 22 Oct 2015 00:42:34 +0200
 
 openjdk-7 (7u85-2.6.1-5) unstable; urgency=medium
 
