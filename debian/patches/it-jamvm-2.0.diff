@@ -1,8 +1,6 @@
-Index: b/Makefile.am
-===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -26,8 +26,8 @@ CACAO_BASE_URL = $(DROP_URL)/cacao
+@@ -26,8 +26,8 @@
  CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
  CACAO_URL = $(CACAO_BASE_URL)/$(CACAO_SRC_ZIP)
  
@@ -13,7 +11,7 @@ Index: b/Makefile.am
  JAMVM_BASE_URL = $(DROP_URL)/jamvm
  JAMVM_URL = $(JAMVM_BASE_URL)/jamvm-$(JAMVM_VERSION).tar.gz
  JAMVM_SRC_ZIP = jamvm-$(JAMVM_VERSION).tar.gz
-@@ -398,8 +398,6 @@ endif
+@@ -401,8 +401,6 @@
  
  if BUILD_JAMVM
  ICEDTEA_PATCHES += \
@@ -22,7 +20,7 @@ Index: b/Makefile.am
  	patches/jamvm/noexecstack.patch
  endif
  
-@@ -411,6 +409,11 @@ if !USE_NON_NSS_CURVES
+@@ -414,6 +412,11 @@
  ICEDTEA_PATCHES += patches/rh1022017.patch
  endif
  
@@ -34,7 +32,7 @@ Index: b/Makefile.am
  ICEDTEA_PATCHES += $(DISTRIBUTION_PATCHES)
  
  # Bootstrapping patches
-@@ -2354,7 +2357,7 @@ clean-rewrite-rhino:
+@@ -2372,7 +2375,7 @@
  stamps/jamvm.stamp: $(OPENJDK_TREE) stamps/rt.stamp
  if BUILD_JAMVM
  	cd jamvm/jamvm && \
@@ -43,8 +41,6 @@ Index: b/Makefile.am
  	  --prefix=$(abs_top_builddir)/jamvm/install \
  	  CFLAGS='$(EXTRA_CFLAGS_JAMVM)' LDFLAGS='$(EXTRA_LDFLAGS_JAMVM)' CPPFLAGS='$(EXTRA_CPPFLAGS_JAMVM)' CXXFLAGS='$(EXTRA_CXXFLAGS_JAMVM)'; \
  	$(MAKE) ; \
-Index: b/patches/jamvm-2.5.3-fix.diff
-===================================================================
 --- /dev/null
 +++ b/patches/jamvm-2.5.3-fix.diff
 @@ -0,0 +1,76 @@

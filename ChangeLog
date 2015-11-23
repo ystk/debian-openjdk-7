@@ -1,3 +1,221 @@
+2015-11-13  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	* patches/f14-fonts.patch,
+	* patches/fonts-gentoo.patch,
+	* patches/pr2683.patch:
+	Removed as now applied directly in the forest.
+	* Makefile.am:
+	(BUILD_VERSION): Bump to b02.
+	(CORBA_CHANGESET): Update to icedtea-2.6.3.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	(ICEDTEA_PATCHES): Reset to empty.
+	(fonts): No need to copy Fedora files any more.
+	Make a backup of the forest Gentoo fontconfig
+	file before replacing with locally generated one.
+	(clean-fonts): No need to remove Fedora files
+	which are now provided in the forest. Restore
+	the original Gentoo fontconfig from the backup.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.3.
+	* hotspot.map.in: Update to icedtea-2.6.3.
+
+2015-11-03  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	* NEWS: Fix typos in 2.6.2 release
+	notes and add missing RH bug ID.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	* NEWS: Add 2.6.3 section.
+	* configure.ac: Bump to 2.6.3pre00.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Separate 7u91 b00 and 7u91 b01.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Fix typo.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Bump release date.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2683: AArch64 port has broken Zero on AArch64
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add new patch.
+	* NEWS: Updated.
+	* patches/pr2683.patch:
+	Turn off _updateBytesCRC32 and _crc_table_adr
+	when building Zero on AArch64.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2686: Add generated Fedora & Gentoo font
+	configurations for bootstrap stage
+	* NEWS: Updated.
+	* generated/fontconfig/fontconfig.Fedora.bfc,
+	* generated/fontconfig/fontconfig.Ubuntu.bfc:
+	Updated.
+	* generated/fontconfig/fontconfig.Fedora.10.bfc
+	* generated/fontconfig/fontconfig.Fedora.11.bfc
+	* generated/fontconfig/fontconfig.Fedora.12.bfc
+	* generated/fontconfig/fontconfig.Fedora.9.bfc
+	* generated/fontconfig/fontconfig.Gentoo.bfc:
+	Added.
+
+2015-10-22  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2684: AArch64 port not selected on architectures
+	where host_cpu != aarch64
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_HAS_NATIVE_HOTSPOT_PORT): Combine aarch64
+	and arm64 as in IT_SET_ARCH_SETTINGS. Add sparc64.
+
+2015-10-15  Stefan Ring <stefan@complang.tuwien.ac.at>
+
+	PR2652: CACAO fails as a build VM for icedtea
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add CACAO patch for PR2652.
+	* NEWS: Updated.
+	* README: Fix CACAO URL.
+	* patches/cacao/pr2652-classloader.patch:
+	Set classLoader field in java.lang.Class as expected by JDK.
+
+2015-10-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2557, G390663: Update Gentoo font configuration
+	and allow font directory to be specified
+	* Makefile.am:
+	(clean-fonts): Remove linux.fontconfig.Gentoo.properties
+
+2015-07-22  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR2557, G390663: Update Gentoo font configuration
+	and allow font directory to be specified
+	* INSTALL: Document --with-fonts-dir.
+	* Makefile.am:
+	(fonts): Copy the generated Gentoo
+	font properties file into the OpenJDK
+	tree.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_WITH_FONTS_DIR): Allow the user
+	to specify where the fonts are stored.
+	* configure.ac: Invoke IT_WITH_FONTS_DIR
+	and generate linux.fontconfig.Gentoo.properties
+	* linux.fontconfig.Gentoo.properties.in:
+	Template fontconfig file for Gentoo copied from
+	the main Portage tree.
+	* patches/fonts-gentoo.patch:
+	Remove outdated copy of
+	linux.fontconfig.Gentoo.properties from patch.
+
+2010-08-02  Andrew John Hughes  <ahughes@redhat.com>
+
+	PR2557: Forwardport Gentoo font configuration support
+	* Makefile.am: Add patch below.
+	* patches/fonts-gentoo.patch:
+	Add a font configuration for Gentoo
+	(currently a copy of Fedora's).
+
+2015-10-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2557: Forwardport Fedora font configuration support
+	* Makefile.am:
+	Add alias for stamps/fonts.stamp
+	(.PHONY): Add clean-fonts.
+	(clean-extract-openjdk): Depend on clean-fonts.
+	(clean-fonts): Add reversal for fonts target.
+
+2010-11-10  Jiri Vanek  <jvanek@redhat.com>
+
+	* Makefile.am:
+        (FONTCONFIG_PATH): Added path to fontconfig files.
+	(ICEDTEA_PATCHES): Add f14-fonts.patch.
+	(fonts): Added cloning of fontconfig.Fedora
+        to Fedora.12,11,10,9.
+	(patch-fsg): Add stamps/fonts.stamp
+	* patches/f14-fonts.patch
+	Updated font configurations for Fedora 9-14
+	Add additional fontconfig files to Makefile.
+
+2015-10-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Bump to 91.
+	(CORBA_CHANGESET): Update to icedtea-2.6.2.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.2.
+	* hotspot.map.in: Update to icedtea-2.6.2.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new case in sun.security.ssl.DHCrypt
+	and numerous ones in JAXP.
+	* patches/boot/ecj-multicatch.patch:
+	Add new case in sun.security.krb5.PrincipalName.
+	* patches/boot/ecj-trywithresources.patch:
+	Regenerated.
+
+2015-10-19  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.2pre02.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.2pre02.
+	* hotspot.map.in: Update to icedtea-2.6.2pre02.
+	* patches/boot/ecj-stringswitch.patch:
+	Add new case in sun.security.krb.Config.
+	* patches/boot/ecj-trywithresources.patch:
+	Regenerated due to changes in java.util.Currency.
+	* patches/boot/ecj-underscored_literals.patch:
+	Add new case in com.sun.jndi.ldap.Connection.
+
+2015-08-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Replace temporary OpenJDK 7
+	bug IDs with allocated ones from the
+	OpenJDK bug database.
+
+2015-07-23  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	* NEWS: Add 2.6.2 section.
+	* configure.ac: Bump to 2.6.2pre00.
+
 2015-07-21  Andrew John Hughes  <gnu_andrew@member.fsf.org>
 
 	* Makefile.am:

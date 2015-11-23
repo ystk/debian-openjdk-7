@@ -2,8 +2,6 @@ Description: IcedTea patch updates (regenerate patches)
 Author: Matthias Klose <doko@ubuntu.com>
 Last-Update: 2014-07-06
 
-Index: b/patches/boot/bootstrap-tools.patch
-===================================================================
 --- a/patches/boot/bootstrap-tools.patch
 +++ b/patches/boot/bootstrap-tools.patch
 @@ -1,7 +1,8 @@
@@ -19,7 +17,7 @@ Index: b/patches/boot/bootstrap-tools.patch
   CLASS_VERSION = -target $(TARGET_CLASS_VERSION)
   JAVACFLAGS  += $(CLASS_VERSION)
   JAVACFLAGS  += -encoding ascii
-@@ -33,10 +34,11 @@ diff -Nru openjdk-boot.orig/corba/make/c
+@@ -33,10 +34,11 @@
   
   # Override of what javac to use (see deploy workspace)
   ifdef JAVAC
@@ -35,7 +33,7 @@ Index: b/patches/boot/bootstrap-tools.patch
   
   # Langtools
   ifdef LANGTOOLS_DIST
-@@ -60,7 +62,7 @@ diff -Nru openjdk-boot.orig/jdk/make/com
+@@ -60,7 +62,7 @@
     JAVAH_CMD     = $(JAVA_TOOLS_DIR)/javah \
   		  $(JAVAHFLAGS)
  -  JAVADOC_CMD   = $(JAVA_TOOLS_DIR)/javadoc $(JAVA_TOOLS_FLAGS:%=-J%) \

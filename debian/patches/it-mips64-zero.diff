@@ -2,11 +2,9 @@ Description: Build zero on 64bit MIPS targets
 Forwarded: no
 Last-Update: 2014-07-06
 
-Index: b/acinclude.m4
-===================================================================
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -43,12 +43,38 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
+@@ -43,12 +43,38 @@
        BUILD_ARCH_DIR=mips
        INSTALL_ARCH_DIR=mips
        JRE_ARCH_DIR=mips

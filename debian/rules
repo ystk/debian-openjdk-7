@@ -382,7 +382,7 @@ endif
 
 on_buildd := $(shell [ -f /CurrentlyBuilding -o "$$LOGNAME" = buildd ] && echo yes)
 
-ifeq ($(distributio),Debian)
+ifeq ($(distribution),Debian)
   with_wm = $(notdir $(firstword $(wildcard /usr/bin/metacity /usr/bin/twm)))
   ifneq (,$(findstring twm, $(with_wm)))
     with_wm_args = -f $(CURDIR)/bin/jtreg.tmwrc
@@ -439,7 +439,6 @@ ifneq (,$(filter $(DEB_HOST_ARCH), s390))
 endif
 
 DISTRIBUTION_PATCHES += \
-	debian/patches/xrender.patch \
 	debian/patches/icedtea-override-redirect-compiz.patch \
 	debian/patches/icedtea-4953367.patch \
 	debian/patches/fontconfig-wqy-microhei.patch \
@@ -517,34 +516,6 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
     endif
   endif    
 endif
-
-# security patches
-DISTRIBUTION_PATCHES += \
-	debian/patches/openjdk-7u91-backport-6966259-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8048030-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8068842-jaxp.patch \
-	debian/patches/openjdk-7u91-secwebrev-8076339-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8076383-corba.patch \
-	debian/patches/openjdk-7u91-secwebrev-8076387-corba.patch \
-	debian/patches/openjdk-7u91-secwebrev-8076392-corba.patch \
-	debian/patches/openjdk-7u91-secwebrev-8076413-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8078427-jaxp.patch \
-	debian/patches/openjdk-7u91-secwebrev-8078427-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8078440-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8078822-jaxp.patch \
-	debian/patches/openjdk-7u91-secwebrev-8080541-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8080688-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8081760-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8086092-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8086733-jaxp.patch \
-	debian/patches/openjdk-7u91-secwebrev-8087350-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8103671-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8103675-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8130078-jaxp.patch \
-	debian/patches/openjdk-7u91-secwebrev-8130193-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8130864-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8130891-jdk.patch \
-	debian/patches/openjdk-7u91-secwebrev-8131291-jdk.patch \
 
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 
@@ -1234,9 +1205,9 @@ dist-openjdk: $(OPENJDK_SRC_ZIP)
 patch: stamps/patch
 stamps/patch: stamps/unpack
 ifeq ($(STAGE1_JAVA),gcj)
-#	$(MAKE) -C build patch-boot
+	$(MAKE) -C build patch-boot
 endif
-#	$(MAKE) -C build patch
+	$(MAKE) -C build patch
 	touch $@
 
 ifeq ($(with_check),yes)

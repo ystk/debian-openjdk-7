@@ -1,22 +1,22 @@
 # Dependencies
 
-JDK_UPDATE_VERSION = 85
-BUILD_VERSION = b01
+JDK_UPDATE_VERSION = 91
+BUILD_VERSION = b02
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
 
-CORBA_CHANGESET = 2545636482d6
-JAXP_CHANGESET = ffbe529eeac7
-JAXWS_CHANGESET = b9776fab65b8
-JDK_CHANGESET = 61d3e001dee6
-LANGTOOLS_CHANGESET = 9c6e1de67d7d
-OPENJDK_CHANGESET = 39b2c4354d0a
+CORBA_CHANGESET = 9a3ca529125a
+JAXP_CHANGESET = f7bf82fcbd09
+JAXWS_CHANGESET = 39ef53b9c403
+JDK_CHANGESET = 5215185a1d57
+LANGTOOLS_CHANGESET = 91fdb0c83e50
+OPENJDK_CHANGESET = f0e7f22f09ef
 
-CORBA_SHA256SUM = cd03d97c171a2d45ca94c1642265e09c09a459b1d4ac1191f82af88ca171f6f8
-JAXP_SHA256SUM = c00c4c2889f77c4615fd655415067e14840764f52e503f220ed324720117faeb
-JAXWS_SHA256SUM = 2d5ff95dc62ab7986973e15e9cf91d5596d2cf486ee52beab9eab62f70f2ae9f
-JDK_SHA256SUM = a8083e75e14ddb4575bf2cd733e80a0074201b45d8debbe04f84564b32875363
-LANGTOOLS_SHA256SUM = 6db9bd16658fa8460e0afa4b05f28bd47148528d7581a403bea1e70f56cedd43
-OPENJDK_SHA256SUM = 0168a0174ee47407139ee32458c4d2a298ba4f44260343b209250156e4da463f
+CORBA_SHA256SUM = 1052ae3c70908aa3374818ada320685cb7abdc7bd7bbd3cfb4f26fbbe7435ec6
+JAXP_SHA256SUM = a0e978bc07371901560a746cae492edf0bcb22ddbb9e47b77319ffda1351806b
+JAXWS_SHA256SUM = 55897d92e368ac7df3e04d4f235e9dba12ea8264e20d4bd6b68e8c13e5addc1e
+JDK_SHA256SUM = 583898549b52e958521474db34f2ce535b6a0926c7df1fa99a3f0321b3a109f5
+LANGTOOLS_SHA256SUM = f14716df84e047b19884ac5b0830e87b6cdf1925d0951195255c9124e89df27e
+OPENJDK_SHA256SUM = 9e5d26bb1888a8a1378e078953aa04314d4fb4f263ebbaf7f459110c21f8d46d
 
 DROP_URL = http://icedtea.classpath.org/download/drops
 
@@ -72,6 +72,7 @@ JAMVM_IMPORT_PATH = $(abs_top_builddir)/jamvm/install/hotspot
 CRYPTO_CHECK_BUILD_DIR = $(abs_top_builddir)/cryptocheck.build
 STAGE1_BOOT_RUNTIME = $(STAGE1_BOOT_DIR)/jre/lib/rt.jar
 STAGE2_BOOT_RUNTIME = $(STAGE2_BOOT_DIR)/jre/lib/rt.jar
+FONTCONFIG_PATH = openjdk/jdk/src/solaris/classes/sun/awt/fontconfigs
 
 # Installation directories
 
@@ -383,7 +384,8 @@ ICEDTEA_PATCHES += \
 	patches/cacao/launcher.patch \
 	patches/cacao/memory.patch \
 	patches/cacao/pr2032.patch \
-	patches/cacao/pr2520-tempdir.patch
+	patches/cacao/pr2520-tempdir.patch \
+	patches/cacao/pr2652-classloader.patch
 else
 if USING_CACAO
 ICEDTEA_PATCHES += \
@@ -976,7 +978,8 @@ distclean-local: clean-local clean-download
 	clean-download-jaxws clean-download-langtools clean-download-jdk clean-download-openjdk \
 	clean-extract-corba clean-extract-jaxp clean-extract-jaxws clean-extract-jdk \
 	clean-extract-langtools clean-split-debuginfo clean-split-debuginfo-debug \
-	clean-split-debuginfo-boot clean-policytool-@JAVA_VER@.desktop clean-jconsole-@JAVA_VER@.desktop
+	clean-split-debuginfo-boot clean-policytool-@JAVA_VER@.desktop clean-jconsole-@JAVA_VER@.desktop \
+	clean-fonts
 
 env:
 	@echo 'unset JAVA_HOME'
@@ -1375,7 +1378,7 @@ clean-extract-openjdk: clean-overlay clean-versioning \
  clean-patch-fsg clean-remove-intree-libraries \
  clean-sanitise-openjdk clean-extract-hotspot \
  clean-extract-jdk clean-extract-jaxp clean-extract-jaxws \
- clean-extract-corba clean-extract-langtools
+ clean-extract-corba clean-extract-langtools clean-fonts
 	rm -rf openjdk
 	rm -f stamps/extract-openjdk.stamp
 
@@ -1630,7 +1633,18 @@ clean-generated:
 	rm -rf $(abs_top_builddir)/generated.build
 	rm -f stamps/generated.stamp
 
-stamps/patch-fsg.stamp: stamps/extract.stamp
+stamps/fonts.stamp: stamps/extract.stamp
+	cp $(FONTCONFIG_PATH)/linux.fontconfig.Gentoo.properties{,.old}
+	cp linux.fontconfig.Gentoo.properties $(FONTCONFIG_PATH)
+	mkdir -p stamps
+	touch $@
+
+clean-fonts:
+	rm -f $(FONTCONFIG_PATH)/linux.fontconfig.Gentoo.properties
+	mv $(FONTCONFIG_PATH)/linux.fontconfig.Gentoo.properties{.old,}
+	rm -f stamps/fonts.stamp
+
+stamps/patch-fsg.stamp: stamps/extract.stamp stamps/fonts.stamp
 	mkdir -p stamps ; \
 	rm -f stamps/patch-fsg.stamp.tmp ; \
 	touch stamps/patch-fsg.stamp.tmp ; \
@@ -3245,6 +3259,8 @@ extract-jaxws: stamps/extract-jaxws.stamp
 extract-jdk: stamps/extract-jdk.stamp
 
 extract-langtools: stamps/extract-langtools.stamp
+
+fonts: stamps/fonts.stamp
 
 generated: stamps/generated.stamp
 

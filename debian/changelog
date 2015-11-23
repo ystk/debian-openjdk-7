@@ -1,10 +1,56 @@
-openjdk-7 (7u85-2.6.1-6+deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u91-2.6.3-1~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Sat, 31 Oct 2015 20:29:47 +0100
+ -- Moritz Mühlenhoff <jmm@debian.org>  Thu, 19 Nov 2015 17:30:24 +0100
 
-openjdk-7 (7u85-2.6.1-6) unstable; urgency=high
+openjdk-7 (7u91-2.6.3-1) unstable; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * Icedtea release 2.6.3 (based on 7u91):
+  * Security fixes
+    - S8142882, CVE-2015-4871: rebinding of the receiver of a DirectMethodHandle may
+      allow a protected method to be accessed
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 19 Nov 2015 01:27:25 +0100
+
+openjdk-7 (7u91-2.6.2-1) unstable; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.2 (based on 7u91):
+  * Security fixes
+    - S8048030, CVE-2015-4734: Expectations should be consistent
+    - S8068842, CVE-2015-4803: Better JAXP data handling
+    - S8076339, CVE-2015-4903: Better handling of remote object invocation
+    - S8076383, CVE-2015-4835: Better CORBA exception handling
+    - S8076387, CVE-2015-4882: Better CORBA value handling
+    - S8076392, CVE-2015-4881: Improve IIOPInputStream consistency
+    - S8076413, CVE-2015-4883: Better JRMP message handling
+    - S8078427, CVE-2015-4842: More supportive home environment
+    - S8078440: Safer managed types
+    - S8080541: More direct property handling
+    - S8080688, CVE-2015-4860: Service for DGC services
+    - S8081760: Better group dynamics
+    - S8086092, CVE-2015-4840: More palette improvements
+    - S8086733, CVE-2015-4893: Improve namespace handling
+    - S8087350: Improve array conversions
+    - S8103671, CVE-2015-4805: More objective stream classes
+    - S8103675: Better Binary searches
+    - S8130078, CVE-2015-4911: Document better processing
+    - S8130193, CVE-2015-4806: Improve HTTP connections
+    - S8130864: Better server identity handling
+    - S8130891, CVE-2015-4843: (bf) More direct buffering
+    - S8131291, CVE-2015-4872: Perfect parameter patterning
+    - S8132042, CVE-2015-4844: Preserve layout presentation
+  * d/patches/it-debian-build-flags.diff: refreshed
+  * d/patches/it-set-compiler.diff: refreshed
+  * d/patches/it-use-quilt.diff: refreshed and updated
+  * d/patches/it-jamvm-2.0.diff: refreshed
+  * d/patches/xrender: removed as it was applied upstream
+
+ -- Matthias Klose <doko@ubuntu.com>  Sun, 25 Oct 2015 22:30:06 +0100
+
+openjdk-7 (7u85-2.6.1-6) unstable; urgency=medium
 
   [ Tiago Stürmer Daitx ]
   * Security fixes
@@ -69,7 +115,7 @@ openjdk-7 (7u85-2.6.1-3) unstable; urgency=medium
 openjdk-7 (7u85-2.6.1-2) unstable; urgency=medium
 
   * Stop building zero on AArch64, broken on the merged IcedTea Hotspot.
-  * Only build-depend on libsctp-dev on linux architectures. 
+  * Only build-depend on libsctp-dev on linux architectures.
   * Configure for zero on sparc64, Hotspot build fails too.
 
  -- Matthias Klose <doko@ubuntu.com>  Fri, 04 Sep 2015 17:47:56 +0200

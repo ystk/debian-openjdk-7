@@ -2,11 +2,9 @@ Description: Pass the correct compiler to the OpenJDK build system
 Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: #openjdk on OFTC
 
-Index: b/Makefile.am
-===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -614,6 +614,7 @@ ICEDTEA_ENV = \
+@@ -617,6 +617,7 @@
  	VERBOSE="$(VERBOSE)" \
  	STATIC_CXX="false" \
  	BUILD_GCC="$(CC)" \

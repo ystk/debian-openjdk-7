@@ -3,14 +3,12 @@ Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: not accepted
 Last-Update: 2014-07-06
 
-Index: b/Makefile.am
-===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -1632,132 +1632,37 @@ clean-generated:
- 	rm -f stamps/generated.stamp
+@@ -1650,132 +1650,37 @@
+ 	rm -f stamps/fonts.stamp
  
- stamps/patch-fsg.stamp: stamps/extract.stamp
+ stamps/patch-fsg.stamp: stamps/extract.stamp stamps/fonts.stamp
 +	set -e; \
  	mkdir -p stamps ; \
 -	rm -f stamps/patch-fsg.stamp.tmp ; \
@@ -162,7 +160,7 @@ Index: b/Makefile.am
  	fi
  
  stamps/versioning.stamp: stamps/patch.stamp
-@@ -1827,54 +1732,20 @@ clean-clone-boot:
+@@ -1845,54 +1750,20 @@
  	rm -f stamps/clone-boot.stamp
  
  stamps/patch-boot.stamp: stamps/clone-boot.stamp

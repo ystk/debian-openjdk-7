@@ -7,13 +7,13 @@ aarch64_hsname=hotspot-aarch64
 tarballs="$tarballs icedtea-sound.tar.gz"
 jamvmtb=jamvm-2.0.0.tar.gz
 cacaotb=cacao-c182f119eaad.tar.gz
-tarballdir=7u85
-version=7u85-2.6.1
+tarballdir=7u91
+version=7u91-2.6.3
 base=openjdk-7
 pkgdir=$base-$version
 origtar=${base}_${version}.orig.tar.gz
 
-icedtea_checkout=icedtea-2.6.1
+icedtea_checkout=icedtea-2.6.3
 debian_checkout=openjdk7
 
 if [ -d $pkgdir ]; then
