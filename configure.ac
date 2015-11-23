@@ -1,4 +1,4 @@
-AC_INIT([icedtea], [2.6.1], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [2.6.3], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.9 tar-pax foreign])
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_FILES([Makefile])
@@ -58,6 +58,9 @@ IT_DISABLE_JDK_TESTS
 IT_ENABLE_SUNEC
 IT_ENABLE_NATIVE_DEBUGINFO
 IT_ENABLE_JAVA_DEBUGINFO
+
+IT_WITH_FONTS_DIR
+AC_CONFIG_FILES([linux.fontconfig.Gentoo.properties])
 
 # Use xvfb-run if found to run gui tests (check-jdk).
 AC_CHECK_PROG(XVFB_RUN_CMD, xvfb-run, [xvfb-run -a -e xvfb-errors], [])
