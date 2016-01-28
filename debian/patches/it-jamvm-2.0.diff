@@ -1,5 +1,5 @@
---- a/Makefile.am
-+++ b/Makefile.am
+--- openjdk-7-7u95-2.6.4.orig/Makefile.am
++++ openjdk-7-7u95-2.6.4/Makefile.am
 @@ -26,8 +26,8 @@
  CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
  CACAO_URL = $(CACAO_BASE_URL)/$(CACAO_SRC_ZIP)
@@ -11,7 +11,7 @@
  JAMVM_BASE_URL = $(DROP_URL)/jamvm
  JAMVM_URL = $(JAMVM_BASE_URL)/jamvm-$(JAMVM_VERSION).tar.gz
  JAMVM_SRC_ZIP = jamvm-$(JAMVM_VERSION).tar.gz
-@@ -401,8 +401,6 @@
+@@ -400,8 +400,6 @@
  
  if BUILD_JAMVM
  ICEDTEA_PATCHES += \
@@ -20,7 +20,7 @@
  	patches/jamvm/noexecstack.patch
  endif
  
-@@ -414,6 +412,11 @@
+@@ -413,6 +411,11 @@
  ICEDTEA_PATCHES += patches/rh1022017.patch
  endif
  
@@ -32,7 +32,7 @@
  ICEDTEA_PATCHES += $(DISTRIBUTION_PATCHES)
  
  # Bootstrapping patches
-@@ -2372,7 +2375,7 @@
+@@ -2368,7 +2371,7 @@
  stamps/jamvm.stamp: $(OPENJDK_TREE) stamps/rt.stamp
  if BUILD_JAMVM
  	cd jamvm/jamvm && \
@@ -42,7 +42,7 @@
  	  CFLAGS='$(EXTRA_CFLAGS_JAMVM)' LDFLAGS='$(EXTRA_LDFLAGS_JAMVM)' CPPFLAGS='$(EXTRA_CPPFLAGS_JAMVM)' CXXFLAGS='$(EXTRA_CXXFLAGS_JAMVM)'; \
  	$(MAKE) ; \
 --- /dev/null
-+++ b/patches/jamvm-2.5.3-fix.diff
++++ openjdk-7-7u95-2.6.4/patches/jamvm-2.5.3-fix.diff
 @@ -0,0 +1,76 @@
 +--- jamvm/jamvm-2.0.0/src/classlib/openjdk/jvm.c
 ++++ jamvm/jamvm-2.0.0/src/classlib/openjdk/jvm.c

@@ -3,8 +3,8 @@ Author: Damien Raude-Morvan <drazzib@debian.org>
 Forwarded: not-needed
 Last-Update: 2014-07-06
 
---- a/Makefile.am
-+++ b/Makefile.am
+--- openjdk-7-7u95-2.6.4.orig/Makefile.am
++++ openjdk-7-7u95-2.6.4/Makefile.am
 @@ -153,7 +153,7 @@
  IT_JAVACFLAGS=$(IT_JAVAC_SETTINGS) -source $(IT_LANGUAGE_SOURCE_VERSION) -target $(IT_CLASS_TARGET_VERSION)
  
@@ -14,7 +14,7 @@ Last-Update: 2014-07-06
  
  # Conditional defintions
  
-@@ -2501,7 +2501,8 @@
+@@ -2497,7 +2497,8 @@
  if BUILD_JAMVM
  	cd jamvm/jamvm && \
  	./autogen.sh --with-java-runtime-library=openjdk7 \
@@ -24,7 +24,7 @@ Last-Update: 2014-07-06
  	$(MAKE) ; \
  	$(MAKE) install
  	mkdir -p $(abs_top_builddir)/jamvm/install/hotspot/jre/lib/$(INSTALL_ARCH_DIR)/server
-@@ -2571,7 +2572,8 @@
+@@ -2567,7 +2568,8 @@
  	  --with-java-runtime-library-prefix=$(abs_top_builddir)/openjdk \
  	  --with-java-runtime-library-classes=$(RUNTIME) \
  	  --with-libatomic-ops=no \

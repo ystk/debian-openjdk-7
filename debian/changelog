@@ -1,8 +1,59 @@
-openjdk-7 (7u91-2.6.3-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u95-2.6.4-1~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Thu, 19 Nov 2015 17:30:24 +0100
+ -- Moritz Mühlenhoff <jmm@debian.org>  Tue, 26 Jan 2016 00:42:03 +0100
+
+openjdk-7 (7u95-2.6.4-1) unstable; urgency=high
+
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.4 (based on 7u95):
+  * Security fixes
+    - S8059054, CVE-2016-0402: Better URL processing
+    - S8130710, CVE-2016-0448: Better attributes processing
+    - S8132210: Reinforce JMX collector internals
+    - S8132988: Better printing dialogues
+    - S8133962, CVE-2016-0466: More general limits
+    - S8137060: JMX memory management improvements
+    - S8139012: Better font substitutions
+    - S8139017, CVE-2016-0483: More stable image decoding
+    - S8140543, CVE-2016-0494: Arrange font actions
+    - S8143185: Cleanup for handling proxies
+    - S8143941, CVE-2015-8126, CVE-2015-8472: Update splashscreen displays
+    - S8144773, CVE-2015-7575: Further reduce use of MD5 (SLOTH)
+  * debian/patches/it-debian-build-flags.diff: refreshed
+  * debian/patches/it-set-compiler.diff: refreshed
+  * debian/patches/it-use-quilt.diff: refreshed
+  * debian/patches/it-jamvm-2.0.diff: refreshed
+  * debian/patches/icedtea-pretend-memory.diff: refreshed
+  * debian/patches/fix_extra_flags-default.diff: refreshed
+  * debian/patches/zero-sparc.diff: refreshed
+
+  [ Matthias Klose ]
+  * Remove obsolete IcedTea configure options.
+  * Fix build failure on squeeze (Thorsten Glaser). Closes: #809205.
+  * Don't run the test on mips, still having stone age buildd hardware and
+    empty promises to fix these issues since 2010.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 21 Jan 2016 13:17:54 +0100
+
+openjdk-7 (7u91-2.6.3-3) unstable; urgency=medium
+
+  * Fix stripping packages (use bash instead of expr substring).
+  * openjdk-jre-headless: Add dependency on the package containing the
+    mountpoint binary. Closes: #803717.
+  * openjdk-7-jdk: Fix typo in sdk provides. Closes: #803150.
+  * Build using giflib 5.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 30 Nov 2015 06:27:48 +0100
+
+openjdk-7 (7u91-2.6.3-2) unstable; urgency=medium
+
+  * Enable sparc64 for hotspot (John Paul Adrian Glaubitz).
+  * Add debian/patches/sparc-libproc-fix.diff to include missing
+    headers on sparc64 (David Matthew Mattli). Closes: #805846.
+
+ -- Matthias Klose <doko@ubuntu.com>  Wed, 25 Nov 2015 23:38:54 +0100
 
 openjdk-7 (7u91-2.6.3-1) unstable; urgency=medium
 

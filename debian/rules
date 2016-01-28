@@ -6,6 +6,7 @@
 
 unexport LANG LC_ALL
 
+# using brace expansion and substring replacements (${var:0:2}).
 SHELL = /bin/bash
 
 vafilt = $(subst $(2)=,,$(filter $(2)=%,$(1)))
@@ -41,7 +42,7 @@ ifneq (,$(DEB_HOST_MULTIARCH))
   endif
 endif
 
-hotspot_archs	= amd64 i386 arm64 lpia ppc64 ppc64el sparc kfreebsd-amd64 kfreebsd-i386
+hotspot_archs	= amd64 i386 arm64 lpia ppc64 ppc64el sparc sparc64 kfreebsd-amd64 kfreebsd-i386
 # requires llvm; llvm in jaunty is recent enough, but in universe
 ifeq (,$(filter $(distrel),lenny jaunty intrepid hardy))
   shark_archs	= amd64 i386 lpia kfreebsd-amd64 kfreebsd-i386
@@ -438,6 +439,11 @@ ifneq (,$(filter $(DEB_HOST_ARCH), s390))
 	debian/patches/s390_hotspot_fix.diff
 endif
 
+ifneq (,$(filter $(DEB_HOST_ARCH), sparc64))
+  DISTRIBUTION_PATCHES += \
+	debian/patches/sparc-libproc-fix.diff
+endif
+
 DISTRIBUTION_PATCHES += \
 	debian/patches/icedtea-override-redirect-compiz.patch \
 	debian/patches/icedtea-4953367.patch \
@@ -625,7 +631,7 @@ ifeq (,$(wildcard /usr/lib/*/pkgconfig/zlib.pc /usr/lib/pkgconfig/zlib.pc))
 endif
 
 ifneq (,$(filter $(distrel),squeeze lenny maverick lucid karmic hardy))
-    CONFIGURE_ARGS += --disable-system-gio
+    CONFIGURE_ARGS += --disable-system-gio --disable-system-gconf
 endif
 
 # assume we don't build binary indep packages on these architectures
@@ -645,10 +651,6 @@ endif
 # causes corrupt bold fonts in 2.5.0
 CONFIGURE_ARGS += --disable-infinality
 
-ifeq ($(with_pulse),yes)
-  CONFIGURE_ARGS += --enable-pulse-java
-endif
-
 ifneq ($(lcms_version),2)
   CONFIGURE_ARGS += --disable-system-lcms
 else
@@ -665,10 +667,6 @@ ifeq ($(with_nss),yes)
   endif
 else ifeq ($(with_nss),no)
   CONFIGURE_ARGS += --disable-nss
-endif
-
-ifeq ($(with_systemtap),yes)
-  CONFIGURE_ARGS += --enable-systemtap --with-abs-install-dir=/$(basedir)
 endif
 
 ifneq (,$(alternate_vms))
@@ -1047,6 +1045,12 @@ ifeq ($(with_tzdata),yes)
 endif
 control_vars += '-Vtzdata:Depends=$(pkg_tzdata)'
 
+ifneq (,$(filter $(distrel), squeeze wheezy jessie lucid precise quantal raring saucy trusty utopic vivid))
+  control_vars += '-Vmountpoint:Depends=initscripts'
+else
+  control_vars += '-Vmountpoint:Depends=util-linux (>= 2.26.2-4)'
+endif
+
 pkg_jcommon = java-common (>= 0.28)
 control_vars += '-Vjcommon:Depends=$(pkg_jcommon)'
 
@@ -1211,10 +1215,10 @@ endif
 	touch $@
 
 ifeq ($(with_check),yes)
-    ifneq (,$(filter $(DEB_HOST_ARCH), $(hotspot_archs) alpha ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el s390 sh4))
+    ifneq (,$(filter $(DEB_HOST_ARCH), $(hotspot_archs) alpha ia64 mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el s390 sh4))
       with_mauve_check = $(default_vm)
     endif
-    ifneq (,$(filter $(DEB_HOST_ARCH), $(hotspot_archs) alpha arm64 armel armhf ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el s390 s390x sh4 x32))
+    ifneq (,$(filter $(DEB_HOST_ARCH), $(hotspot_archs) alpha arm64 armel armhf ia64 mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el s390 s390x sh4 x32))
       with_jtreg_check = $(default_vm)
     endif
 
@@ -1223,7 +1227,7 @@ ifeq ($(with_check),yes)
         # only activate after testing; problems on s390
         with_mauve_check += cacao
       endif
-      ifneq (,$(filter $(DEB_HOST_ARCH), alpha amd64 armel armhf i386 lpia mips mipsel mips64 mips64el powerpc powerpcspe s390))
+      ifneq (,$(filter $(DEB_HOST_ARCH), alpha amd64 armel armhf i386 lpia mipsel mips64 mips64el powerpc powerpcspe s390))
         # only activate after testing; hangs several tests.
         with_jtreg_check += cacao
       endif
@@ -2162,17 +2166,30 @@ endif
 	dh_strip -s $(nodemo) $(nojrec) $(nojrej) $(nojrez) \
 		-Xlibjvm.so --dbg-package=$(p_dbg)
 ifeq (,$(findstring nostrip, $(DEB_BUILD_OPTIONS)))
-	set -e; \
-	for i in {$(d_jrehl),$(d_jrec),$(d_jrez)}/$(basedir)/jre/lib/$(archdir)/*/libjvm.so; do \
-	  id=$$(echo $$i | sed -r 's,debian/[^/]+,$(d_dbg)/usr/lib/debug,'); \
+	set -ex; \
+	for i in {$(d_jrehl),$(d_jre),$(d_jrec),$(d_jrez)}/$(basedir)/jre/lib/$(archdir)/*/libjvm.so; do \
 	  [ -f $$i ] || continue; \
-	  echo strip $$i; \
-	  mkdir -p $$(dirname $$id); \
-	  objcopy --only-keep-debug $$i $$id; \
-	  chmod 644 $$id; \
-	  strip --remove-section=.comment --remove-section=.note \
-	    --strip-debug $$i; \
-	  objcopy --add-gnu-debuglink $$id $$i; \
+	  b_id=$$(LC_ALL=C readelf -n $$i | sed -n 's/ *Build ID: *\([0-9a-f][0-9a-f]*\)/\1/p'); \
+	  if [ -z "$$b_id" ] || [ "$(dh_version)" -lt 9 ]; then \
+	    id=$$(echo $$i | sed -r 's,debian/[^/]+,$(d_dbg)/usr/lib/debug,'); \
+	    echo strip $$i; \
+	    mkdir -p $$(dirname $$id); \
+	    objcopy --only-keep-debug $$i $$id; \
+	    chmod 644 $$id; \
+	    strip --remove-section=.comment --remove-section=.note \
+	      --strip-debug $$i; \
+	    objcopy --add-gnu-debuglink $$id $$i; \
+	  else \
+	  d=$(d_dbg)/usr/lib/debug/.build-id/$${b_id:0:2}; \
+	    mkdir -p $$d; \
+	    objcopy --only-keep-debug --compress-debug-sections \
+	      $$i $$d/$$b_id.debug; \
+	    chmod 644 $$d/$$b_id.debug; \
+	    strip --remove-section=.comment --remove-section=.note \
+	      $$i; \
+	    objcopy --add-gnu-debuglink \
+	      $$d/$$b_id.debug $$i; \
+	  fi; \
 	done
 endif
 

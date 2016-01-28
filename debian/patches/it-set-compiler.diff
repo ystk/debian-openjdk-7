@@ -2,9 +2,9 @@ Description: Pass the correct compiler to the OpenJDK build system
 Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: #openjdk on OFTC
 
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -617,6 +617,7 @@
+--- openjdk-7-7u95-2.6.4.orig/Makefile.am
++++ openjdk-7-7u95-2.6.4/Makefile.am
+@@ -616,6 +616,7 @@
  	VERBOSE="$(VERBOSE)" \
  	STATIC_CXX="false" \
  	BUILD_GCC="$(CC)" \

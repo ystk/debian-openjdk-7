@@ -1,0 +1,12 @@
+Index: openjdk/hotspot/agent/src/os/linux/libproc.h
+===================================================================
+--- openjdk/hotspot/agent/src/os/linux/libproc.h.old	2015-11-12 22:57:20.000000000 -0600
++++ openjdk/hotspot/agent/src/os/linux/libproc.h		2015-11-22 10:49:17.684049960 -0600
+@@ -34,6 +34,7 @@
+ #include "libproc_md.h"
+ #endif
+ 
++#include <asm/ptrace.h>
+ #include <sys/ptrace.h>
+ 
+ /************************************************************************************

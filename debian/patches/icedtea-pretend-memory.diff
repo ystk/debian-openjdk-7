@@ -1,8 +1,8 @@
 Index: openjdk/jdk/make/common/shared/Platform.gmk
 ===================================================================
---- openjdk/jdk/make/common/shared/Platform.gmk
+--- openjdk/jdk/make/common/shared/Platform.gmk.orig
 +++ openjdk/jdk/make/common/shared/Platform.gmk
-@@ -247,7 +247,7 @@ ifeq ($(SYSTEM_UNAME), Linux)
+@@ -246,7 +246,7 @@
    # Suffix for file bundles used in previous release
    BUNDLE_FILE_SUFFIX=.tar.gz
    # How much RAM does this machine have:
@@ -13,9 +13,9 @@ Index: openjdk/jdk/make/common/shared/Platform.gmk
  ifeq ($(SYSTEM_UNAME), Darwin)
 Index: openjdk/corba/make/common/shared/Platform.gmk
 ===================================================================
---- openjdk/corba/make/common/shared/Platform.gmk
+--- openjdk/corba/make/common/shared/Platform.gmk.orig
 +++ openjdk/corba/make/common/shared/Platform.gmk
-@@ -240,7 +240,7 @@ ifeq ($(SYSTEM_UNAME), Linux)
+@@ -240,7 +240,7 @@
      endif
    endif
    # How much RAM does this machine have:
