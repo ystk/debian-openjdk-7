@@ -7,6 +7,7 @@ if [ -h /usr/share/doc/@basename@-jre-headless ]; then
 fi
 
 multiarch=@multiarch@
+with_tzdata=@with_tzdata@
 basedir=/@basedir@
 old_basedir=/usr/lib/jvm/java-7-openjdk
 jre_tools='java keytool pack200 rmid rmiregistry unpack200 orbd servertool tnameserv'
@@ -28,6 +29,13 @@ case "$1" in
 		    rm -f $basedir/jre/lib/cmm
 		fi
 	    fi
+	fi
+
+	# upgrading from a version that used the timezone files from tzdata-java
+	if [ "$with_tzdata" != yes ] && [ -n "$multiarch" ]; then
+		if [ -h /@basedir@/jre/lib/zi ]; then
+			rm -f /@basedir@/jre/lib/zi
+		fi
 	fi
 	;;
 esac

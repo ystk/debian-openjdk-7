@@ -1,7 +1,8 @@
 Source: @basename@
 Section: java
 Priority: optional
-Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
 Uploaders: Matthias Klose <doko@ubuntu.com>, Damien Raude-Morvan <drazzib@debian.org>
 Build-Depends: debhelper (>= 5),
   m4, lsb-release, wget, zip, unzip, sharutils,

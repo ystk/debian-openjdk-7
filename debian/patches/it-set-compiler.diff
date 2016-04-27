@@ -2,13 +2,15 @@ Description: Pass the correct compiler to the OpenJDK build system
 Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: #openjdk on OFTC
 
---- openjdk-7-7u95-2.6.4.orig/Makefile.am
-+++ openjdk-7-7u95-2.6.4/Makefile.am
-@@ -616,6 +616,7 @@
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am	2016-04-22 14:27:57.520981863 -0300
++++ b/Makefile.am	2016-04-22 14:27:57.516981802 -0300
+@@ -618,6 +618,7 @@
  	VERBOSE="$(VERBOSE)" \
  	STATIC_CXX="false" \
  	BUILD_GCC="$(CC)" \
 +	BUILD_CPP="$(CXX)" \
  	BUILD_CXX="$(CXX)" \
- 	SYSTEM_CUPS="true" \
+ 	SYSTEM_CUPS="${ENABLE_SYSTEM_CUPS}" \
  	CUPS_LIBS="${CUPS_LIBS}" \

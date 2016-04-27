@@ -1,20 +1,29 @@
 #!/bin/sh
 
+# all directories are relative to the current dir
+
 tarballs="corba.tar.bz2 hotspot.tar.bz2 jaxp.tar.bz2 jaxws.tar.bz2 jdk.tar.bz2 langtools.tar.bz2 openjdk.tar.bz2"
-# AArch64 hotspot
-aarch64_hsname=hotspot-aarch64
-#tarballs="$tarballs $aarch64_hsname.tar.bz2"
 tarballs="$tarballs icedtea-sound.tar.gz"
 jamvmtb=jamvm-2.0.0.tar.gz
 cacaotb=cacao-c182f119eaad.tar.gz
-tarballdir=7u91
-version=7u91-2.6.3
-base=openjdk-7
-pkgdir=$base-$version
-origtar=${base}_${version}.orig.tar.gz
 
-icedtea_checkout=icedtea-2.6.3
+# tarballs location
+tarballdir=7u101
+
+# icedtea upstream location (as extracted from icedtea's tarball)
+icedtea_checkout=icedtea-2.6.6
+
+# openjdk's debian location (usually fetched from bzr or the latest openjdk)
 debian_checkout=openjdk7
+
+base=openjdk-7
+version=7u101-2.6.6
+
+# output directory
+pkgdir=$base-$version
+
+# new orig file
+origtar=${base}_${version}.orig.tar.gz
 
 if [ -d $pkgdir ]; then
     echo directory $pkgdir already exists

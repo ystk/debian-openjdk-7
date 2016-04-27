@@ -1,22 +1,22 @@
 # Dependencies
 
-JDK_UPDATE_VERSION = 95
+JDK_UPDATE_VERSION = 101
 BUILD_VERSION = b00
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
 
-CORBA_CHANGESET = 2135da66cc53
-JAXP_CHANGESET = bc6edb6c12a7
-JAXWS_CHANGESET = 271b555de438
-JDK_CHANGESET = dc86038147b2
-LANGTOOLS_CHANGESET = fd0a34cb97b4
-OPENJDK_CHANGESET = 4f1e498cad9c
+CORBA_CHANGESET = ca3e3c4c5a61
+JAXP_CHANGESET = 683427778edf
+JAXWS_CHANGESET = 63f7bf7ed2d4
+JDK_CHANGESET = 55c38c1ace75
+LANGTOOLS_CHANGESET = e42dd50480d3
+OPENJDK_CHANGESET = 882cfee70fe8
 
-CORBA_SHA256SUM = 26bbfae0504fb7e83fd5eaba08d9e44e0c07a609cdf7c04fb6832a097b56bc08
-JAXP_SHA256SUM = 097cb0423271b6439b36db190a66bab9d447dd03ee22e42a6089a3b3b8363f62
-JAXWS_SHA256SUM = da7604aaaedaab93ba9ad21ee5ee8f18c807606a97d60037ae8c3647e823dfa1
-JDK_SHA256SUM = 9d3199c0f9c39238c6920c941026cf8661a92e97845f75d74e9ff277532b5d63
-LANGTOOLS_SHA256SUM = f9b0ce14c73c263276d3dfe78601714869cd2c0463bd01c637c8556d52a7d7cc
-OPENJDK_SHA256SUM = bb02e71972ad606e739c79fc11c6dc61b4840a526a41049a600a206cc37152e2
+CORBA_SHA256SUM = ce886c97a150465df3a36c4281d5f36ba8ee2b081b5b76ecfbefaddb723b6a2d
+JAXP_SHA256SUM = 679eb46054afea3098713beee85639c4a5a5af881e94be527409feaea4272d30
+JAXWS_SHA256SUM = f9af138096f4d11e381c3cc949dd3ee37cee5bfff15dc21cff5c16a2f9e7c218
+JDK_SHA256SUM = 1baa92ca72db1b80fff18ca26bd49e5fd5f2927df9eceebf3456cbd86a710a9f
+LANGTOOLS_SHA256SUM = 54bb2cee7b4fc5bbc63a4c9d7008602e12f75431c7f129ade7c405b53c2363f3
+OPENJDK_SHA256SUM = 24f813e6cb938272a4da37b46b48aa86820b13be0747747e6c8fb4aad72cadf3
 
 DROP_URL = http://icedtea.classpath.org/download/drops
 
@@ -69,7 +69,7 @@ REWRITER_BUILD_DIR = $(abs_top_builddir)/rewriter.build
 STAGE1_BOOT_DIR = $(abs_top_builddir)/bootstrap/boot
 STAGE2_BOOT_DIR = $(abs_top_builddir)/bootstrap/icedtea
 JAMVM_IMPORT_PATH = $(abs_top_builddir)/jamvm/install/hotspot
-CRYPTO_CHECK_BUILD_DIR = $(abs_top_builddir)/cryptocheck.build
+CRYPTO_CHECK_BUILD_DIR = $(abs_top_builddir)/test/cryptocheck.build
 STAGE1_BOOT_RUNTIME = $(STAGE1_BOOT_DIR)/jre/lib/rt.jar
 STAGE2_BOOT_RUNTIME = $(STAGE2_BOOT_DIR)/jre/lib/rt.jar
 FONTCONFIG_PATH = openjdk/jdk/src/solaris/classes/sun/awt/fontconfigs
@@ -385,7 +385,8 @@ ICEDTEA_PATCHES += \
 	patches/cacao/memory.patch \
 	patches/cacao/pr2032.patch \
 	patches/cacao/pr2520-tempdir.patch \
-	patches/cacao/pr2652-classloader.patch
+	patches/cacao/pr2652-classloader.patch \
+	patches/cacao/pr2781-refactoring_error.patch
 else
 if USING_CACAO
 ICEDTEA_PATCHES += \
@@ -402,7 +403,8 @@ if BUILD_JAMVM
 ICEDTEA_PATCHES += \
 	patches/jamvm/find_class_from_caller.patch \
 	patches/jamvm/pr2172-tempdir.patch \
-	patches/jamvm/noexecstack.patch
+	patches/jamvm/noexecstack.patch \
+	patches/jamvm/pr2665.patch
 endif
 
 if ENABLE_NSS
@@ -617,7 +619,7 @@ ICEDTEA_ENV = \
 	STATIC_CXX="false" \
 	BUILD_GCC="$(CC)" \
 	BUILD_CXX="$(CXX)" \
-	SYSTEM_CUPS="true" \
+	SYSTEM_CUPS="${ENABLE_SYSTEM_CUPS}" \
 	CUPS_LIBS="${CUPS_LIBS}" \
 	CUPS_CFLAGS="${CUPS_CFLAGS}" \
 	STRIP_POLICY=no_strip \
@@ -2814,6 +2816,7 @@ jtreg_pids = ps x --no-headers -ww -o pid,ppid,args \
 	| awk '$$2 == 1 && $$3 ~ /^$(subst /,\/,$(CURDIR)/$(sdkimg))/ {print $$1}'
 
 jtregcheck: $(TESTS_TO_RUN)
+	$(MKDIR_P) test
 	for i in $(TEST_SUITES); do \
 	  echo "--------------- jtreg console summary for $$i ---------------"; \
 	  egrep -v '^(Passed:|Directory|Re[a-z]+\ written\ to)' test/check-$$i.log; \
@@ -2844,14 +2847,28 @@ jtregcheck: $(TESTS_TO_RUN)
 
 check-tapset-probes: 
 if ENABLE_SYSTEMTAP
-	$(abs_top_srcdir)/test/tapset/jstaptest.pl \
+	if test "x${PERL}" = "x"; then \
+	  echo "ERROR: Perl not found"; exit -1; \
+	fi
+	if test "x${STAP}" = "x"; then \
+	  echo "ERROR: stap not found"; exit -1; \
+	fi
+	$(MKDIR_P) test
+	${PERL} $(abs_top_builddir)/test/tapset/jstaptest.pl \
 	  -B $(BUILD_OUTPUT_DIR) -A $(BUILD_ARCH_DIR) \
 	  -S $(abs_top_srcdir)/test/tapset \
 	  -a test/check-stap.log -p
 endif
 check-tapset-jstack: 
 if ENABLE_SYSTEMTAP
-	$(abs_top_srcdir)/test/tapset/jstaptest.pl \
+	if test "x${PERL}" = "x"; then \
+	  echo "ERROR: Perl not found"; exit -1; \
+	fi
+	if test "x${STAP}" = "x"; then \
+	  echo "ERROR: stap not found"; exit -1; \
+	fi
+	$(MKDIR_P) test
+	${PERL} $(abs_top_builddir)/test/tapset/jstaptest.pl \
 	  -B $(BUILD_OUTPUT_DIR) -A $(BUILD_ARCH_DIR) \
 	  -S $(abs_top_srcdir)/test/tapset \
 	  -a test/check-stap.log -j

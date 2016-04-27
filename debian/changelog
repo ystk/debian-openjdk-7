@@ -1,8 +1,51 @@
-openjdk-7 (7u95-2.6.4-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u101-2.6.6-1~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Tue, 26 Jan 2016 00:42:03 +0100
+ -- Moritz Mühlenhoff <jmm@debian.org>  Mon, 25 Apr 2016 09:11:12 +0200
+
+openjdk-7 (7u101-2.6.6-1) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.6 (based on 7u101):
+  * Security fixes
+    - S8129952, CVE-2016-0686: Ensure thread consistency
+    - S8132051, CVE-2016-0687: Better byte behavior
+    - S8138593, CVE-2016-0695: Make DSA more fair
+    - S8139008: Better state table management
+    - S8143167, CVE-2016-3425: Better buffering of XML strings
+    - S8144430, CVE-2016-3427: Improve JMX connections
+    - S8146494: Better ligature substitution
+    - S8146498: Better device table adjustments
+  * debian/patches/jdk-8152335-improve-methodhandle-consistency.patch:
+    removed, fix is upstream since 2.6.5
+
+  [ Matthias Klose ]
+  * Fix handling of /usr/lib/jvm/*/jre/lib/zi if internal tzdata is used (Andreas
+    Beckmann). Closes: #821858.
+
+ -- Matthias Klose <doko@ubuntu.com>  Fri, 22 Apr 2016 21:14:22 +0200
+
+openjdk-7 (7u95-2.6.4-3) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * SECURITY UPDATE: Applies to client deployment of Java only. This
+    vulnerability can be exploited only through sandboxed Java Web Start
+    applications and sandboxed Java applets.
+    - d/p/jdk-8152335-improve-methodhandle-consistency.patch: S8152335,
+      CVE-2016-0636: Improve MethodHandle consistency
+
+  [ Matthias Klose ]
+  * Use internal tzdata for builds in stretch, unstable, experimental.
+    Closes: #818308.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 24 Mar 2016 15:24:32 +0100
+
+openjdk-7 (7u95-2.6.4-2) experimental; urgency=medium
+
+  * Upload to experimental.
+
+ -- Matthias Klose <doko@ubuntu.com>  Fri, 05 Feb 2016 17:51:20 +0100
 
 openjdk-7 (7u95-2.6.4-1) unstable; urgency=high
 

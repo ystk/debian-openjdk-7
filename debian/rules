@@ -373,7 +373,10 @@ ifeq ($(with_nss),yes)
   endif
 endif
 
-with_tzdata = yes
+ifneq (,$(filter $(distrel),squeeze wheezy jessie lucid precise trusty vivid wily))
+  # use the timezone files from tzdata-java
+  with_tzdata = yes
+endif
 
 ifneq (,$(filter $(distrel),lenny squeeze natty maverick lucid karmic jaunty intrepid hardy))
   lcms_version = 1
