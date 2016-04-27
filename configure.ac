@@ -1,4 +1,4 @@
-AC_INIT([icedtea], [2.6.4], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [2.6.6], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.9 tar-pax foreign])
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_FILES([Makefile])
@@ -237,8 +237,8 @@ then
   AC_MSG_ERROR([Could not find Xproto headers - \
   Try installing xorg-x11-proto-devel.])
 fi
-AC_SUBST(XT_CFLAGS)
-AC_SUBST(XT_LIBS)
+AC_SUBST(XPROTO_CFLAGS)
+AC_SUBST(XPROTO_LIBS)
 
 dnl Check for libXt headers and libraries.
 PKG_CHECK_MODULES(XT, xt,[XT_FOUND=yes],[XT_FOUND=no])
@@ -277,6 +277,13 @@ then
   AC_MSG_ERROR([Could not find Xrender extension - \
 Try installing libXrender-devel.])
 fi
+
+PKG_CHECK_MODULES(XCOMPOSITE, xcomposite, [XCOMPOSITE_FOUND=yes], [XCOMPOSITE_FOUND=no])
+if test "x${XCOMPOSITE_FOUND}" = xno
+then AC_MSG_ERROR([Could not find Xcomposite extension.  Try installing libXcomposite-devel.])
+fi
+AC_SUBST(XCOMPOSITE_CFLAGS)
+AC_SUBST(XCOMPOSITE_LIBS)
 
 AC_CHECK_HEADER([sys/sdt.h], [SDT_H_FOUND='yes'],
                 [SDT_H_FOUND='no';
@@ -317,6 +324,19 @@ public:
   inst.method(24);
 ]])], [AC_MSG_RESULT([yes])], [SDT_H_FOUND='no'; AC_MSG_WARN([systemtap sdt.h or g++ too old])])
 AC_LANG_POP([C++])
+if test "x${SDT_H_FOUND}" = "xyes"; then
+ AC_PATH_TOOL([PERL],[perl])
+ if test x"${PERL}" = x ; then
+   AC_MSG_WARN([Perl not found in PATH; SystemTap tests will not be able to run])
+ fi
+ AC_SUBST(PERL)
+ AC_PATH_TOOL([STAP],[stap])
+ if test x"${STAP}" = x ; then
+   AC_MSG_WARN([stap not found in PATH; SystemTap tests will not be able to run])
+ fi
+ AC_SUBST(STAP)
+fi
+
 AM_CONDITIONAL([ENABLE_SYSTEMTAP], [test x$SDT_H_FOUND = xyes])
 
 ABS_CLIENT_LIBJVM_SO="${prefix}/jre/lib/${INSTALL_ARCH_DIR}/client/libjvm.so"
@@ -327,6 +347,7 @@ AC_CONFIG_FILES([tapset/hotspot.stp])
 AC_CONFIG_FILES([tapset/hotspot_jni.stp])
 AC_CONFIG_FILES([tapset/jstack.stp])
 AC_CONFIG_FILES([tapset/hotspot_gc.stp])
+AC_CONFIG_FILES([test/tapset/jstaptest.pl])
 
 dnl Check for libXtst headers and libraries.
 PKG_CHECK_MODULES(XTST, xtst,[XTST_FOUND=yes],[XTST_FOUND=no])
@@ -337,17 +358,6 @@ then
 fi
 AC_SUBST(XTST_CFLAGS)
 AC_SUBST(XTST_LIBS)
-
-dnl Check for freetype2 headers and libraries.
-PKG_CHECK_MODULES(FREETYPE2, freetype2,[FREETYPE2_FOUND=yes]
-	,[FREETYPE2_FOUND=no])
-if test "x${FREETYPE2_FOUND}" = xno
-then
-  AC_MSG_ERROR([Could not find freetype2 - \
-  Try installing freetype2-devel.])
-fi
-AC_SUBST(FREETYPE2_CFLAGS)
-AC_SUBST(FREETYPE2_LIBS)
 
 dnl Check for alsa headers and libraries (only required for Linux).
 if test "x${BUILD_OS_DIR}" = "xlinux"

@@ -11,7 +11,7 @@ A bootstrap JDK, either:
   - GNU libgcj 4.4.0 (or equivalent class library based on GNU Classpath >= 0.95) (--enable-bootstrap mode only, the default)
   - IcedTea6 or IcedTea7
 CUPS
-libX11 (libXp, libXtst, libXi, libXt, libXinerama)
+libX11 (xproto, libX11, libXext, libXtst, libXi, libXt, libXinerama, libXrender, libXcomposite, libXau, libXdmcp)
 Freetype2
 patch
 sed
@@ -126,6 +126,8 @@ to configure:
 * --enable-system-kerberos: Link against the system Kerberos library and
   query it at runtime to obtain the cache location, rather than using a
   hardcoded value.
+* --enable-system-cups: Build and link against the system installation of
+  CUPS instead of trying to dynamically open it at runtime.
 * --enable-compile-against-syscalls: Check for syscalls at compile-time not runtime.
 * --with-gcj: Compile ecj to native code with gcj prior to building.
 * --with-parallel-jobs: Run the specified number of parallel jobs when

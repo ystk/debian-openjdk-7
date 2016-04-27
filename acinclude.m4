@@ -602,43 +602,62 @@ AC_DEFUN([IT_FIND_RHINO_JAR],
   [
     case "${withval}" in
       yes)
-	RHINO_JAR=yes
+	RHINO_RESULT=yes
         ;;
       no)
-        RHINO_JAR=no
+        RHINO_RESULT=no
         ;;
       *)
-    	if test -f "${withval}"; then
-          RHINO_JAR="${withval}"
-        else
-	  AC_MSG_RESULT([not found])
-          AC_MSG_ERROR("The rhino jar ${withval} was not found.")
-        fi
+	RHINO_RESULT=yes
+        RHINO_JAR="${withval}"
 	;;
      esac
   ],
   [
-    RHINO_JAR=yes
+    RHINO_RESULT=yes
   ])
-  if test x"${RHINO_JAR}" = "xyes"; then
-    if test -e "/usr/share/java/rhino.jar"; then
-      RHINO_JAR=/usr/share/java/rhino.jar
-    elif test -e "/usr/share/java/js.jar"; then
-      RHINO_JAR=/usr/share/java/js.jar
-    elif test -e "/usr/share/rhino-1.6/lib/js.jar"; then
-      RHINO_JAR=/usr/share/rhino-1.6/lib/js.jar
+  AC_MSG_RESULT([$RHINO_RESULT])
+  if test "x${RHINO_RESULT}" = "xyes"; then
+    if test "x${RHINO_JAR}" != x; then
+      AC_MSG_CHECKING([if ${RHINO_JAR} is a valid JAR file])
+      if test -f ${RHINO_JAR}; then
+      	 AC_MSG_RESULT([yes])
+      else
+	 AC_MSG_RESULT([no])
+	 RHINO_JAR=
+      fi
     fi
-    if test x"${RHINO_JAR}" = "xyes"; then
-      AC_MSG_RESULT([not found])
-      AC_MSG_ERROR("A rhino jar was not found in /usr/share/java as either rhino.jar or js.jar.")
+    if test "x${RHINO_JAR}" = x; then
+      RHINO_JAR="/usr/share/java/rhino.jar"
+      AC_MSG_CHECKING([if ${RHINO_JAR} is a valid JAR file])
+      if test -f ${RHINO_JAR}; then
+        AC_MSG_RESULT([yes])
+      else
+        AC_MSG_RESULT([no])
+	RHINO_JAR="/usr/share/java/js.jar"
+      	AC_MSG_CHECKING([if ${RHINO_JAR} is a valid JAR file])
+      	if test -f ${RHINO_JAR}; then
+      	  AC_MSG_RESULT([yes])
+      	else
+	  AC_MSG_RESULT([no])
+	  RHINO_JAR="/usr/share/rhino-1.6/lib/js.jar"
+      	  AC_MSG_CHECKING([if ${RHINO_JAR} is a valid JAR file])
+      	  if test -f ${RHINO_JAR}; then
+      	    AC_MSG_RESULT([yes])
+      	  else
+	    AC_MSG_RESULT([no])
+	    RHINO_JAR=
+	  fi
+        fi
+      fi
+    fi
+    if test x"${RHINO_JAR}" = "x"; then
+      AC_MSG_ERROR([A Rhino JAR could not be found; specify one using --with-rhino=jar=<FILE> or use --without-rhino.])
+    else
+      AC_MSG_NOTICE([Using Rhino JAR: ${RHINO_JAR}])
     fi
   fi
-  AC_MSG_RESULT(${RHINO_JAR})
-  AM_CONDITIONAL(WITH_RHINO, test x"${RHINO_JAR}" != "xno")
-dnl Clear RHINO_JAR if it doesn't contain a valid filename
-  if test x"${RHINO_JAR}" = "xno"; then
-    RHINO_JAR=
-  fi
+  AM_CONDITIONAL(WITH_RHINO, test x"${RHINO_JAR}" != "x")
   AC_SUBST(RHINO_JAR)
 ])
 
@@ -1160,7 +1179,7 @@ AC_DEFUN_ONCE([IT_CHECK_FOR_JDK],
     AC_MSG_RESULT(${SYSTEM_JDK_DIR})
   fi
   if ! test -d "${SYSTEM_JDK_DIR}"; then
-    AC_MSG_ERROR("A JDK home directory could not be found.")
+    AC_MSG_ERROR("A JDK home directory could not be found. Try specifying one using --with-jdk-home=<DIR>")
   fi
   AC_SUBST(SYSTEM_JDK_DIR)
 ])
@@ -2178,13 +2197,28 @@ AC_DEFUN_ONCE([IT_CHECK_FOR_FONTCONFIG],
 
 AC_DEFUN_ONCE([IT_CHECK_FOR_CUPS],
 [
-  dnl Check for CUPS headers and libraries.
-  AC_CHECK_LIB([cups], [cupsServer],
-      , [AC_MSG_ERROR([Could not find CUPS library; install CUPS.])])
+  dnl The CUPS headers are always required
   AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],
       , [AC_MSG_ERROR([Could not find CUPS headers; install CUPS (including cups-devel on binary distros).])])
-  CUPS_LIBS="-lcups"
-  AC_SUBST(CUPS_LIBS)
+  AC_MSG_CHECKING([whether to use the system CUPS install])
+  AC_ARG_ENABLE([system-cups],
+	      [AS_HELP_STRING(--enable-system-cups,use the system CUPS [[default=yes]])],
+  [
+    ENABLE_SYSTEM_CUPS="${enableval}"
+  ],
+  [
+    ENABLE_SYSTEM_CUPS="yes"
+  ])
+  AC_MSG_RESULT(${ENABLE_SYSTEM_CUPS})
+  if test x"${ENABLE_SYSTEM_CUPS}" = "xyes"; then
+    dnl Check for CUPS libraries
+    AC_CHECK_LIB([cups], [cupsServer],
+        , [AC_MSG_ERROR([Could not find CUPS library; install CUPS.])])
+    CUPS_LIBS="-lcups"
+    AC_SUBST(CUPS_LIBS)
+  fi
+  AM_CONDITIONAL(USE_SYSTEM_CUPS, test x"${ENABLE_SYSTEM_CUPS}" = "xyes")
+  AC_SUBST(ENABLE_SYSTEM_CUPS)
 ])
 
 AC_DEFUN_ONCE([IT_CHECK_FOR_SYSCALLS],
@@ -2804,6 +2838,7 @@ AC_DEFUN_ONCE([IT_ENABLE_JAVA_DEBUGINFO],
 
 AC_DEFUN_ONCE([IT_ENABLE_INFINALITY],
 [
+  AC_REQUIRE([IT_CHECK_FOR_FREETYPE])
   AC_REQUIRE([IT_CHECK_FOR_FONTCONFIG])
   AC_MSG_CHECKING([whether to use fontconfig to provide better font rendering])
   AC_ARG_ENABLE([infinality],
@@ -2827,6 +2862,20 @@ AC_DEFUN_ONCE([IT_ENABLE_INFINALITY],
     if test "x${ENABLE_SYSTEM_FONTCONFIG}" != "xtrue"; then
       AC_MSG_ERROR([Infinality support requires fontconfig. Either --enable-system-fontconfig or --disable-infinality])
     fi
+    AC_MSG_CHECKING([if FreeType is patched with infinality support])
+    AC_LANG_PUSH([C])
+    CFLAGS_SAVED=$CFLAGS
+    CFLAGS="$CFLAGS $FREETYPE2_CFLAGS"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+    #include <ft2build.h>
+    #include FT_FREETYPE_H
+    #ifndef FT_CONFIG_OPTION_INFINALITY_PATCHSET
+    #error Infinality not supported
+    #endif
+    ]])], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no]); \
+      AC_MSG_ERROR([Infinality support requires infinality support in FreeType.])])
+    CFLAGS=$CFLAGS_SAVED
+    AC_LANG_POP([C])
   fi
 ])
 
@@ -3325,4 +3374,14 @@ AC_DEFUN_ONCE([IT_WITH_CACERTS_FILE],
   fi
   AM_CONDITIONAL(USE_ALT_CACERTS_FILE, test "x${ALT_CACERTS_FILE}" != "xno")
   AC_SUBST(ALT_CACERTS_FILE)
+])
+
+AC_DEFUN_ONCE([IT_CHECK_FOR_FREETYPE],
+[
+dnl Check for freetype2 headers and libraries.
+  PKG_CHECK_MODULES(FREETYPE2, freetype2,[]
+	  ,[AC_MSG_ERROR([Could not find freetype2 - \
+  Try installing freetype2-devel.])])
+  AC_SUBST(FREETYPE2_CFLAGS)
+  AC_SUBST(FREETYPE2_LIBS)
 ])

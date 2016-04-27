@@ -1,3 +1,194 @@
+2016-04-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.6.
+	* Makefile.am,
+	(JDK_UPDATE_VERSION): Bump to 101.
+	(CORBA_CHANGESET): Update to icedtea-2.6.6.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.6.
+	* hotspot.map.in: Update to icedtea-2.6.6.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new case in
+	javax/management/remote/rmi/RMIJRMPServerImpl.java
+
+2016-04-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2935: Check that freetype defines
+	FT_CONFIG_OPTION_INFINALITY_PATCHSET if
+	enabling infinality
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_ENABLE_INFINALITY): Depend on
+	IT_CHECK_FOR_FREETYPE and check that
+	FreeType defines
+	FT_CONFIG_OPTION_INFINALITY_PATCHSET.
+	(IT_CHECK_FOR_FREETYPE): Moved from
+	configure.ac to its own macro so
+	IT_ENABLE_INFINALITY can depend on it.
+	* configure.ac:
+	Move FreeType check to its own macro.
+
+2016-04-21  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2929: configure: error: "A JDK home directory
+	could not be found."
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_FIND_RHINO_JAR): Refactor to be more
+	verbose and helpful to the user.
+	(IT_CHECK_FOR_JDK): Point user to the
+	configure option if we fail to find the JDK.
+
+2016-04-20  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2665: icedtea/jamvm 2.6 fails as a
+	build VM for icedtea
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add new patch.
+	* NEWS: Updated.
+	* patches/jamvm/pr2665.patch:
+	Set the classLoader field in java.lang.Class
+	when a class is defined.
+
+2016-04-17  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.6pre01.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.6pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.6pre01.
+	* hotspot.map.in: Update to icedtea-2.6.6pre01.
+
+2016-04-14  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Add 2.6.6 section.
+	* configure.ac: Bump to 2.6.6pre00.
+
+2016-03-25  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Replace misplaced '.' with ','.
+
+2016-03-24  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Set release date.
+
+2016-03-24  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.5.
+	* INSTALL: Update X11 dependency documentation.
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Bump to 99.
+	(CORBA_CHANGESET): Update to icedtea-2.6.5.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.5. Add check
+	for libXcomposite as required by fix
+	for PR2866. Correct variables used by
+	xproto check.
+	* hotspot.map.in: Update to icedtea-2.6.5.
+	* patches/boot/ecj-multicatch.patch:
+	Add new cases in java.lang.invoke.MemberName
+	and sun.invoke.util.VerifyAccess
+
+2016-03-18  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2886: Location of 'stap' executable is hard-coded
+	* Makefile.am:
+	(check-tapset-probes): Check for STAP and invoke
+	generated script from build directory.
+	(check-tapset-jstack): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Detect stap and warn if not found.
+	Generate test/tapset/jstaptest.pl.
+	* test/tapset/jstaptest.pl.in:
+	Moved from test/tapset/jstaptest.pl. Fill in location
+	of stap and perl binaries from configure output.
+	Fix capitalisation of "IcedTea".
+
+2016-03-14  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2894: Add missing test directory in make check
+	* Makefile.am:
+	(CRYPTO_CHECK_BUILD_DIR): Locate inside the test
+	directory.
+	(jtregcheck): Create the test directory if it
+	doesn't exist.
+	(check-tapset-probes): Likewise.
+	(check-tapset-jstack): Likewise.
+	* NEWS: Updated.
+
+2016-01-29  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2893: test/tapset/jstaptest.pl should be executable
+	* Makefile.am:
+	(check-tapset-probes): Check that Perl is available
+	and, if so, use it to invoke the script.
+	(check-tapset-jstack): Likewise.
+	* NEWS: Updated.
+	* configure.ac:
+	Check for Perl if SystemTap is found, so the
+	tests can be run if required.
+
+2016-03-24  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2803: Make system CUPS optional
+	* INSTALL: Document --enable-system-cups.
+	* Makefile.am:
+	(ICEDTEA_ENV): Set SYSTEM_CUPS to the
+	value of ENABLE_SYSTEM_CUPS rather than 'true'.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_CHECK_FOR_CUPS): Only check for the library
+	if --enable-system-cups is on.
+
+2016-03-24  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR2781, CA195: typeinfo.cpp: typeinfo_merge_nonarrays:
+	Assertion `dest && result && x.any && y.any' failed
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add new patch.
+	* NEWS: Updated.
+	* patches/cacao/pr2781-refactoring_error.patch:
+	Backport of refactoring fix from
+	https://bitbucket.org/Ringdingcoder/cacao-staging
+
+2016-01-25  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	* NEWS: Add 2.6.5 section.
+	* configure.ac: Bump to 2.6.5pre00.
+
 2016-01-19  Andrew John Hughes  <gnu.andrew@redhat.com>
 
 	* Makefile.am,

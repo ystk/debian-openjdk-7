@@ -12,6 +12,107 @@ JEPX - http://openjdk.java.net/jeps/X
 
 CVE-XXXX-YYYY: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release 2.6.6 (2016-04-21):
+
+* Security fixes
+  - S8129952, CVE-2016-0686: Ensure thread consistency
+  - S8132051, CVE-2016-0687: Better byte behavior
+  - S8138593, CVE-2016-0695: Make DSA more fair
+  - S8139008: Better state table management
+  - S8143167, CVE-2016-3425: Better buffering of XML strings
+  - S8144430, CVE-2016-3427: Improve JMX connections
+  - S8146494: Better ligature substitution
+  - S8146498: Better device table adjustments
+* Import of OpenJDK 7 u101 build 0
+  - S4858370: JDWP: Memory Leak: GlobalRefs never deleted when processing invokeMethod command
+  - S7127906: (launcher) convert the launcher regression tests to java
+  - S8002116: This JdbReadTwiceTest.sh gets an exit 1
+  - S8004007: test/sun/tools/jinfo/Basic.sh fails on when runSA is set to true
+  - S8007890: [TESTBUG] JcmdWithNMTDisabled.java fails when invoked with NMT explicitly turned on
+  - S8027705: com/sun/jdi/JdbMethodExitTest.sh fails when a background thread is generating events.
+  - S8028537: PPC64: Updated the JDK regression tests to run on AIX
+  - S8036132: Tab characters in test/com/sun/jdi files
+  - S8038963: com/sun/jdi tests fail because cygwin's ps sometimes misses processes
+  - S8044419: TEST_BUG: com/sun/jdi/JdbReadTwiceTest.sh fails when run under root
+  - S8059661: Test SoftReference and OOM behavior
+  - S8072753: Nondeterministic wrong answer on arithmetic
+  - S8073735: [TEST_BUG] compiler/loopopts/CountedLoopProblem.java got OOME
+  - S8074146: [TEST_BUG] jdb has succeded to read an unreadable file
+  - S8134297: NPE in GSSNameElement nameType check
+  - S8134650: Xsl transformation gives different results in 8u66
+  - S8141229: [Parfait] Null pointer dereference in cmsstrcasecmp of cmserr.c
+  - S8143002: [Parfait] JNI exception pending in fontpath.c:1300
+  - S8146477: [TEST_BUG] ClientJSSEServerJSSE.java failing again
+  - S8146967: [TEST_BUG] javax/security/auth/SubjectDomainCombiner/Optimize.java should use 4-args ProtectionDomain constructor
+  - S8147567: InterpreterRuntime::post_field_access not updated for boolean in JDK-8132051
+  - S8148446: (tz) Support tzdata2016a
+  - S8148475: Missing SA Bytecode updates.
+  - S8149170: Better byte behavior for native arguments
+  - S8149367: PolicyQualifierInfo/index_Ctor JCk test fails with IOE: Invalid encoding for PolicyQualifierInfo
+  - S8150012: Better byte behavior for reflection
+  - S8150790: 8u75 L10n resource file translation update
+  - S8153673: [BACKOUT] JDWP: Memory Leak: GlobalRefs never deleted when processing invokeMethod command
+  - S8154210: Zero: Better byte behaviour
+* Backports
+  - S8148487: PPC64: Better byte behavior
+  - S8154413: AArch64: Better byte behaviour
+* Bug fixes
+  - PR2889: OpenJDK should check for system cacerts database (e.g. /etc/pki/java/cacerts)
+  - PR2929: configure: error: "A JDK home directory could not be found."
+  - PR2935: Check that freetype defines FT_CONFIG_OPTION_INFINALITY_PATCHSET if enabling infinality
+  - PR2938: Fix build of 8148487 backport
+  - PR2939: Remove rogue ReleaseStringUTFChars line remaining from merge of 7u101 b00
+* AArch64 port
+  - PR2914: byte_map_base is not page aligned on OpenJDK 7
+* JamVM
+  - PR2665: icedtea/jamvm 2.6 fails as a build VM for icedtea
+
+New in release 2.6.5 (2016-03-24):
+
+* Security fixes
+  - S8152335, CVE-2016-0636: Improve MethodHandle consistency
+* Import of OpenJDK 7 u99 build 0
+  - S6425769, PR2858: Allow specifying an address to bind JMX remote connector
+  - S6961123: setWMClass fails to null-terminate WM_CLASS string
+  - S8145982, PR2858: JMXInterfaceBindingTest is failing intermittently
+  - S8146015, PR2858: JMXInterfaceBindingTest is failing intermittently for IPv6 addresses
+* Backports
+  - S8028727, PR2814: [parfait] warnings from b116 for jdk.src.share.native.sun.security.ec: JNI pending exceptions
+  - S8048512, PR2814: Uninitialised memory in jdk/src/share/native/sun/security/ec/ECC_JNI.cpp
+  - S8071705, PR2819, RH1182694: Java application menu misbehaves when running multiple screen stacked vertically
+  - S8150954, PR2866, RH1176206: AWT Robot not compatible with GNOME Shell
+* Bug fixes
+  - PR2803: Make system CUPS optional
+  - PR2886: Location of 'stap' executable is hard-coded
+  - PR2893: test/tapset/jstaptest.pl should be executable
+  - PR2894: Add missing test directory in make check.
+* CACAO
+  - PR2781, CA195: typeinfo.cpp: typeinfo_merge_nonarrays: Assertion `dest && result && x.any && y.any' failed
+* AArch64 port
+  - PR2852: Add support for large code cache
+  - PR2852: Apply ReservedCodeCacheSize default limiting to AArch64 only.
+  - S8081289, PR2852: aarch64: add support for RewriteFrequentPairs in interpreter
+  - S8131483, PR2852: aarch64: illegal stlxr instructions
+  - S8133352, PR2852: aarch64: generates constrained unpredictable instructions
+  - S8133842, PR2852: aarch64: C2 generates illegal instructions with int shifts >=32
+  - S8134322, PR2852: AArch64: Fix several errors in C2 biased locking implementation
+  - S8136615, PR2852: aarch64: elide DecodeN when followed by CmpP 0
+  - S8138575, PR2852: Improve generated code for profile counters
+  - S8138641, PR2852: Disable C2 peephole by default for aarch64
+  - S8138966, PR2852: Intermittent SEGV running ParallelGC
+  - S8143067, PR2852: aarch64: guarantee failure in javac
+  - S8143285, PR2852: aarch64: Missing load acquire when checking if ConstantPoolCacheEntry is resolved
+  - S8143584, PR2852: Load constant pool tag and class status with load acquire
+  - S8144201, PR2852: aarch64: jdk/test/com/sun/net/httpserver/Test6a.java fails with --enable-unlimited-crypto
+  - S8144582, PR2852: AArch64 does not generate correct branch profile data
+  - S8146709, PR2852: AArch64: Incorrect use of ADRP for byte_map_base
+  - S8147805, PR2852: aarch64: C1 segmentation fault due to inline Unsafe.getAndSetObject
+  - S8148240, PR2852: aarch64: random infrequent null pointer exceptions in javac
+* PPC & AIX port
+  - S8034797, PR2851: AIX: Fix os::naked_short_sleep() in os_aix.cpp after 8028280
+  - S8139258, PR2851: PPC64LE: argument passing problem when passing 15 floats in native call
+  - S8139421, PR2851: PPC64LE: MacroAssembler::bxx64_patchable kill register R12
+
 New in release 2.6.4 (2016-01-19):
 
 * Security fixes
