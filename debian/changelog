@@ -1,8 +1,15 @@
-openjdk-7 (7u101-2.6.6-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u101-2.6.6-2~deb8u1) jessie; urgency=medium
 
-  * Rebuild for jessie-security
+  * Non-maintainer upload.
+  * Rebuild for jessie.
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Mon, 25 Apr 2016 09:11:12 +0200
+ -- Julien Cristau <jcristau@debian.org>  Wed, 04 May 2016 19:20:03 +0200
+
+openjdk-7 (7u101-2.6.6-2) experimental; urgency=medium
+
+  * Configure with --disable-arm32-jit, broken by the security update.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 23 Apr 2016 02:28:28 +0200
 
 openjdk-7 (7u101-2.6.6-1) experimental; urgency=medium
 

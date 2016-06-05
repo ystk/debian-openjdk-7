@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 5),
   @bd_pulsejava@
   @bd_nss@ @bd_systemtap@
   @bd_mauve@ @bd_xvfb@
-Standards-Version: 3.9.5
+Standards-Version: 3.9.8
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7

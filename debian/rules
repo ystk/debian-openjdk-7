@@ -590,9 +590,9 @@ CONFIGURE_ARGS += \
 	--with-langtools-src-zip=$(CURDIR)/langtools.tar.bz2
 
 ifneq (,$(filter $(DEB_HOST_ARCH), armel armhf))
-  #CONFIGURE_ARGS += \
-	--disable-arm32-jit
   CONFIGURE_ARGS += \
+	--disable-arm32-jit
+  #CONFIGURE_ARGS += \
 	--enable-arm32-jit
 endif
 

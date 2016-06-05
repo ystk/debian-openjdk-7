@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 5),
   libpulse-dev (>= 0.9.12),
   libnss3-dev (>= 2:3.17.1), systemtap-sdt-dev,
   mauve, xvfb, xauth, xfonts-base, libgl1-mesa-dri [!x32], twm | metacity, twm | dbus-x11, x11-xkb-utils,
-Standards-Version: 3.9.5
+Standards-Version: 3.9.8
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7
