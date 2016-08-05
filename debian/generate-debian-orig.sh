@@ -8,16 +8,16 @@ jamvmtb=jamvm-2.0.0.tar.gz
 cacaotb=cacao-c182f119eaad.tar.gz
 
 # tarballs location
-tarballdir=7u101
+tarballdir=7u111
 
 # icedtea upstream location (as extracted from icedtea's tarball)
-icedtea_checkout=icedtea-2.6.6
+icedtea_checkout=icedtea-2.6.7
 
 # openjdk's debian location (usually fetched from bzr or the latest openjdk)
 debian_checkout=openjdk7
 
 base=openjdk-7
-version=7u101-2.6.6
+version=7u111-2.6.7
 
 # output directory
 pkgdir=$base-$version

@@ -383,6 +383,10 @@ ifneq (,$(filter $(distrel),lenny squeeze natty maverick lucid karmic jaunty int
 else
   lcms_version = 2
 endif
+with_system_lcms = yes
+ifneq (,$(filter $(distrel),lenny squeeze wheezy xenial wily vivid utopic trusty precise lucid))
+  with_system_lcms =
+endif
 
 on_buildd := $(shell [ -f /CurrentlyBuilding -o "$$LOGNAME" = buildd ] && echo yes)
 
@@ -412,7 +416,7 @@ ifeq (,$(filter $(distrel),squeeze wheezy lucid precise quantal raring saucy tru
   with_systemtap = yes
 endif
 
-ifneq (,$(filter $(DEB_HOST_ARCH), sparc64))
+ifneq (,$(filter $(DEB_HOST_ARCH), aarch64 sparc64))
   USE_PRECOMPILED_HEADER = 0
   export USE_PRECOMPILED_HEADER
 endif
@@ -458,6 +462,7 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/dnd-files.patch \
 	debian/patches/jdk-bold-swing-fonts.patch \
 	debian/patches/javadoc-sort-enum-and-annotation-types.patch \
+	debian/patches/hotspot-aarch64-nopch.diff \
 
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \
@@ -654,10 +659,10 @@ endif
 # causes corrupt bold fonts in 2.5.0
 CONFIGURE_ARGS += --disable-infinality
 
-ifneq ($(lcms_version),2)
-  CONFIGURE_ARGS += --disable-system-lcms
-else
+ifeq ($(with_system_lcms),yes)
   CONFIGURE_ARGS += --enable-system-lcms
+else
+  CONFIGURE_ARGS += --disable-system-lcms
 endif
 
 CONFIGURE_ARGS += --enable-system-kerberos
@@ -780,9 +785,11 @@ endif
 bd_openjdk = \
 	libxtst-dev, libxi-dev, libxt-dev, libxaw7-dev, libxrender-dev, \
 	$(if $(filter $(distrel), etch hardy),libcupsys2-dev,libcups2-dev), \
-	libasound2-dev, liblcms$(lcms_version)-dev, libfreetype6-dev (>= 2.2.1), libgtk2.0-dev, \
+	libasound2-dev, libfreetype6-dev (>= 2.2.1), libgtk2.0-dev, \
+	$(if $(filter yes, $(with_system_lcms)),liblcms$(lcms_version)-dev), \
 	libxinerama-dev, libkrb5-dev, xsltproc, $(bd_rhino) \
 	libpcsclite-dev,
+
 ifeq (,$(filter $(distrel),lenny squeeze quantal precise oneiric natty maverick lucid karmic jaunty intrepid hardy gutsy feisty edgy dapper))
   rhino_source := $(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W librhino-java)
 endif
@@ -859,7 +866,8 @@ endif
 
 dlopen_hl_depends = \
 	$(if $(filter $(distrel), etch),libcupsys2,libcups2), \
-	liblcms$(if $(filter 1,$(lcms_version)),1,2-2),
+	$(if $(filter yes, $(with_system_lcms)),liblcms$(if $(filter 1,$(lcms_version)),1,2-2)),
+
 ifneq (,$(filter $(distrel),lenny squeeze oneiric natty maverick lucid karmic jaunty intrepid hardy gutsy feisty edgy dapper))
   dlopen_hl_depends += libjpeg62,
 else ifneq (,$(filter $(distrel), jessie sid))

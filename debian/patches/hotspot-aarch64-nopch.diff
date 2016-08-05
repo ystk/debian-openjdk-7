@@ -1,0 +1,24 @@
+# DP: Add missing includes for aarch64 hotspot backport
+
+--- openjdk/hotspot/src/cpu/aarch64/vm/assembler_aarch64.cpp
++++ openjdk/hotspot/src/cpu/aarch64/vm/assembler_aarch64.cpp
+@@ -64,6 +64,7 @@
+ #include "gc_implementation/g1/heapRegion.hpp"
+ #endif
+ 
++#include "opto/compile.hpp"
+ 
+ extern "C" void entry(CodeBuffer *cb);
+ 
+--- openjdk/hotspot/src/cpu/aarch64/vm/vm_version_aarch64.cpp
++++ openjdk/hotspot/src/cpu/aarch64/vm/vm_version_aarch64.cpp
+@@ -25,6 +25,9 @@
+  */
+ 
+ #include "precompiled.hpp"
++#include "asm/assembler.hpp"
++#include "asm/assembler.inline.hpp"
++#include "utilities/sizes.hpp"
+ #include "assembler_aarch64.hpp"
+ #include "memory/resourceArea.hpp"
+ #include "runtime/java.hpp"

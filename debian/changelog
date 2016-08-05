@@ -1,15 +1,40 @@
-openjdk-7 (7u101-2.6.6-2~deb8u1) jessie; urgency=medium
+openjdk-7 (7u111-2.6.7-1~deb8u1) jessie-security; urgency=medium
 
-  * Non-maintainer upload.
-  * Rebuild for jessie.
+  * Rebuild for jessie-security
 
- -- Julien Cristau <jcristau@debian.org>  Wed, 04 May 2016 19:20:03 +0200
+ -- Moritz Mühlenhoff <jmm@debian.org>  Sun, 31 Jul 2016 17:24:50 +0200
 
-openjdk-7 (7u101-2.6.6-2) experimental; urgency=medium
+openjdk-7 (7u111-2.6.7-1) experimental; urgency=medium
 
-  * Configure with --disable-arm32-jit, broken by the security update.
+  [ Matthias Klose ]
+  * Fix handling of /usr/lib/jvm/*/jre/lib/zi if internal tzdata is used
+    (Andreas Beckmann). Closes: #821858.
+  * Add missing includes for aarch64 hotspot backport (building without pch).
+  * Use in-tree lcms for backports.
 
- -- Matthias Klose <doko@ubuntu.com>  Sat, 23 Apr 2016 02:28:28 +0200
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.7 (based on 7u111):
+  * Security fixes
+    - S8079718, CVE-2016-3458: IIOP Input Stream Hooking
+    - S8145446, CVE-2016-3485: Perfect pipe placement (Windows only)
+    - S8147771: Construction of static protection domains under Javax
+      custom policy
+    - S8148872, CVE-2016-3500: Complete name checking
+    - S8149962, CVE-2016-3508: Better delineation of XML processing
+    - S8150752: Share Class Data
+    - S8151925: Font reference improvements
+    - S8152479, CVE-2016-3550: Coded byte streams
+    - S8155981, CVE-2016-3606: Bolster bytecode verification
+    - S8155985, CVE-2016-3598: Persistent Parameter Processing
+    - S8158571, CVE-2016-3610: Additional method handle validation
+  * debian/rules:
+    - Create symbolic link in source package (thanks Avinash).
+      Closes: #832720.
+  * debian/JB-jre-headless.prerm.in: check for /var/lib/binfmts/jar
+    instead of /var/lib/binfmts/@basename@ before removing jar entry
+    from binfmts. Closes: #821146.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 30 Jul 2016 08:13:07 +0200
 
 openjdk-7 (7u101-2.6.6-1) experimental; urgency=medium
 
