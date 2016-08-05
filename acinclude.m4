@@ -475,11 +475,25 @@ EOF
     JAR_KNOWS_J_OPTIONS=
     AC_MSG_RESULT(no)
   fi
-  rm -f _config.txt _config.jar
+  AC_MSG_CHECKING([whether jar uf fails to retain permissions (PR1437)])
+  origperms=$(ls -l _config.jar | cut -d ' ' -f 1)
+  echo "Original permissions: ${origperms}" >&AS_MESSAGE_LOG_FD
+  touch _config2.txt
+  $JAR uf _config.jar _config2.txt >&AS_MESSAGE_LOG_FD 2>&1
+  newperms=$(ls -l _config.jar | cut -d ' ' -f 1)
+  echo "New permissions: ${newperms}" >&AS_MESSAGE_LOG_FD
+  if test "x$origperms" != "x$newperms"; then
+    pr1437_present=yes
+  else
+    pr1437_present=no
+  fi
+  AC_MSG_RESULT([$pr1437_present])
+  rm -f _config.txt _config2.txt _config.jar
   AC_SUBST(JAR)
   AC_SUBST(JAR_KNOWS_ATFILE)
   AC_SUBST(JAR_ACCEPTS_STDIN_LIST)
   AC_SUBST(JAR_KNOWS_J_OPTIONS)
+  AM_CONDITIONAL(PR1437_PRESENT, test "x${pr1437_present}" = "xyes")
 ])
 
 AC_DEFUN([IT_FIND_RMIC],
@@ -3362,6 +3376,10 @@ AC_DEFUN_ONCE([IT_WITH_CACERTS_FILE],
       AC_MSG_NOTICE([No cacerts file specified; using ${CACERTS_DEFAULT}])
       ALT_CACERTS_FILE=${CACERTS_DEFAULT} ;
     fi
+    if test -h "${ALT_CACERTS_FILE}"; then
+       ALT_CACERTS_FILE=$(${READLINK} -e ${ALT_CACERTS_FILE})
+       AC_MSG_NOTICE([Resolved cacerts file symlink to ${ALT_CACERTS_FILE}])
+    fi
     AC_MSG_CHECKING([if $ALT_CACERTS_FILE is a valid keystore file])
     if test -f "${ALT_CACERTS_FILE}" && \
      ${FILE} ${ALT_CACERTS_FILE} | ${GREP} 'Java KeyStore' >&AS_MESSAGE_LOG_FD 2>&1; then
@@ -3384,4 +3402,52 @@ dnl Check for freetype2 headers and libraries.
   Try installing freetype2-devel.])])
   AC_SUBST(FREETYPE2_CFLAGS)
   AC_SUBST(FREETYPE2_LIBS)
+])
+
+AC_DEFUN_ONCE([IT_CHECK_FOR_MIME_TYPES],
+[
+  MIME_TYPES_FILE="/etc/mime.types"
+  AC_MSG_CHECKING([for ${MIME_TYPES_FILE}])
+  if test -f ${MIME_TYPES_FILE}; then
+     mime_types_file_found=yes
+  else
+     mime_types_file_found=no
+  fi
+  AC_MSG_RESULT([$mime_types_file_found])
+  if test "x${mime_types_file_found}" = "xyes"; then
+    AC_MSG_CHECKING([if ${MIME_TYPES_FILE} has text/x-java-source])
+    if grep '^text/x-java-source' ${MIME_TYPES_FILE} >&AS_MESSAGE_LOG_FD ; then
+      java_source_supported=yes
+    else
+      java_source_supported=no
+    fi
+    AC_MSG_RESULT([$java_source_supported])
+  else
+    AC_MSG_WARN([No system MIME types file found.])
+  fi
+  AC_SUBST([MIME_TYPES_FILE])
+  AM_CONDITIONAL(MIME_TYPES_FILE_FOUND, test "x${mime_types_file_found}" = "xyes")
+  AM_CONDITIONAL(JAVA_SOURCE_SUPPORTED, test "x${java_source_supported}" = "xyes")    
+])
+
+AC_DEFUN_ONCE([IT_DISABLE_SYSTEMTAP_TESTS],
+[
+  AC_MSG_CHECKING([whether to disable the execution of the SystemTap tests])
+  AC_ARG_ENABLE([systemtap-tests],
+                [AS_HELP_STRING(--disable-systemtap-tests,do not run the SystemTap tests via make check [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+        disable_systemtap_tests=yes
+        ;;
+      *)
+        disable_systemtap_tests=no
+        ;;
+    esac
+  ],
+  [
+    disable_systemtap_tests=no
+  ])
+  AC_MSG_RESULT([$disable_systemtap_tests])
+  AM_CONDITIONAL([DISABLE_SYSTEMTAP_TESTS], test x"${disable_systemtap_tests}" = "xyes")
 ])
