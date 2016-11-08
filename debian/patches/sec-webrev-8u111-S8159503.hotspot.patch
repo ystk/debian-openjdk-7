@@ -1,0 +1,27 @@
+# HG changeset patch
+# User poonam
+# Date 1467999867 25200
+#      Fri Jul 08 10:44:27 2016 -0700
+# Node ID 65029655928a834018a6793253c9b2699044af92
+# Parent  28ce1b5f0c2e4fe58341680745546eaf439ed4c3
+8159503: Amend Annotation Actions
+Reviewed-by: rprotacio
+
+---
+ openjdk/hotspot/src/share/vm/classfile/classFileParser.cpp |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- openjdk/hotspot/src/share/vm/classfile/classFileParser.cpp.orig
++++ openjdk/hotspot/src/share/vm/classfile/classFileParser.cpp
+@@ -3219,6 +3219,11 @@ instanceKlassHandle ClassFileParser::par
+     // Make sure this is the end of class file stream
+     guarantee_property(cfs->at_eos(), "Extra bytes at the end of class file %s", CHECK_(nullHandle));
+ 
++    if (_class_name == vmSymbols::java_lang_Object()) {
++      check_property(local_interfaces == Universe::the_empty_class_klass_array(),
++                     "java.lang.Object cannot implement an interface in class file %s",
++                     CHECK_(nullHandle));
++    }
+     // We check super class after class file is parsed and format is checked
+     if (super_class_index > 0 && super_klass.is_null()) {
+       Symbol*  sk  = cp->klass_name_at(super_class_index);

@@ -1,14 +1,13 @@
 Source: @basename@
 Section: java
 Priority: optional
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
+Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
 Uploaders: Matthias Klose <doko@ubuntu.com>, Damien Raude-Morvan <drazzib@debian.org>
 Build-Depends: debhelper (>= 5),
   m4, lsb-release, wget, zip, unzip, sharutils,
   gawk, cpio, pkg-config, procps, time, wdiff,
   @bd_fastjar@ @bd_compress@ @bd_autotools@
-  @bd_ant@ @bd_cacao@ @bd_jamvm@ @bd_gcc@
+  @bd_ant@ @bd_jamvm@ @bd_gcc@
   @bd_bootstrap@
   @bd_openjdk@
   @bd_zero@ @bd_shark@
@@ -42,7 +41,7 @@ Multi-Arch: same
 Pre-Depends: ${dpkg:Depends}, ${multiarch:Depends}
 Depends: ${jredefault:Depends}, ${cacert:Depends}, ${tzdata:Depends}, ${jcommon:Depends}, ${dlopenhl:Depends}, ${mountpoint:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Recommends: ${dlopenhl:Recommends}, ${jamvm:Recommends}
-Suggests: ${cacao:Recommends}, ${jamvm:Suggests}, libnss-mdns, sun-java6-fonts, @core_fonts@, @cjk_fonts@
+Suggests: ${jamvm:Suggests}, libnss-mdns, sun-java6-fonts, @core_fonts@, @cjk_fonts@
 Provides: java-runtime-headless, java2-runtime-headless, java5-runtime-headless, java6-runtime-headless, java7-runtime-headless, ${defaultvm:Provides}, ${jvm:Provides}
 Replaces: @basename@-jre-lib (<< 7u45-2.4.3-1)
 Conflicts: ${multiarch:Conflicts}

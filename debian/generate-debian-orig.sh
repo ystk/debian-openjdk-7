@@ -5,7 +5,6 @@
 tarballs="corba.tar.bz2 hotspot.tar.bz2 jaxp.tar.bz2 jaxws.tar.bz2 jdk.tar.bz2 langtools.tar.bz2 openjdk.tar.bz2"
 tarballs="$tarballs icedtea-sound.tar.gz"
 jamvmtb=jamvm-2.0.0.tar.gz
-cacaotb=cacao-c182f119eaad.tar.gz
 
 # tarballs location
 tarballdir=7u111
@@ -52,9 +51,6 @@ else
         for i in $tarballs; do
             cp -p $tarballdir/$i $pkgdir.orig/
         done
-	if [ -n "$cacaotb" ]; then
-          cp -p $tarballdir/$cacaotb $pkgdir.orig/
-	fi
         cp -p $tarballdir/$jamvmtb $pkgdir.orig/
       ;;
     esac

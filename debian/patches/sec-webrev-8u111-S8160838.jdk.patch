@@ -1,0 +1,487 @@
+# HG changeset patch
+# User chegar
+# Date 1468849090 -3600
+#      Mon Jul 18 14:38:10 2016 +0100
+# Node ID d689f7b806c89e535f784ba94bea1ae129ee0f19
+# Parent  588df0398c57435632a737bd64ab75f0d3885b54
+8160838: Better HTTP service
+Reviewed-by: ahgross, alanb, michaelm
+
+---
+ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/AuthenticationHeader.java                                |   40 +++--
+ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java                                   |   51 +++++-
+ openjdk/jdk/src/share/lib/net.properties                                                                         |   27 +++
+ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/OriginServer.java      |   12 +
+ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyAuthTest.java     |   78 +++++++---
+ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyTunnelServer.java |    2 
+ openjdk/jdk/test/sun/security/ssl/sun/net/www/protocol/https/HttpsURLConnection/PostThruProxyWithAuth.sh         |    4 
+ 7 files changed, 179 insertions(+), 35 deletions(-)
+
+--- openjdk/jdk/src/share/classes/sun/net/www/protocol/http/AuthenticationHeader.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/AuthenticationHeader.java
+@@ -26,8 +26,10 @@
+ package sun.net.www.protocol.http;
+ 
+ import sun.net.www.*;
++import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.HashMap;
++import java.util.Set;
+ 
+ /**
+  * This class is used to parse the information in WWW-Authenticate: and Proxy-Authenticate:
+@@ -66,8 +68,8 @@ import java.util.HashMap;
+  *      -Dhttp.auth.preference="scheme"
+  *
+  * which in this case, specifies that "scheme" should be used as the auth scheme when offered
+- * disregarding the default prioritisation. If scheme is not offered then the default priority
+- * is used.
++ * disregarding the default prioritisation. If scheme is not offered, or explicitly
++ * disabled, by {@code disabledSchemes}, then the default priority is used.
+  *
+  * Attention: when http.auth.preference is set as SPNEGO or Kerberos, it's actually "Negotiate
+  * with SPNEGO" or "Negotiate with Kerberos", which means the user will prefer the Negotiate
+@@ -113,17 +115,32 @@ public class AuthenticationHeader {
+     String hdrname; // Name of the header to look for
+ 
+     /**
+-     * parse a set of authentication headers and choose the preferred scheme
+-     * that we support for a given host
++     * Parses a set of authentication headers and chooses the preferred scheme
++     * that is supported for a given host.
+      */
+     public AuthenticationHeader (String hdrname, MessageHeader response,
+             HttpCallerInfo hci, boolean dontUseNegotiate) {
++        this(hdrname, response, hci, dontUseNegotiate, Collections.<String>emptySet());
++    }
++
++    /**
++     * Parses a set of authentication headers and chooses the preferred scheme
++     * that is supported for a given host.
++     *
++     * <p> The {@code disabledSchemes} parameter is a, possibly empty, set of
++     * authentication schemes that are disabled.
++     */
++    public AuthenticationHeader(String hdrname,
++                                MessageHeader response,
++                                HttpCallerInfo hci,
++                                boolean dontUseNegotiate,
++                                Set<String> disabledSchemes) {
+         this.hci = hci;
+         this.dontUseNegotiate = dontUseNegotiate;
+-        rsp = response;
++        this.rsp = response;
+         this.hdrname = hdrname;
+-        schemes = new HashMap();
+-        parse();
++        this.schemes = new HashMap();
++        parse(disabledSchemes);
+     }
+ 
+     public HttpCallerInfo getHttpCallerInfo() {
+@@ -143,10 +160,11 @@ public class AuthenticationHeader {
+      * then the last one will be used. The
+      * preferred scheme that we support will be used.
+      */
+-    private void parse () {
++    private void parse(Set disabledSchemes) {
+         Iterator iter = rsp.multiValueIterator (hdrname);
+         while (iter.hasNext()) {
+             String raw = (String)iter.next();
++            // HeaderParser lower cases everything, so can be used case-insensitively
+             HeaderParser hp = new HeaderParser (raw);
+             Iterator keys = hp.keys();
+             int i, lastSchemeIndex;
+@@ -156,7 +174,8 @@ public class AuthenticationHeader {
+                     if (lastSchemeIndex != -1) {
+                         HeaderParser hpn = hp.subsequence (lastSchemeIndex, i);
+                         String scheme = hpn.findKey(0);
+-                        schemes.put (scheme, new SchemeMapValue (hpn, raw));
++                        if (!disabledSchemes.contains(scheme))
++                            schemes.put (scheme, new SchemeMapValue (hpn, raw));
+                     }
+                     lastSchemeIndex = i;
+                 }
+@@ -164,7 +183,8 @@ public class AuthenticationHeader {
+             if (i > lastSchemeIndex) {
+                 HeaderParser hpn = hp.subsequence (lastSchemeIndex, i);
+                 String scheme = hpn.findKey(0);
+-                schemes.put (scheme, new SchemeMapValue (hpn, raw));
++                if (!disabledSchemes.contains(scheme))
++                    schemes.put(scheme, new SchemeMapValue (hpn, raw));
+             }
+         }
+ 
+--- openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java
+@@ -25,6 +25,8 @@
+ 
+ package sun.net.www.protocol.http;
+ 
++import java.security.AccessController;
++import java.security.PrivilegedAction;
+ import java.net.URL;
+ import java.net.URLConnection;
+ import java.net.ProtocolException;
+@@ -97,6 +98,14 @@ public class HttpURLConnection extends j
+     static final boolean validateProxy;
+     static final boolean validateServer;
+ 
++    /** A, possibly empty, set of authentication schemes that are disabled
++     *  when proxying plain HTTP ( not HTTPS ). */
++    static final Set disabledProxyingSchemes;
++
++    /** A, possibly empty, set of authentication schemes that are disabled
++     *  when setting up a tunnel for HTTPS ( HTTP CONNECT ). */
++    static final Set disabledTunnelingSchemes;
++
+     private StreamingOutputStream strOutputStream;
+     private final static String RETRY_MSG1 =
+         "cannot retry due to proxy authentication, in streaming mode";
+@@ -194,6 +203,27 @@ public class HttpURLConnection extends j
+         "Via"
+     };
+ 
++    private static String getNetProperty(final String name) {
++        return AccessController.doPrivileged(
++                new PrivilegedAction<String>() {
++                    @Override
++                    public String run() {
++                        return NetProperties.get(name);
++                    }
++                });
++    }
++
++    private static Set schemesListToSet(String list) {
++        if (list == null || list.isEmpty())
++            return Collections.emptySet();
++
++        Set s = new HashSet();
++        String[] parts = list.split("\\s*,\\s*");
++        for (String part : parts)
++            s.add(part.toLowerCase(Locale.ROOT));
++        return s;
++    }
++
+     static {
+         maxRedirects = java.security.AccessController.doPrivileged(
+             new sun.security.action.GetIntegerAction(
+@@ -208,6 +233,14 @@ public class HttpURLConnection extends j
+             agent = agent + " Java/"+version;
+         }
+         userAgent = agent;
++
++        // A set of net properties to control the use of authentication schemes
++        // when proxing/tunneling.
++        String p = getNetProperty("jdk.http.auth.tunneling.disabledSchemes");
++        disabledTunnelingSchemes = schemesListToSet(p);
++        p = getNetProperty("jdk.http.auth.proxying.disabledSchemes");
++        disabledProxyingSchemes = schemesListToSet(p);
++
+         validateProxy = java.security.AccessController.doPrivileged(
+                 new sun.security.action.GetBooleanAction(
+                     "http.auth.digest.validateProxy")).booleanValue();
+@@ -1375,10 +1408,13 @@ public class HttpURLConnection extends j
+                     // altered in similar ways.
+ 
+                     AuthenticationHeader authhdr = new AuthenticationHeader (
+-                            "Proxy-Authenticate", responses,
+-                            new HttpCallerInfo(url, http.getProxyHostUsed(),
++                            "Proxy-Authenticate",
++                            responses,
++                            new HttpCallerInfo(url,
++                                               http.getProxyHostUsed(),
+                                 http.getProxyPortUsed()),
+-                            dontUseNegotiate
++                            dontUseNegotiate,
++                            disabledProxyingSchemes
+                     );
+ 
+                     if (!doingNTLMp2ndStage) {
+@@ -1826,10 +1862,13 @@ public class HttpURLConnection extends j
+                     }
+ 
+                     AuthenticationHeader authhdr = new AuthenticationHeader (
+-                            "Proxy-Authenticate", responses,
+-                            new HttpCallerInfo(url, http.getProxyHostUsed(),
++                            "Proxy-Authenticate",
++                            responses,
++                            new HttpCallerInfo(url,
++                                               http.getProxyHostUsed(),
+                                 http.getProxyPortUsed()),
+-                            dontUseNegotiate
++                            dontUseNegotiate,
++                            disabledTunnelingSchemes
+                     );
+                     if (!doingNTLMp2ndStage) {
+                         proxyAuthentication =
+--- openjdk/jdk/src/share/lib/net.properties.orig
++++ openjdk/jdk/src/share/lib/net.properties
+@@ -72,3 +72,30 @@ ftp.nonProxyHosts=localhost|127.*|[::1]
+ # value is 10).
+ # http.KeepAlive.remainingData=512
+ # http.KeepAlive.queuedConnections=10
++
++# Authentication Scheme restrictions for HTTP and HTTPS.
++#
++# In some environments certain authentication schemes may be undesirable
++# when proxying HTTP or HTTPS.  For example, "Basic" results in effectively the
++# cleartext transmission of the user's password over the physical network.
++# This section describes the mechanism for disabling authentication schemes
++# based on the scheme name. Disabled schemes will be treated as if they are not
++# supported by the implementation.
++#
++# The 'jdk.http.auth.tunneling.disabledSchemes' property lists the authentication
++# schemes that will be disabled when tunneling HTTPS over a proxy, HTTP CONNECT.
++# The 'jdk.http.auth.proxying.disabledSchemes' property lists the authentication
++# schemes that will be disabled when proxying HTTP.
++#
++# In both cases the property is a comma-separated list of, case-insensitive,
++# authentication scheme names, as defined by their relevant RFCs. An
++# implementation may, but is not required to, support common schemes whose names
++# include: 'Basic', 'Digest', 'NTLM', 'Kerberos', 'Negotiate'.  A scheme that
++# is not known, or not supported, by the implementation is ignored.
++#
++# Note: This property is currently used by the JDK Reference implementation. It
++# is not guaranteed to be examined and used by other implementations.
++#
++#jdk.http.auth.proxying.disabledSchemes=
++jdk.http.auth.tunneling.disabledSchemes=Basic
++
+--- openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/OriginServer.java.orig
++++ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/OriginServer.java
+@@ -36,10 +36,12 @@ import javax.net.*;
+  * Http get request in both clear and secure channel
+  */
+ 
+-public abstract class OriginServer implements Runnable {
++public abstract class OriginServer implements Runnable, Closeable {
+ 
+     private ServerSocket server = null;
+     Exception serverException = null;
++    private volatile boolean closed;
++
+     /**
+      * Constructs a OriginServer based on ss and
+      * obtains a response data's bytecodes using the method
+@@ -53,6 +55,14 @@ public abstract class OriginServer imple
+             throw serverException;
+     }
+ 
++    @Override
++    public void close() throws IOException {
++        if (closed)
++            return;
++        closed = true;
++        server.close();
++    }
++
+     /**
+      * Returns an array of bytes containing the bytes for
+      * the data sent in the response.
+--- openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyAuthTest.java.orig
++++ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyAuthTest.java
+@@ -23,21 +23,30 @@
+ 
+ /*
+  * @test
+- * @bug 4323990 4413069
++ * @bug 4323990 4413069 8160838
+  * @summary HttpsURLConnection doesn't send Proxy-Authorization on CONNECT
+  *     Incorrect checking of proxy server response
+- * @run main/othervm ProxyAuthTest
+- *
+- *     No way to reserve and restore java.lang.Authenticator, need to run this
+- *     test in othervm mode.
++ * @run main/othervm ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=Basic ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=Basic, ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=BAsIc ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=Basic,Digest ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=Unknown,bAsIc ProxyAuthTest fail
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes= ProxyAuthTest succeed
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=Digest,NTLM,Negotiate ProxyAuthTest succeed
++ * @run main/othervm -Djdk.http.auth.tunneling.disabledSchemes=UNKNOWN,notKnown ProxyAuthTest succeed
+  */
+ 
++// No way to reserve and restore java.lang.Authenticator, as well as read-once
++// system properties, so this tests needs to run in othervm mode.
++
+ import java.io.*;
+ import java.net.*;
+ import java.security.KeyStore;
+ import javax.net.*;
+ import javax.net.ssl.*;
+ import java.security.cert.*;
++import static java.nio.charset.StandardCharsets.US_ASCII;
+ 
+ /*
+  * ProxyAuthTest.java -- includes a simple server that can serve
+@@ -74,7 +83,7 @@ public class ProxyAuthTest {
+          */
+         public byte[] getBytes() {
+             return "Proxy authentication for tunneling succeeded ..".
+-                        getBytes();
++                        getBytes(US_ASCII);
+         }
+     }
+ 
+@@ -82,6 +91,13 @@ public class ProxyAuthTest {
+      * Main method to create the server and the client
+      */
+     public static void main(String args[]) throws Exception {
++         boolean expectSuccess;
++         if (args[0].equals("succeed")) {
++             expectSuccess = true;
++         } else {
++             expectSuccess = false;
++         }
++
+         String keyFilename =
+             System.getProperty("test.src", "./") + "/" + pathToStores +
+                 "/" + keyStoreFile;
+@@ -98,12 +114,13 @@ public class ProxyAuthTest {
+         /*
+          * setup the server
+          */
++        Closeable server;
+         try {
+             ServerSocketFactory ssf =
+                 ProxyAuthTest.getServerSocketFactory(useSSL);
+             ServerSocket ss = ssf.createServerSocket(serverPort);
+             serverPort = ss.getLocalPort();
+-            new TestServer(ss);
++            server = new TestServer(ss);
+         } catch (Exception e) {
+             System.out.println("Server side failed:" +
+                                 e.getMessage());
+@@ -112,10 +129,28 @@ public class ProxyAuthTest {
+         // trigger the client
+         try {
+             doClientSide();
+-        } catch (Exception e) {
++            if (!expectSuccess) {
++                throw new RuntimeException(
++                        "Expected exception/failure to connect, but succeeded.");
++           }
++        } catch (IOException e) {
++            if (expectSuccess) {
+             System.out.println("Client side failed: " + e.getMessage());
+             throw e;
+         }
++
++            if (! (e.getMessage().contains("Unable to tunnel through proxy") &&
++                   e.getMessage().contains("407")) ) {
++                throw new RuntimeException(
++                        "Expected exception about cannot tunnel, 407, etc, but got", e);
++            } else {
++                // Informative
++                System.out.println("Caught expected exception: " + e.getMessage());
++            }
++        } finally {
++            if (server != null)
++                server.close();
++        }
+     }
+ 
+     private static ServerSocketFactory getServerSocketFactory
+@@ -144,11 +179,11 @@ public class ProxyAuthTest {
+         }
+     }
+ 
+-    static void doClientSide() throws Exception {
++    static void doClientSide() throws IOException {
+         /*
+          * setup up a proxy with authentication information
+          */
+-        setupProxy();
++        ProxyTunnelServer ps = setupProxy();
+ 
+         /*
+          * we want to avoid URLspoofCheck failures in cases where the cert
+@@ -156,18 +191,28 @@ public class ProxyAuthTest {
+          */
+         HttpsURLConnection.setDefaultHostnameVerifier(
+                                       new NameVerifier());
++
++        InetSocketAddress paddr = new InetSocketAddress("localhost", ps.getPort());
++        Proxy proxy = new Proxy(Proxy.Type.HTTP, paddr);
++
+         URL url = new URL("https://" + "localhost:" + serverPort
+                                 + "/index.html");
+         BufferedReader in = null;
++        HttpsURLConnection uc = (HttpsURLConnection) url.openConnection(proxy);
+         try {
+-            in = new BufferedReader(new InputStreamReader(
+-                               url.openStream()));
++            in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+             String inputLine;
+             System.out.print("Client recieved from the server: ");
+             while ((inputLine = in.readLine()) != null)
+                 System.out.println(inputLine);
+             in.close();
+-        } catch (SSLException e) {
++        } catch (IOException e) {
++            // Assert that the error stream is not accessible from the failed
++            // tunnel setup.
++            if (uc.getErrorStream() != null) {
++                throw new RuntimeException("Unexpected error stream.");
++            }
++
+             if (in != null)
+                 in.close();
+             throw e;
+@@ -180,7 +225,7 @@ public class ProxyAuthTest {
+         }
+     }
+ 
+-    static void setupProxy() throws IOException {
++    static ProxyTunnelServer setupProxy() throws IOException {
+         ProxyTunnelServer pserver = new ProxyTunnelServer();
+         /*
+          * register a system wide authenticator and setup the proxy for
+@@ -193,9 +238,7 @@ public class ProxyAuthTest {
+         pserver.setUserAuth("Test", "test123");
+ 
+         pserver.start();
+-        System.setProperty("https.proxyHost", "localhost");
+-        System.setProperty("https.proxyPort", String.valueOf(
+-                                        pserver.getPort()));
++        return pserver;
+     }
+ 
+     public static class TestAuthenticator extends Authenticator {
+@@ -206,3 +249,4 @@ public class ProxyAuthTest {
+         }
+     }
+ }
++
+--- openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyTunnelServer.java.orig
++++ openjdk/jdk/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/HttpsClient/ProxyTunnelServer.java
+@@ -64,6 +64,7 @@ public class ProxyTunnelServer extends T
+           ss = (ServerSocket) ServerSocketFactory.getDefault().
+           createServerSocket(0);
+         }
++        setDaemon(true);
+     }
+ 
+     public void needUserAuth(boolean auth) {
+@@ -210,6 +211,7 @@ public class ProxyTunnelServer extends T
+             this.sockOut = sockOut;
+             input = sockIn.getInputStream();
+             output = sockOut.getOutputStream();
++            setDaemon(true);
+         }
+ 
+         public void run() {
+--- openjdk/jdk/test/sun/security/ssl/sun/net/www/protocol/https/HttpsURLConnection/PostThruProxyWithAuth.sh.orig
++++ openjdk/jdk/test/sun/security/ssl/sun/net/www/protocol/https/HttpsURLConnection/PostThruProxyWithAuth.sh
+@@ -53,5 +53,7 @@ esac
+ ${TESTJAVA}${FS}bin${FS}javac -d . ${TESTSRC}${FS}OriginServer.java \
+     ${TESTSRC}${FS}ProxyTunnelServer.java \
+     ${TESTSRC}${FS}PostThruProxyWithAuth.java
+-${TESTJAVA}${FS}bin${FS}java PostThruProxyWithAuth ${HOSTNAME} ${TESTSRC}
++${TESTJAVA}${FS}bin${FS}java ${TESTVMOPTS} \
++    -Djdk.http.auth.tunneling.disabledSchemes= \
++    PostThruProxyWithAuth ${HOSTNAME} ${TESTSRC}
+ exit

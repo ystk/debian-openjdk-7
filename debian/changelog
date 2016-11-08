@@ -1,8 +1,42 @@
-openjdk-7 (7u111-2.6.7-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u111-2.6.7-2~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Sun, 31 Jul 2016 17:24:50 +0200
+ -- Moritz Mühlenhoff <jmm@debian.org>  Sat, 05 Nov 2016 18:45:22 +0100
+
+openjdk-7 (7u111-2.6.7-2) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * Backported security fixes from 8u111:
+    - CVE-2016-5568, S8158993: Service Menu services.
+    - CVE-2016-5582, S8160591: Improve internal array handling.
+    - CVE-2016-5573, S8159519: Reformat JDWP messages.
+    - CVE-2016-5597, S8160838: Better HTTP service.
+    - CVE-2016-5554, S8157739: Classloader Consistency Checking.
+    - CVE-2016-5542, S8155973: Tighten jar checks.
+  * debian/rules:
+    - removed lcms version 1 option as no current release uses that, lcms2
+      is now default.
+    - removed in-tree/system lcms selection to always use system's lcms.
+    - removed all cacao references except for the transitional cacao package.
+    - updated jtreg tests to use othervm.
+    - simplified rhino and libcups dependency selection.
+  * debian/buildwatch.sh: updated to stop it if no 'make' process is running,
+    as it probably means that the build failed - otherwise buildwatch keeps
+    the builder alive until it exits after the timer (3 hours by default)
+    expires.
+  * debian/control.in: removed cacao references.
+  * debian/README.source: removed cacao references.
+  * debian/patches/cacao-armv4.diff: deleted file.
+  * Makefile.am: remove -samevm
+  * debian/patches/it-jamvm-8158260-unsafe-methods.patch: fix JAMVM
+    after the introduction of two new Unsafe methods in the OpenJDK
+    hotspot. Closes: #833933. (LP: #1611598)
+
+  [ Matthias Klose ]
+  * Fix building the -dbg package depending on the debhelper level.
+
+ -- Matthias Klose <doko@ubuntu.com>  Fri, 04 Nov 2016 18:50:39 +0100
 
 openjdk-7 (7u111-2.6.7-1) experimental; urgency=medium
 
@@ -35,6 +69,12 @@ openjdk-7 (7u111-2.6.7-1) experimental; urgency=medium
     from binfmts. Closes: #821146.
 
  -- Matthias Klose <doko@ubuntu.com>  Sat, 30 Jul 2016 08:13:07 +0200
+
+openjdk-7 (7u101-2.6.6-2) experimental; urgency=medium
+
+  * Configure with --disable-arm32-jit, broken by the security update.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 23 Apr 2016 02:28:28 +0200
 
 openjdk-7 (7u101-2.6.6-1) experimental; urgency=medium
 

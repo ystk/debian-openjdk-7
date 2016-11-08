@@ -1,0 +1,89 @@
+# HG changeset patch
+# User vkempik
+# Date 1467317322 -10800
+#      Thu Jun 30 23:08:42 2016 +0300
+# Node ID 56e96eb12a4b44442f056a2f1101efdff040cd4a
+# Parent  36d5b27fbbdca24bb0493aa8a91b2be02da44b5f
+8157176: Improved classfile parsing
+Reviewed-by: pliden
+
+---
+ openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp |    6 --
+ openjdk/hotspot/src/share/vm/runtime/signature.cpp     |   44 ++++++++++++++++-
+ 2 files changed, 45 insertions(+), 5 deletions(-)
+
+--- openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp.orig
++++ openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp
+@@ -2821,9 +2821,7 @@ VMRegPair *SharedRuntime::find_callee_ar
+   // ResourceObject, so do not put any ResourceMarks in here.
+   char *s = sig->as_C_string();
+   int len = (int)strlen(s);
+-  *s++; len--;                  // Skip opening paren
+-  char *t = s+len;
+-  while( *(--t) != ')' ) ;      // Find close paren
++  s++; len--;                   // Skip opening paren
+ 
+   BasicType *sig_bt = NEW_RESOURCE_ARRAY( BasicType, 256 );
+   VMRegPair *regs = NEW_RESOURCE_ARRAY( VMRegPair, 256 );
+@@ -2832,7 +2830,7 @@ VMRegPair *SharedRuntime::find_callee_ar
+     sig_bt[cnt++] = T_OBJECT; // Receiver is argument 0; not in signature
+   }
+ 
+-  while( s < t ) {
++  while( *s != ')' ) {          // Find closing right paren
+     switch( *s++ ) {            // Switch on signature character
+     case 'B': sig_bt[cnt++] = T_BYTE;    break;
+     case 'C': sig_bt[cnt++] = T_CHAR;    break;
+--- openjdk/hotspot/src/share/vm/runtime/signature.cpp.orig
++++ openjdk/hotspot/src/share/vm/runtime/signature.cpp
+@@ -224,7 +224,49 @@ void SignatureIterator::iterate_returnty
+   _index = 0;
+   expect('(');
+   Symbol* sig = _signature;
+-  while (sig->byte_at(_index) != ')') _index++;
++  // Need to skip over each type in the signature's argument list until a
++  // closing ')' is found., then get the return type.  We cannot just scan
++  // for the first ')' because ')' is a legal character in a type name.
++  while (sig->byte_at(_index) != ')') {
++    switch(sig->byte_at(_index)) {
++      case 'B':
++      case 'C':
++      case 'D':
++      case 'F':
++      case 'I':
++      case 'J':
++      case 'S':
++      case 'Z':
++      case 'V':
++        {
++          _index++;
++        }
++        break;
++      case 'L':
++        {
++          while (sig->byte_at(_index++) != ';') ;
++        }
++        break;
++      case '[':
++        {
++          int begin = ++_index;
++          skip_optional_size();
++          while (sig->byte_at(_index) == '[') {
++            _index++;
++            skip_optional_size();
++          }
++          if (sig->byte_at(_index) == 'L') {
++            while (sig->byte_at(_index++) != ';') ;
++          } else {
++            _index++;
++          }
++        }
++        break;
++      default:
++        ShouldNotReachHere();
++        break;
++    }
++  }
+   expect(')');
+   // Parse return type
+   _parameter_index = -1;

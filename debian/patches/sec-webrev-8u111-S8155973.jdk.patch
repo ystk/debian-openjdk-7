@@ -1,0 +1,627 @@
+# HG changeset patch
+# User igerasim
+# Date 1469739636 -10800
+#      Fri Jul 29 00:00:36 2016 +0300
+# Node ID 67252a0030a1e907583f406cc2441764de4f89dd
+# Parent  3278c61ec8b858d195326e0fc919fc4f6d9ad5a3
+8155973: Tighten jar checks
+Reviewed-by: mullan, igerasim, ahgross
+
+---
+ openjdk/jdk/src/share/classes/sun/security/pkcs/SignerInfo.java                   |   72 ++++++++--
+ openjdk/jdk/src/share/classes/sun/security/util/DisabledAlgorithmConstraints.java |   12 +
+ openjdk/jdk/src/share/classes/sun/security/util/SignatureFileVerifier.java        |   59 ++++++--
+ openjdk/jdk/src/share/lib/security/java.security-linux                            |   38 +++++
+ openjdk/jdk/src/share/lib/security/java.security-macosx                           |   38 +++++
+ openjdk/jdk/src/share/lib/security/java.security-solaris                          |   38 +++++
+ openjdk/jdk/src/share/lib/security/java.security-windows                          |   38 +++++
+ openjdk/jdk/test/javax/crypto/SecretKeyFactory/FailOverTest.sh                    |    2 
+ openjdk/jdk/test/javax/crypto/SecretKeyFactory/security.properties                |   26 +++
+ openjdk/jdk/test/sun/security/pkcs/pkcs7/PKCS7VerifyTest.java                     |    5 
+ openjdk/jdk/test/sun/security/pkcs/pkcs7/reenable.jar.alg.props                   |   24 +++
+ openjdk/jdk/test/sun/security/tools/jarsigner/JarSigningNonAscii.java             |    4 
+ openjdk/jdk/test/sun/security/tools/jarsigner/reenable.jar.alg.props              |   24 +++
+ 13 files changed, 352 insertions(+), 28 deletions(-)
+
+--- openjdk/jdk/src/share/classes/sun/security/pkcs/SignerInfo.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/pkcs/SignerInfo.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2012, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -28,20 +28,37 @@ package sun.security.pkcs;
+ import java.io.OutputStream;
+ import java.io.IOException;
+ import java.math.BigInteger;
++import java.security.CryptoPrimitive;
++import java.security.InvalidKeyException;
++import java.security.MessageDigest;
++import java.security.NoSuchAlgorithmException;
++import java.security.Principal;
++import java.security.PublicKey;
++import java.security.Signature;
++import java.security.SignatureException;
++import java.security.Timestamp;
+ import java.security.cert.CertificateException;
+ import java.security.cert.CertificateFactory;
+ import java.security.cert.CertPath;
+ import java.security.cert.X509Certificate;
+-import java.security.*;
+ import java.util.ArrayList;
+ import java.util.Arrays;
++import java.util.Collections;
++import java.util.EnumSet;
++import java.util.Set;
+ 
++import sun.misc.HexDumpEncoder;
+ import sun.security.timestamp.TimestampToken;
+-import sun.security.util.*;
++import sun.security.util.Debug;
++import sun.security.util.DerEncoder;
++import sun.security.util.DerInputStream;
++import sun.security.util.DerOutputStream;
++import sun.security.util.DerValue;
++import sun.security.util.DisabledAlgorithmConstraints;
++import sun.security.util.ObjectIdentifier;
+ import sun.security.x509.AlgorithmId;
+ import sun.security.x509.X500Name;
+ import sun.security.x509.KeyUsageExtension;
+-import sun.misc.HexDumpEncoder;
+ 
+ /**
+  * A SignerInfo, as defined in PKCS#7's signedData type.
+@@ -50,6 +67,17 @@ import sun.misc.HexDumpEncoder;
+  */
+ public class SignerInfo implements DerEncoder {
+ 
++    // Digest and Signature restrictions
++    private static final Set<CryptoPrimitive> DIGEST_PRIMITIVE_SET =
++            Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.MESSAGE_DIGEST));
++
++    private static final Set<CryptoPrimitive> SIG_PRIMITIVE_SET =
++            Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.SIGNATURE));
++
++    private static final DisabledAlgorithmConstraints JAR_DISABLED_CHECK =
++            new DisabledAlgorithmConstraints(
++                    DisabledAlgorithmConstraints.PROPERTY_JAR_DISABLED_ALGS);
++
+     BigInteger version;
+     X500Name issuerName;
+     BigInteger certificateSerialNumber;
+@@ -318,6 +346,13 @@ public class SignerInfo implements DerEn
+                 if (messageDigest == null) // fail if there is no message digest
+                     return null;
+ 
++                // check that algorithm is not restricted
++                if (!JAR_DISABLED_CHECK.permits(DIGEST_PRIMITIVE_SET,
++                        digestAlgname, null)) {
++                    throw new SignatureException("Digest check failed. " +
++                            "Disabled algorithm used: " + digestAlgname);
++                }
++
+                 MessageDigest md = MessageDigest.getInstance(
+                         AlgorithmId.getStandardDigestName(digestAlgname));
+                 byte[] computedMessageDigest = md.digest(data);
+@@ -350,12 +385,24 @@ public class SignerInfo implements DerEn
+             String algname = AlgorithmId.makeSigAlg(
+                     digestAlgname, encryptionAlgname);
+ 
+-            Signature sig = Signature.getInstance(algname);
+-            X509Certificate cert = getCertificate(block);
++            // check that algorithm is not restricted
++            if (!JAR_DISABLED_CHECK.permits(SIG_PRIMITIVE_SET, algname, null)) {
++                throw new SignatureException("Signature check failed. " +
++                        "Disabled algorithm used: " + algname);
++            }
+ 
++            X509Certificate cert = getCertificate(block);
++            PublicKey key = cert.getPublicKey();
+             if (cert == null) {
+                 return null;
+             }
++
++            // check if the public key is restricted
++            if (!JAR_DISABLED_CHECK.permits(SIG_PRIMITIVE_SET, key)) {
++                throw new SignatureException("Public key check failed. " +
++                        "Disabled algorithm used: " + key.getAlgorithm());
++            }
++
+             if (cert.hasUnsupportedCriticalExtension()) {
+                 throw new SignatureException("Certificate has unsupported "
+                                              + "critical extension(s)");
+@@ -392,11 +439,9 @@ public class SignerInfo implements DerEn
+                 }
+             }
+ 
+-            PublicKey key = cert.getPublicKey();
++            Signature sig = Signature.getInstance(algname);
+             sig.initVerify(key);
+-
+             sig.update(dataSigned);
+-
+             if (sig.verify(encryptedDigest)) {
+                 return this;
+             }
+@@ -516,10 +561,17 @@ public class SignerInfo implements DerEn
+      */
+     private void verifyTimestamp(TimestampToken token)
+         throws NoSuchAlgorithmException, SignatureException {
++        String digestAlgname = token.getHashAlgorithm().getName();
++        // check that algorithm is not restricted
++        if (!JAR_DISABLED_CHECK.permits(DIGEST_PRIMITIVE_SET, digestAlgname,
++                null)) {
++            throw new SignatureException("Timestamp token digest check failed. " +
++                    "Disabled algorithm used: " + digestAlgname);
++        }
+ 
+         MessageDigest md =
+             MessageDigest.getInstance(AlgorithmId.getStandardDigestName(
+-                    token.getHashAlgorithm().getName()));
++                    digestAlgname));
+ 
+         if (!Arrays.equals(token.getHashedMessage(),
+             md.digest(encryptedDigest))) {
+--- openjdk/jdk/src/share/classes/sun/security/util/DisabledAlgorithmConstraints.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
+@@ -58,6 +58,10 @@ public class DisabledAlgorithmConstraint
+     private static Map<String, KeySizeConstraints> keySizeConstraintsMap =
+         Collections.synchronizedMap(new HashMap<String, KeySizeConstraints>());
+ 
++    // the known security property, jdk.jar.disabledAlgorithms
++    public static final String PROPERTY_JAR_DISABLED_ALGS =
++            "jdk.jar.disabledAlgorithms";
++
+     private final String[] disabledAlgorithms;
+     private final KeySizeConstraints keySizeConstraints;
+ 
+@@ -71,6 +75,14 @@ public class DisabledAlgorithmConstraint
+         this(propertyName, new AlgorithmDecomposer());
+     }
+ 
++    /**
++     * Initialize algorithm constraints with the specified security property
++     * for a specific usage type.
++     *
++     * @param propertyName the security property name that define the disabled
++     *        algorithm constraints
++     * @param decomposer an alternate AlgorithmDecomposer.
++     */
+     public DisabledAlgorithmConstraints(String propertyName,
+             AlgorithmDecomposer decomposer) {
+         super(decomposer);
+--- openjdk/jdk/src/share/classes/sun/security/util/SignatureFileVerifier.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/util/SignatureFileVerifier.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,27 +25,49 @@
+ 
+ package sun.security.util;
+ 
++import java.io.ByteArrayInputStream;
++import java.io.IOException;
++import java.security.CodeSigner;
++import java.security.CryptoPrimitive;
++import java.security.MessageDigest;
++import java.security.NoSuchAlgorithmException;
++import java.security.SignatureException;
+ import java.security.cert.CertPath;
+ import java.security.cert.X509Certificate;
+ import java.security.cert.CertificateException;
+ import java.security.cert.CertificateFactory;
+-import java.security.*;
+-import java.io.*;
+-import java.util.*;
+-import java.util.jar.*;
+-
+-import sun.security.pkcs.*;
++import java.util.ArrayList;
+ import sun.misc.BASE64Decoder;
++import java.util.Collections;
++import java.util.EnumSet;
++import java.util.HashMap;
++import java.util.Hashtable;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
++import java.util.Set;
++import java.util.jar.Attributes;
++import java.util.jar.JarException;
++import java.util.jar.JarFile;
++import java.util.jar.Manifest;
+ 
+ import sun.security.jca.Providers;
+-import sun.security.x509.AlgorithmId;
++import sun.security.pkcs.PKCS7;
++import sun.security.pkcs.SignerInfo;
+ 
+ public class SignatureFileVerifier {
+ 
+     /* Are we debugging ? */
+     private static final Debug debug = Debug.getInstance("jar");
+ 
+-    /* cache of CodeSigner objects */
++    private static final Set<CryptoPrimitive> DIGEST_PRIMITIVE_SET =
++            Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.MESSAGE_DIGEST));
++
++    private static final DisabledAlgorithmConstraints JAR_DISABLED_CHECK =
++            new DisabledAlgorithmConstraints(
++                    DisabledAlgorithmConstraints.PROPERTY_JAR_DISABLED_ALGS);
++
+     private ArrayList<CodeSigner[]> signerCache;
+ 
+     private static final String ATTR_DIGEST =
+@@ -201,8 +223,15 @@ public class SignatureFileVerifier {
+ 
+     /** get digest from cache */
+ 
+-    private MessageDigest getDigest(String algorithm)
+-    {
++    private MessageDigest getDigest(String algorithm) throws SignatureException {
++        // check that algorithm is not restricted
++        if (!JAR_DISABLED_CHECK.permits(DIGEST_PRIMITIVE_SET, algorithm, null)) {
++            SignatureException e =
++                    new SignatureException("SignatureFile check failed. " +
++                            "Disabled algorithm used: " + algorithm);
++            throw e;
++        }
++
+         if (createdDigests == null)
+             createdDigests = new HashMap<String, MessageDigest>();
+ 
+@@ -324,7 +353,7 @@ public class SignatureFileVerifier {
+                                        ManifestDigester md,
+                                        BASE64Decoder decoder,
+                                        List<Object> manifestDigests)
+-         throws IOException
++         throws IOException, SignatureException
+     {
+         Attributes mattr = sf.getMainAttributes();
+         boolean manifestSigned = false;
+@@ -369,7 +398,7 @@ public class SignatureFileVerifier {
+     private boolean verifyManifestMainAttrs(Manifest sf,
+                                         ManifestDigester md,
+                                         BASE64Decoder decoder)
+-         throws IOException
++         throws IOException, SignatureException
+     {
+         Attributes mattr = sf.getMainAttributes();
+         boolean attrsVerified = true;
+@@ -436,14 +465,14 @@ public class SignatureFileVerifier {
+                                   String name,
+                                   ManifestDigester md,
+                                   BASE64Decoder decoder)
+-         throws IOException
++         throws IOException, SignatureException
+     {
+         boolean oneDigestVerified = false;
+         ManifestDigester.Entry mde = md.get(name,block.isOldStyle());
+ 
+         if (mde == null) {
+             throw new SecurityException(
+-                  "no manifiest section for signature file entry "+name);
++                  "no manifest section for signature file entry "+name);
+         }
+ 
+         if (sfAttr != null) {
+--- openjdk/jdk/src/share/lib/security/java.security-linux.orig
++++ openjdk/jdk/src/share/lib/security/java.security-linux
+@@ -553,3 +553,41 @@ jdk.tls.legacyAlgorithms= \
+ #       E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED \
+ #       EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE65381 \
+ #       FFFFFFFF FFFFFFFF, 2}
++
++# Algorithm restrictions for signed JAR files
++#
++# In some environments, certain algorithms or key lengths may be undesirable
++# for signed JAR validation.  For example, "MD2" is generally no longer
++# considered to be a secure hash algorithm.  This section describes the
++# mechanism for disabling algorithms based on algorithm name and/or key length.
++# JARs signed with any of the disabled algorithms or key sizes will be treated
++# as unsigned.
++#
++# The syntax of the disabled algorithm string is described as follows:
++#   DisabledAlgorithms:
++#       " DisabledAlgorithm { , DisabledAlgorithm } "
++#
++#   DisabledAlgorithm:
++#       AlgorithmName [Constraint]
++#
++#   AlgorithmName:
++#       (see below)
++#
++#   Constraint:
++#       KeySizeConstraint
++#
++#   KeySizeConstraint:
++#       keySize Operator KeyLength
++#
++#   Operator:
++#       <= | < | == | != | >= | >
++#
++#   KeyLength:
++#       Integer value of the algorithm's key length in bits
++#
++# Note: This property is currently used by the JDK Reference
++# implementation. It is not guaranteed to be examined and used by other
++# implementations.
++#
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, \
++      DSA keySize < 1024
+--- openjdk/jdk/src/share/lib/security/java.security-macosx.orig
++++ openjdk/jdk/src/share/lib/security/java.security-macosx
+@@ -557,3 +557,41 @@ jdk.tls.legacyAlgorithms= \
+ #       E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED \
+ #       EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE65381 \
+ #       FFFFFFFF FFFFFFFF, 2}
++
++# Algorithm restrictions for signed JAR files
++#
++# In some environments, certain algorithms or key lengths may be undesirable
++# for signed JAR validation.  For example, "MD2" is generally no longer
++# considered to be a secure hash algorithm.  This section describes the
++# mechanism for disabling algorithms based on algorithm name and/or key length.
++# JARs signed with any of the disabled algorithms or key sizes will be treated
++# as unsigned.
++#
++# The syntax of the disabled algorithm string is described as follows:
++#   DisabledAlgorithms:
++#       " DisabledAlgorithm { , DisabledAlgorithm } "
++#
++#   DisabledAlgorithm:
++#       AlgorithmName [Constraint]
++#
++#   AlgorithmName:
++#       (see below)
++#
++#   Constraint:
++#       KeySizeConstraint
++#
++#   KeySizeConstraint:
++#       keySize Operator KeyLength
++#
++#   Operator:
++#       <= | < | == | != | >= | >
++#
++#   KeyLength:
++#       Integer value of the algorithm's key length in bits
++#
++# Note: This property is currently used by the JDK Reference
++# implementation. It is not guaranteed to be examined and used by other
++# implementations.
++#
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, \
++      DSA keySize < 1024
+--- openjdk/jdk/src/share/lib/security/java.security-solaris.orig
++++ openjdk/jdk/src/share/lib/security/java.security-solaris
+@@ -556,3 +556,41 @@ jdk.tls.legacyAlgorithms= \
+ #       E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED \
+ #       EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE65381 \
+ #       FFFFFFFF FFFFFFFF, 2}
++
++# Algorithm restrictions for signed JAR files
++#
++# In some environments, certain algorithms or key lengths may be undesirable
++# for signed JAR validation.  For example, "MD2" is generally no longer
++# considered to be a secure hash algorithm.  This section describes the
++# mechanism for disabling algorithms based on algorithm name and/or key length.
++# JARs signed with any of the disabled algorithms or key sizes will be treated
++# as unsigned.
++#
++# The syntax of the disabled algorithm string is described as follows:
++#   DisabledAlgorithms:
++#       " DisabledAlgorithm { , DisabledAlgorithm } "
++#
++#   DisabledAlgorithm:
++#       AlgorithmName [Constraint]
++#
++#   AlgorithmName:
++#       (see below)
++#
++#   Constraint:
++#       KeySizeConstraint
++#
++#   KeySizeConstraint:
++#       keySize Operator KeyLength
++#
++#   Operator:
++#       <= | < | == | != | >= | >
++#
++#   KeyLength:
++#       Integer value of the algorithm's key length in bits
++#
++# Note: This property is currently used by the JDK Reference
++# implementation. It is not guaranteed to be examined and used by other
++# implementations.
++#
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, \
++      DSA keySize < 1024
+--- openjdk/jdk/src/share/lib/security/java.security-windows.orig
++++ openjdk/jdk/src/share/lib/security/java.security-windows
+@@ -557,3 +557,41 @@ jdk.tls.legacyAlgorithms= \
+ #       E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED \
+ #       EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE65381 \
+ #       FFFFFFFF FFFFFFFF, 2}
++
++# Algorithm restrictions for signed JAR files
++#
++# In some environments, certain algorithms or key lengths may be undesirable
++# for signed JAR validation.  For example, "MD2" is generally no longer
++# considered to be a secure hash algorithm.  This section describes the
++# mechanism for disabling algorithms based on algorithm name and/or key length.
++# JARs signed with any of the disabled algorithms or key sizes will be treated
++# as unsigned.
++#
++# The syntax of the disabled algorithm string is described as follows:
++#   DisabledAlgorithms:
++#       " DisabledAlgorithm { , DisabledAlgorithm } "
++#
++#   DisabledAlgorithm:
++#       AlgorithmName [Constraint]
++#
++#   AlgorithmName:
++#       (see below)
++#
++#   Constraint:
++#       KeySizeConstraint
++#
++#   KeySizeConstraint:
++#       keySize Operator KeyLength
++#
++#   Operator:
++#       <= | < | == | != | >= | >
++#
++#   KeyLength:
++#       Integer value of the algorithm's key length in bits
++#
++# Note: This property is currently used by the JDK Reference
++# implementation. It is not guaranteed to be examined and used by other
++# implementations.
++#
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, \
++      DSA keySize < 1024
+--- openjdk/jdk/test/javax/crypto/SecretKeyFactory/FailOverTest.sh.orig
++++ openjdk/jdk/test/javax/crypto/SecretKeyFactory/FailOverTest.sh
+@@ -82,6 +82,8 @@ if [ $? -ne 0 ]; then
+ fi
+ 
+ ${TESTJAVA}${FS}bin${FS}java \
++     ${TESTVMOPTS} \
++    -Djava.security.properties=${TESTSRC}${FS}security.properties \
+     -classpath "${TESTSRC}${FS}P1.jar${PS}${TESTSRC}${FS}P2.jar${PS}." \
+     FailOverTest
+ result=$?
+--- /dev/null
++++ openjdk/jdk/test/javax/crypto/SecretKeyFactory/security.properties
+@@ -0,0 +1,26 @@
++#
++# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
++# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
++#
++# This code is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License version 2 only, as
++# published by the Free Software Foundation.
++#
++# This code is distributed in the hope that it will be useful, but WITHOUT
++# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++# version 2 for more details (a copy is included in the LICENSE file that
++# accompanied this code).
++#
++# You should have received a copy of the GNU General Public License version
++# 2 along with this work; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++# Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
++# or visit www.oracle.com if you need additional information or have any
++# questions.
++#
++
++jdk.security.provider.preferred=
++jdk.jar.disabledAlgorithms=
++
+--- openjdk/jdk/test/sun/security/pkcs/pkcs7/PKCS7VerifyTest.java.orig
++++ openjdk/jdk/test/sun/security/pkcs/pkcs7/PKCS7VerifyTest.java
+@@ -26,8 +26,8 @@
+  * @bug 8048357
+  * @summary Read signed data in one or more PKCS7 objects from individual files,
+  * verify SignerInfos and certificate chain.
+- * @run main PKCS7VerifyTest PKCS7TEST.DSA.base64
+- * @run main PKCS7VerifyTest PKCS7TEST.DSA.base64 PKCS7TEST.SF
++ * @run main/othervm -Djava.security.properties=${test.src}/reenable.jar.alg.props PKCS7VerifyTest PKCS7TEST.DSA.base64
++ * @run main/othervm -Djava.security.properties=${test.src}/reenable.jar.alg.props PKCS7VerifyTest PKCS7TEST.DSA.base64 PKCS7TEST.SF
+  */
+ import java.io.ByteArrayInputStream;
+ import java.io.File;
+@@ -35,6 +35,7 @@ import java.io.FileInputStream;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
++import java.security.Security;
+ import java.security.cert.X509Certificate;
+ import java.util.Base64;
+ import java.util.HashMap;
+--- /dev/null
++++ openjdk/jdk/test/sun/security/pkcs/pkcs7/reenable.jar.alg.props
+@@ -0,0 +1,24 @@
++#
++# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
++# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
++#
++# This code is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License version 2 only, as
++# published by the Free Software Foundation.
++#
++# This code is distributed in the hope that it will be useful, but WITHOUT
++# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++# version 2 for more details (a copy is included in the LICENSE file that
++# accompanied this code).
++#
++# You should have received a copy of the GNU General Public License version
++# 2 along with this work; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++# Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
++# or visit www.oracle.com if you need additional information or have any
++# questions.
++#
++
++jdk.jar.disabledAlgorithms=
+--- openjdk/jdk/test/sun/security/tools/jarsigner/JarSigningNonAscii.java.orig
++++ openjdk/jdk/test/sun/security/tools/jarsigner/JarSigningNonAscii.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2003, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,10 +25,12 @@
+  * @test
+  * @bug 4924188
+  * @summary sign a JAR file that has entry names with non-ASCII characters.
++ * @run main/othervm -Djava.security.properties=${test.src}/reenable.jar.alg.props JarSigningNonAscii
+  */
+ 
+ import sun.security.tools.*;
+ import java.io.*;
++import java.security.Security;
+ import java.util.*;
+ import java.util.jar.*;
+ import java.security.cert.Certificate;
+--- /dev/null
++++ openjdk/jdk/test/sun/security/tools/jarsigner/reenable.jar.alg.props
+@@ -0,0 +1,24 @@
++#
++# Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
++# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
++#
++# This code is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License version 2 only, as
++# published by the Free Software Foundation.
++#
++# This code is distributed in the hope that it will be useful, but WITHOUT
++# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++# version 2 for more details (a copy is included in the LICENSE file that
++# accompanied this code).
++#
++# You should have received a copy of the GNU General Public License version
++# 2 along with this work; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++# Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
++# or visit www.oracle.com if you need additional information or have any
++# questions.
++#
++
++jdk.jar.disabledAlgorithms=

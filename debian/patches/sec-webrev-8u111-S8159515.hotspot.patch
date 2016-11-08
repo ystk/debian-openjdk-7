@@ -1,0 +1,31 @@
+# HG changeset patch
+# User coleenp
+# Date 1467215547 14400
+#      Wed Jun 29 11:52:27 2016 -0400
+# Node ID 0cdf9eb633c423ab36fdf9fa50de0f622dc8a707
+# Parent  3b0e5f01891f5ebbf67797b1aae786196f1bb4f6
+8159515: Improve indy validation
+Reviewed-by: jrose, hseigel, vlivanov, bmoloden, ctornqvi, mschoene
+
+---
+ openjdk/hotspot/src/share/vm/prims/jvm.cpp |    2 --
+ 1 file changed, 2 deletions(-)
+
+--- openjdk/hotspot/src/share/vm/prims/jvm.cpp.orig
++++ openjdk/hotspot/src/share/vm/prims/jvm.cpp
+@@ -2455,7 +2455,6 @@ JVM_ENTRY(const char*, JVM_GetCPMethodNa
+   switch (cp->tag_at(cp_index).value()) {
+     case JVM_CONSTANT_InterfaceMethodref:
+     case JVM_CONSTANT_Methodref:
+-    case JVM_CONSTANT_NameAndType:  // for invokedynamic
+       return cp->uncached_name_ref_at(cp_index)->as_utf8();
+     default:
+       fatal("JVM_GetCPMethodNameUTF: illegal constant");
+@@ -2473,7 +2472,6 @@ JVM_ENTRY(const char*, JVM_GetCPMethodSi
+   switch (cp->tag_at(cp_index).value()) {
+     case JVM_CONSTANT_InterfaceMethodref:
+     case JVM_CONSTANT_Methodref:
+-    case JVM_CONSTANT_NameAndType:  // for invokedynamic
+       return cp->uncached_signature_ref_at(cp_index)->as_utf8();
+     default:
+       fatal("JVM_GetCPMethodSignatureUTF: illegal constant");

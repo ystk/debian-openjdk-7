@@ -21,7 +21,3 @@ for (( i = 0 ; i < ${#tarballs[@]} ; i++ )); do
    newsum=$(sha256sum $tarballdir/${tarballs[$i]} | cut -f 1 -d ' ')
    update_var ${varshasum[$i]} $newsum
 done
-
-# Use downloaded cacao source tarball
-#newsum=$(sha256sum $tarballdir/cacao-*.tar.* | cut -f 1 -d ' ')
-#update_var "CACAO_SHA256SUM" $newsum

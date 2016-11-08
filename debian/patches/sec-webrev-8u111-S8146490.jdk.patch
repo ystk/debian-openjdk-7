@@ -1,0 +1,98 @@
+# HG changeset patch
+# User aefimov
+# Date 1466615053 -10800
+#      Wed Jun 22 20:04:13 2016 +0300
+# Node ID 5875930e84696ad83cddab37228d6e18456b29f1
+# Parent  95afc65c5926a089d35edc353e7fc698c39357fd
+8146490: Direct indirect CRL checks
+Reviewed-by: vinnie
+
+---
+ openjdk/jdk/src/share/classes/sun/security/provider/certpath/ForwardBuilder.java |   25 ++++++----
+ 1 file changed, 17 insertions(+), 8 deletions(-)
+
+--- openjdk/jdk/src/share/classes/sun/security/provider/certpath/ForwardBuilder.java.orig
++++ openjdk/jdk/src/share/classes/sun/security/provider/certpath/ForwardBuilder.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -821,17 +821,21 @@ class ForwardBuilder extends Builder {
+ 
+     /**
+      * Verifies whether the input certificate completes the path.
+-     * Checks the cert against each trust anchor that was specified, in order,
+-     * and returns true as soon as it finds a valid anchor.
+-     * Returns true if the cert matches a trust anchor specified as a
+-     * certificate or if the cert verifies with a trust anchor that
+-     * was specified as a trusted {pubkey, caname} pair. Returns false if none
+-     * of the trust anchors are valid for this cert.
++     * First checks the cert against each trust anchor that was specified,
++     * in order, and returns true if the cert matches the trust anchor
++     * specified as a certificate or has the same key and subject of an anchor
++     * specified as a trusted {pubkey, caname} pair.
++     * If no match has been found, does a second check of the cert against
++     * anchors specified as a trusted {pubkey, caname} pair to see if the cert
++     * was issued by that anchor.
++     * Returns false if none of the trust anchors are valid for this cert.
+      *
+      * @param cert the certificate to test
+      * @return a boolean value indicating whether the cert completes the path.
+      */
+     boolean isPathCompleted(X509Certificate cert) {
++        List<TrustAnchor> otherAnchors = new ArrayList<TrustAnchor>();
++        // first, check if cert is already trusted
+         for (TrustAnchor anchor : trustAnchors) {
+             if (anchor.getTrustedCert() != null) {
+                 if (cert.equals(anchor.getTrustedCert())) {
+@@ -840,25 +844,29 @@ class ForwardBuilder extends Builder {
+                 } else {
+                     continue;
+                 }
+-            } else {
+-                X500Principal principal = anchor.getCA();
+-                java.security.PublicKey publicKey = anchor.getCAPublicKey();
+-
+-                if (principal != null && publicKey != null &&
+-                        principal.equals(cert.getSubjectX500Principal())) {
+-                    if (publicKey.equals(cert.getPublicKey())) {
+-                        // the cert itself is a trust anchor
+-                        this.trustAnchor = anchor;
+-                        return true;
+-                    }
+-                    // else, it is a self-issued certificate of the anchor
+-                }
+-
+-                // Check subject/issuer name chaining
+-                if (principal == null ||
+-                        !principal.equals(cert.getIssuerX500Principal())) {
+-                    continue;
++            } 
++            X500Principal principal = anchor.getCA();
++            java.security.PublicKey publicKey = anchor.getCAPublicKey();
++
++            if (principal != null && publicKey != null &&
++                    principal.equals(cert.getSubjectX500Principal())) {
++                if (publicKey.equals(cert.getPublicKey())) {
++                    // the cert itself is a trust anchor
++                    this.trustAnchor = anchor;
++                    return true;
+                 }
++                // else, it is a self-issued certificate of the anchor
++            }
++            otherAnchors.add(anchor);
++        }
++        // next, check if cert is issued by anchor specified by key/name
++        for (TrustAnchor anchor : otherAnchors) {
++            X500Principal principal = anchor.getCA();
++            java.security.PublicKey publicKey = anchor.getCAPublicKey();
++            // Check subject/issuer name chaining
++            if (principal == null ||
++                    !principal.equals(cert.getIssuerX500Principal())) {
++                continue;
+             }
+ 
+             /* Check revocation if it is enabled */

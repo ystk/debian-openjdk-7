@@ -1,0 +1,66 @@
+# HG changeset patch
+# User vkempik
+# Date 1467895933 -10800
+#      Thu Jul 07 15:52:13 2016 +0300
+# Node ID e47a4a3f3e54ae15a87e8e75e2d8b72e50c21ce5
+# Parent  7776a75bfaf8a8b8cae7464426c35aabf8e60606
+8159519: Reformat JDWP messages
+Reviewed-by: dcubed
+Contributed-by: definedmisbehaviour@saynotolinux.com, daniel.daugherty@oracle.com
+
+---
+ openjdk/jdk/src/share/back/debugLoop.c              |   16 +++++++++++++++-
+ openjdk/jdk/src/share/javavm/export/jdwpTransport.h |    7 ++++++-
+ 2 files changed, 21 insertions(+), 2 deletions(-)
+
+--- openjdk/jdk/src/share/back/debugLoop.c.orig
++++ openjdk/jdk/src/share/back/debugLoop.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1998, 2005, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1998, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -229,6 +229,20 @@ reader(jvmtiEnv* jvmti_env, JNIEnv* jni_
+         if (rc != 0 || (rc == 0 && packet.type.cmd.len == 0)) {
+             shouldListen = JNI_FALSE;
+             notifyTransportError();
++        } else if (packet.type.cmd.flags != JDWPTRANSPORT_FLAGS_NONE) {
++            /*
++             * Close the connection when we get a jdwpCmdPacket with an
++             * invalid flags field value. This is a protocol violation
++             * so we drop the connection. Also this could be a web
++             * browser generating an HTTP request that passes the JDWP
++             * handshake. HTTP requests requires that everything be in
++             * the ASCII printable range so a flags value of
++             * JDWPTRANSPORT_FLAGS_NONE(0) cannot be generated via HTTP.
++             */
++            ERROR_MESSAGE(("Received jdwpPacket with flags != 0x%d (actual=0x%x) when a jdwpCmdPacket was expected.",
++                           JDWPTRANSPORT_FLAGS_NONE, packet.type.cmd.flags));
++            shouldListen = JNI_FALSE;
++            notifyTransportError();
+         } else {
+             cmd = &packet.type.cmd;
+ 
+--- openjdk/jdk/src/share/javavm/export/jdwpTransport.h.orig
++++ openjdk/jdk/src/share/javavm/export/jdwpTransport.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2003, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -96,6 +96,11 @@ typedef struct {
+  */
+ 
+ enum {
++    /*
++     * If additional flags are added that apply to jdwpCmdPacket,
++     * then debugLoop.c: reader() will need to be updated to
++     * accept more than JDWPTRANSPORT_FLAGS_NONE.
++     */
+     JDWPTRANSPORT_FLAGS_NONE     = 0x0,
+     JDWPTRANSPORT_FLAGS_REPLY    = 0x80
+ };

@@ -1,0 +1,189 @@
+#! /bin/bash
+#
+# debian/repack
+# Part of the Debian package ‘libjs-zxcvbn’.
+# Modified by Tiago Daitx for use with the Debian package 'openjdk-6'.
+#
+# Copyright © 2013–2014 Ben Finney <ben+debian@benfinney.id.au>
+# This is free software; see the end of this file for license terms.
+
+# Convert the pristine upstream source to the Debian upstream source.
+#
+# This program is designed for use with the ‘uscan(1)’ tool, as the
+# “action” parameter for the ‘debian/watch’ configuration file.
+
+set -o errexit
+set -o errtrace
+set -o pipefail
+set -o nounset
+
+exec 1>&2
+
+function usage() {
+    local progname=$(basename $0)
+    printf "$progname --upstream-version VERSION FILENAME\n"
+    printf "To avoid downloading OpenJDK or JamVM sources set the TARBALLDIR environment variable and put the tarballs there.\n"
+}
+
+if [ $# -ne 3 ] ; then
+    usage
+    exit 1
+fi
+
+tar_compress=pbzip2
+if ! which ${tar_compress}; then
+  printf "Consider installing '${tar_compress}' for parallel compression during packaging\n" 1>&2
+  tar_compress=bzip2
+fi
+
+program_dir="$(dirname "$(realpath --strip "$0")")"
+
+package_name=$(dpkg-parsechangelog --show-field=Source)
+upstream_version="$2"
+downloaded_file="$3"
+downloaded_file_extension="${downloaded_file##*.tar.}"
+downloaded_dir="$(dirname "${downloaded_file}")"
+
+working_dir="$(mktemp -d -t)"
+exit_sigspecs="ERR EXIT SIGTERM SIGHUP SIGINT SIGQUIT"
+
+function cleanup_exit() {
+    exit_status=$?
+    trap - $exit_sigspecs
+
+    rm -rf "${working_dir}"
+    printf "Cleaned up working directory ‘${working_dir}’\n"
+
+    exit $exit_status
+}
+trap cleanup_exit $exit_sigspecs
+
+function get_source() {
+  local src_name="$1"
+  local src_zip="$2"
+  local src_url="$3"
+  local src_dst="$4"
+  local tarballdir="${TARBALLDIR-}"
+  # Use sources from TARBALLDIR if they exist, download them otherwise
+  if [ ! -e "${tarballdir}/${src_zip}" ]; then
+    # download OpenJDK 6 source
+    printf "Downloading ${src_name}:\n"
+    wget "${src_url}" -O "${src_dst}/${src_zip}" &
+  fi
+}
+
+upstream_source_dirname=${downloaded_file%.tar.*}
+upstream_source_dir="${working_dir}/${upstream_source_dirname}"
+
+printf "Unpacking Makefile.am and hotspot.map.in from upstream source ‘${downloaded_file}’:\n"
+mkdir -p "${upstream_source_dir}"
+tar -xf "${downloaded_file}" --strip-components=1 -C "${upstream_source_dir}" --wildcards "*/Makefile.am" "*/hotspot.map.in"
+
+ICEDTEA_RELEASE=${upstream_version}
+
+# get URLs, filenames, and checksum from IcedTea Makefile.am
+source <(head -n39 ${upstream_source_dir}/Makefile.am | tr '()' '{}' | tr -d ' ')
+source <(paste -d'=' <(printf 'HOTSPOT_URL\nHOTSPOT_CHANGESET\nHOTSPOT_SHA256SUM\n') <(fgrep default ${upstream_source_dir}/hotspot.map.in | tr ' ' '\n' | tail -n +3) | sed "s:@ICEDTEA_RELEASE@:$ICEDTEA_RELEASE:")
+
+# Override JamVM as we use a newer version
+JAMVM_VERSION=2.0.0
+JAMVM_SHA256SUM=76428e96df0ae9dd964c7a7c74c1e9a837e2f312c39e9a357fa8178f7eff80da
+JAMVM_SRC_ZIP=jamvm-2.0.0.tar.gz
+JAMVM_URL=http://icedtea.classpath.org/download/drops/jamvm/jamvm-${JAMVM_VERSION}.tar.gz
+
+# new debian version
+target_version=7u${JDK_UPDATE_VERSION}-${upstream_version}
+
+# new package basename
+tarball_basename="${package_name}_${target_version}.orig"
+
+# MUT tarballs
+icedtea_tarball="${downloaded_dir}/${tarball_basename}.tar.${downloaded_file_extension}"
+openjdk_tarball="${downloaded_dir}/${tarball_basename}-openjdk.tar.gz2"
+jamvm_tarball_extension=${JAMVM_SRC_ZIP##*.tar.}
+jamvm_tarball="${downloaded_dir}/${tarball_basename}-jamvm.tar.${jamvm_tarball_extension}"
+
+
+# tarball directory
+# use environment variable if set otherwise download to temporary directory
+tarball_dir=${TARBALLDIR-${working_dir}}
+
+# build openjdk forest if needed
+if [ -f "${openjdk_tarball}" ]; then
+  printf "OpenJDK forest exists at '${openjdk_tarball}'. Will neither download forest nor build its tarball\n"
+else
+  # Get OpenJDK+components, unpack, and repack the whole forest
+  for component in corba hotspot jaxp jaxws jdk langtools openjdk; do
+    get_source ${component^} "${component}.tar.bz2" "${ICEDTEA_URL}/${component}.tar.bz2" "${tarball_dir}"
+  done
+  wait
+  # check their SHA256SUM
+  printf "OpenJDK forest checksum:\n"
+  sha256sum -c <(for component in corba hotspot jaxp jaxws jdk langtools openjdk; do sum="${component^^}_SHA256SUM"; echo "${!sum}  ${tarball_dir}/${component}.tar.bz2"; done)
+
+  printf "Unpacking OpenJDK and components together: "
+  openjdk_dir_name="${tarball_basename}-openjdk-forest"
+  openjdk_dir="${working_dir}/${openjdk_dir_name}"
+  printf "openjdk"
+  mkdir -p "${openjdk_dir}"
+  tar -C "${openjdk_dir}" --strip-components=1 -xf "${tarball_dir}/openjdk.tar.bz2"
+  for component in corba hotspot jaxp jaxws jdk langtools; do
+    component_dir="${openjdk_dir}/${component}"
+    printf " ${component}"
+    mkdir -p "${component_dir}"
+    tar -C "${component_dir}" --strip-components=1 -xf "${tarball_dir}/${component}.tar.bz2"
+  done
+  printf ".\n"
+
+  printf "Packaging OpenJDK forest tarball to '${openjdk_tarball}'.\n"
+  tar -I ${tar_compress} -C "${working_dir}" -cf "${openjdk_tarball}" "${openjdk_dir_name}"
+fi
+
+if [ -f "${jamvm_tarball}" ]; then
+  printf "Using existing JamVM at '${jamvm_tarball}'\n"
+else
+  get_source JamVM "${JAMVM_SRC_ZIP}" "${JAMVM_URL}" "${tarball_dir}"
+  printf "JamVM checksum:\n"
+  sha256sum -c <<CHKSUM
+${JAMVM_SHA256SUM}  ${tarball_dir}/${JAMVM_SRC_ZIP}
+CHKSUM
+  printf "Copying JamVM tarball:\n"
+  cp -v "${tarball_dir}/${JAMVM_SRC_ZIP}" "${jamvm_tarball}"
+fi
+
+printf "Linking IcedTea tarball:\n"
+if [ -L "${downloaded_file}" ]; then
+  mv -v "${downloaded_file}" "${icedtea_tarball}"
+else
+  ln -sfv ${downloaded_file} ${icedtea_tarball}
+fi
+
+printf "Done. Calling uupdate\n"
+uupdate --find --upstream-version ${target_version}
+
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# “Software”), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+# 
+# The Software is provided “as is”, without warranty of any kind,
+# express or implied, including but not limited to the warranties of
+# merchantability, fitness for a particular purpose and noninfringement.
+# In no event shall the authors or copyright holders be liable for any
+# claim, damages or other liability, whether in an action of contract,
+# tort or otherwise, arising from, out of or in connection with the
+# Software or the use or other dealings in the Software.
+
+
+# Local variables:
+# coding: utf-8
+# mode: sh
+# indent-tabs-mode: nil
+# End:
+# vim: fileencoding=utf-8 filetype=bash :

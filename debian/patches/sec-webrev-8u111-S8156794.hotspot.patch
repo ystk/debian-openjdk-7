@@ -1,0 +1,31 @@
+# HG changeset patch
+# User jiangli
+# Date 1463421691 14400
+#      Mon May 16 14:01:31 2016 -0400
+# Node ID 872c3a32dba4aecc16f33ef729ccd99eeba2e496
+# Parent  ab925491360f6b04798b2b81867c3ec57cb8ad5e
+8156794: Extend data sharing
+Reviewed-by: iklam, hseigel, acorn, mschoene
+
+---
+ openjdk/hotspot/src/share/vm/runtime/arguments.cpp |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+--- openjdk/hotspot/src/share/vm/runtime/arguments.cpp.orig
++++ openjdk/hotspot/src/share/vm/runtime/arguments.cpp
+@@ -3246,6 +3246,15 @@ void Arguments::set_shared_spaces_flags(
+   const bool must_share = DumpSharedSpaces || RequireSharedSpaces;
+   const bool might_share = must_share || UseSharedSpaces;
+ 
++  if (DumpSharedSpaces) {
++    if (FailOverToOldVerifier) {
++      // Don't fall back to the old verifier on verification failure. If a
++      // class fails verification with the split verifier, it might fail the
++      // CDS runtime verifier constraint check. In that case, we don't want
++      // to share the class. We only archive classes that pass the split verifier.
++      FLAG_SET_DEFAULT(FailOverToOldVerifier, false);
++    }
++  }
+   // The string table is part of the shared archive so the size must match.
+   if (!FLAG_IS_DEFAULT(StringTableSize)) {
+     // Disable sharing.

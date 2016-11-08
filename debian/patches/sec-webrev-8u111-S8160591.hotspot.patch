@@ -1,0 +1,139 @@
+# HG changeset patch
+# User zmajo
+# Date 1467358414 -7200
+#      Fri Jul 01 09:33:34 2016 +0200
+# Node ID a3ede966ecfe6009fe4a58fbd6903c470a059ad3
+# Parent  56e96eb12a4b44442f056a2f1101efdff040cd4a
+8160591: Improve internal array handling
+Reviewed-by: kvn
+Contributed-by: Xiang Yuan <xiang.yuan@linaro.org>, Zoltan Majo <zoltan.majo@oracle.com>
+
+---
+ openjdk/hotspot/src/cpu/sparc/vm/c1_LIRAssembler_sparc.cpp      |   21 +++
+ openjdk/hotspot/src/cpu/x86/vm/c1_LIRAssembler_x86.cpp          |   17 ++
+ openjdk/hotspot/test/compiler/c1/TestArrayCopyToFromObject.java |   64 ++++++++++
+ 3 files changed, 102 insertions(+)
+
+--- openjdk/hotspot/src/cpu/sparc/vm/c1_LIRAssembler_sparc.cpp.orig
++++ openjdk/hotspot/src/cpu/sparc/vm/c1_LIRAssembler_sparc.cpp
+@@ -2135,6 +2135,27 @@ void LIR_Assembler::emit_arraycopy(LIR_O
+     __ delayed()->nop();
+   }
+ 
++  // If the compiler was not able to prove that exact type of the source or the destination
++  // of the arraycopy is an array type, check at runtime if the source or the destination is
++  // an instance type.
++  if (flags & LIR_OpArrayCopy::type_check) {
++    if (!(flags & LIR_OpArrayCopy::LIR_OpArrayCopy::dst_objarray)) {
++      __ load_klass(dst, tmp);
++      __ lduw(tmp, in_bytes(Klass::layout_helper_offset()), tmp2);
++      __ cmp(tmp2, Klass::_lh_neutral_value);
++      __ br(Assembler::greaterEqual, false, Assembler::pn, *stub->entry());
++      __ delayed()->nop();
++    }
++
++    if (!(flags & LIR_OpArrayCopy::LIR_OpArrayCopy::src_objarray)) {
++      __ load_klass(src, tmp);
++      __ lduw(tmp, in_bytes(Klass::layout_helper_offset()), tmp2);
++      __ cmp(tmp2, Klass::_lh_neutral_value);
++      __ br(Assembler::greaterEqual, false, Assembler::pn, *stub->entry());
++      __ delayed()->nop();
++    }
++  }
++
+   if (flags & LIR_OpArrayCopy::src_pos_positive_check) {
+     // test src_pos register
+     __ cmp_zero_and_br(Assembler::less, src_pos, *stub->entry());
+--- openjdk/hotspot/src/cpu/x86/vm/c1_LIRAssembler_x86.cpp.orig
++++ openjdk/hotspot/src/cpu/x86/vm/c1_LIRAssembler_x86.cpp
+@@ -3222,6 +3222,23 @@ void LIR_Assembler::emit_arraycopy(LIR_O
+     __ jcc(Assembler::zero, *stub->entry());
+   }
+ 
++  // If the compiler was not able to prove that exact type of the source or the destination
++  // of the arraycopy is an array type, check at runtime if the source or the destination is
++  // an instance type.
++  if (flags & LIR_OpArrayCopy::type_check) {
++    if (!(flags & LIR_OpArrayCopy::dst_objarray)) {
++      __ load_klass(tmp, dst);
++      __ cmpl(Address(tmp, in_bytes(Klass::layout_helper_offset())), Klass::_lh_neutral_value);
++      __ jcc(Assembler::greaterEqual, *stub->entry());
++    }
++
++    if (!(flags & LIR_OpArrayCopy::src_objarray)) {
++      __ load_klass(tmp, src);
++      __ cmpl(Address(tmp, in_bytes(Klass::layout_helper_offset())), Klass::_lh_neutral_value);
++      __ jcc(Assembler::greaterEqual, *stub->entry());
++    }
++  }
++
+   // check if negative
+   if (flags & LIR_OpArrayCopy::src_pos_positive_check) {
+     __ testl(src_pos, src_pos);
+--- /dev/null
++++ openjdk/hotspot/test/compiler/c1/TestArrayCopyToFromObject.java
+@@ -0,0 +1,64 @@
++/*
++ * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
++ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 only, as
++ * published by the Free Software Foundation.
++ *
++ * This code is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * version 2 for more details (a copy is included in the LICENSE file that
++ * accompanied this code).
++ *
++ * You should have received a copy of the GNU General Public License version
++ * 2 along with this work; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
++ * or visit www.oracle.com if you need additional information or have any
++ * questions.
++ */
++
++/*
++ * @test
++ * @bug 8160591
++ * @summary C1-generated code for System.arraycopy() does not throw an ArrayStoreException if 'dst' is no a "proper" array (i.e., it is java.lang.Object)
++ * @run main/othervm -XX:+IgnoreUnrecognizedVMOptions -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xcomp -XX:-UseCompressedClassPointers -XX:CompileOnly=TestArrayCopyToFromObject.test TestArrayCopyToFromObject
++ * @run main/othervm -XX:+IgnoreUnrecognizedVMOptions -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xcomp -XX:+UseCompressedClassPointers -XX:CompileOnly=TestArrayCopyToFromObject.test TestArrayCopyToFromObject
++ */
++public class TestArrayCopyToFromObject {
++
++    public void test(Object aArray[]) {
++        Object a = new Object();
++
++        try {
++            System.arraycopy(aArray, 0, a, 0, 1);
++            throw new RuntimeException ("FAILED: Expected ArrayStoreException " +
++                                        "(due to destination not being an array) " +
++                                        "was not thrown");
++        } catch (ArrayStoreException e) {
++            System.out.println("PASSED: Expected ArrayStoreException was thrown");
++        }
++
++        try {
++            System.arraycopy(a, 0, aArray, 0, 1);
++            throw new RuntimeException ("FAILED: Expected ArrayStoreException " +
++                                        "(due to source not being an array) " +
++                                        "was not thrown");
++        } catch (ArrayStoreException e) {
++            System.out.println("PASSED: Expected ArrayStoreException was thrown");
++        }
++
++    }
++
++    public static void main(String args[]) {
++        System.out.println("TestArrayCopyToFromObject");
++        Object aArray[] = new Object[10];
++        for (int i = 0; i < 10; i++) {
++            aArray[i] = new Object();
++        }
++        new TestArrayCopyToFromObject().test(aArray);
++    }
++}

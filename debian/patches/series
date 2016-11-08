@@ -11,3 +11,5 @@ it-use-quilt.diff
 it-patch-updates.diff
 it-nss-softokn-config.diff
 it-jamvm-2.0.diff
+it-jamvm-8158260-unsafe-methods.patch
+it-remove-samevm.patch

@@ -5,7 +5,6 @@ Content of source package
   a harness to build the source code from Oracle OpenJDK.
 - Multiple tarballs from each Oracle mercurial repositories :
   corba / hotspot / jaxp / jaxws / jdk-dfsg / langtools / openjdk
-- Tarball from CacaoVM <http://www.cacaovm.org/>.
 - Debian packaging scripts and patches.
 
 Building a new OpenJDK+IcedTea-7 Debian package
@@ -30,7 +29,7 @@ Pre-requisites:
  mkdir -p $BUILD/
  (
    cd icedtea-2.1.1/
-   sh autogen.sh && ./configure --enable-jamvm --enable-cacao
+   sh autogen.sh && ./configure --enable-jamvm
    make download
  )
  
@@ -65,7 +64,6 @@ contain several flags to change how a package is compiled and built.
   * parallel=X: package should be built using up to X parallel processes
   * nobootstrap: don't use gcj to bootstrap OpenJDK but use existing OpenJDK
                  installed on current machine.
-  * noaltcacao: don't build alternative CACao VM.
   * noaltzero: don't build alternative Zero VM.
   * noaltshark: don't build alternative Shark VM.
   * noaltjamvm: don't build alternative Jamvm VM.

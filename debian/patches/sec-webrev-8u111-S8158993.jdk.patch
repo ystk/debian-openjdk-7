@@ -1,0 +1,214 @@
+# HG changeset patch
+# User ssadetsky
+# Date 1468254591 -10800
+#      Mon Jul 11 19:29:51 2016 +0300
+# Node ID f75edc10277f1fc3f9f9d2fea94a4fac54b3ef77
+# Parent  ec3d09b179c7acf0ae6371d01b0da98506195932
+8158993: Service Menu services
+Reviewed-by: prr, mschoene
+
+---
+ openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuItemPeer.java  |    3 
+ openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuPeer.java      |    4 -
+ openjdk/jdk/src/windows/classes/sun/awt/windows/WObjectPeer.java    |   39 +++++++++-
+ openjdk/jdk/src/windows/classes/sun/awt/windows/WPopupMenuPeer.java |    3 
+ openjdk/jdk/src/windows/native/sun/windows/awt_Frame.cpp            |   10 ++
+ openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.cpp          |    5 +
+ openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.h            |    5 +
+ 7 files changed, 62 insertions(+), 7 deletions(-)
+
+--- openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuItemPeer.java.orig
++++ openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuItemPeer.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2007, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -107,6 +107,7 @@ class WMenuItemPeer extends WObjectPeer
+         this.target = target;
+         this.parent = (WMenuPeer) WToolkit.targetToPeer(target.getParent());
+         this.isCheckbox = isCheckbox;
++        parent.addChildPeer(this);
+         create(parent);
+         // fix for 5088782: check if menu object is created successfully
+         checkMenuCreation();
+--- openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuPeer.java.orig
++++ openjdk/jdk/src/windows/classes/sun/awt/windows/WMenuPeer.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2005, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -48,10 +48,12 @@ class WMenuPeer extends WMenuItemPeer im
+         if (parent instanceof MenuBar) {
+             WMenuBarPeer mbPeer = (WMenuBarPeer) WToolkit.targetToPeer(parent);
+             this.parent = mbPeer;
++            mbPeer.addChildPeer(this);
+             createMenu(mbPeer);
+         }
+         else if (parent instanceof Menu) {
+             this.parent = (WMenuPeer) WToolkit.targetToPeer(parent);
++            this.parent.addChildPeer(this);
+             createSubMenu(this.parent);
+         }
+         else {
+--- openjdk/jdk/src/windows/classes/sun/awt/windows/WObjectPeer.java.orig
++++ openjdk/jdk/src/windows/classes/sun/awt/windows/WObjectPeer.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2008, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2006, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -24,6 +24,9 @@
+  */
+ package sun.awt.windows;
+ 
++import java.util.Map;
++import java.util.WeakHashMap;
++
+ abstract class WObjectPeer {
+ 
+     static {
+@@ -45,6 +48,8 @@ abstract class WObjectPeer {
+     // used to synchronize the state of this peer
+     private final Object stateLock = new Object();
+ 
++    private volatile Map<WObjectPeer, WObjectPeer> childPeers;
++
+     public static WObjectPeer getPeerForTarget(Object t) {
+         WObjectPeer peer = (WObjectPeer) WToolkit.targetToPeer(t);
+         return peer;
+@@ -77,6 +82,9 @@ abstract class WObjectPeer {
+         }
+ 
+         if (call_disposeImpl) {
++            if (childPeers != null) {
++                disposeChildPeers();
++            }
+             disposeImpl();
+         }
+     }
+@@ -88,4 +96,33 @@ abstract class WObjectPeer {
+      * Initialize JNI field and method IDs
+      */
+     private static native void initIDs();
++
++    // if a child peer existence depends on this peer, add it to this collection
++    final void addChildPeer(WObjectPeer child) {
++        synchronized (getStateLock()) {
++            if (childPeers == null) {
++                childPeers = new WeakHashMap<>();
++            }
++            if (isDisposed()) {
++                throw new IllegalStateException("Parent peer is disposed");
++            }
++            childPeers.put(child, this);
++        }
++    }
++
++    // called to dispose dependent child peers
++    private void disposeChildPeers() {
++        synchronized (getStateLock()) {
++            for (WObjectPeer child : childPeers.keySet()) {
++                if (child != null) {
++                    try {
++                        child.dispose();
++                    }
++                    catch (Exception e) {
++                        // ignored
++                    }
++                }
++            }
++        }
++    }
+ }
+--- openjdk/jdk/src/windows/classes/sun/awt/windows/WPopupMenuPeer.java.orig
++++ openjdk/jdk/src/windows/classes/sun/awt/windows/WPopupMenuPeer.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2007, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -58,6 +58,7 @@ public class WPopupMenuPeer extends WMen
+                 parent = WToolkit.getNativeContainer((Component)parent);
+                 parentPeer = (WComponentPeer) WToolkit.targetToPeer(parent);
+             }
++            parentPeer.addChildPeer(this);
+             createMenu(parentPeer);
+             // fix for 5088782: check if menu object is created successfully
+             checkMenuCreation();
+--- openjdk/jdk/src/windows/native/sun/windows/awt_Frame.cpp.orig
++++ openjdk/jdk/src/windows/native/sun/windows/awt_Frame.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2012, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -1022,11 +1022,19 @@ AwtMenuBar* AwtFrame::GetMenuBar()
+ 
+ void AwtFrame::SetMenuBar(AwtMenuBar* mb)
+ {
++    if (menuBar) {
++        menuBar->SetFrame(NULL);
++    }
+     menuBar = mb;
+     if (mb == NULL) {
+         // Remove existing menu bar, if any.
+         ::SetMenu(GetHWnd(), NULL);
+     } else {
++        AwtFrame* oldFrame = menuBar->GetFrame();
++        if (oldFrame && oldFrame != this) {
++            oldFrame->SetMenuBar(NULL);
++        }
++        menuBar->SetFrame(this);
+         if (menuBar->GetHMenu() != NULL) {
+             ::SetMenu(GetHWnd(), menuBar->GetHMenu());
+         }
+--- openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.cpp.orig
++++ openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2006, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -58,6 +58,9 @@ AwtMenuBar::~AwtMenuBar()
+ 
+ void AwtMenuBar::Dispose()
+ {
++    if (m_frame != NULL && m_frame->GetMenuBar() == this) {
++        m_frame->SetMenuBar(NULL);
++    }
+     m_frame = NULL;
+ 
+     AwtMenu::Dispose();
+--- openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.h.orig
++++ openjdk/jdk/src/windows/native/sun/windows/awt_MenuBar.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2006, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -63,6 +63,9 @@ public:
+ 
+     virtual AwtMenuBar* GetMenuBar() { return this; }
+     INLINE AwtFrame* GetFrame() { return m_frame; }
++    INLINE void SetFrame(AwtFrame* frame) {
++        m_frame = frame;
++    }
+ 
+     virtual HWND GetOwnerHWnd();
+ 
