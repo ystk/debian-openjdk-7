@@ -1,22 +1,22 @@
 # Dependencies
 
-JDK_UPDATE_VERSION = 111
-BUILD_VERSION = b01
+JDK_UPDATE_VERSION = 121
+BUILD_VERSION = b00
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
 
-CORBA_CHANGESET = e5578d3bc593
-JAXP_CHANGESET = b643540c673d
-JAXWS_CHANGESET = 4a99f4eac257
-JDK_CHANGESET = 8b6b930489cb
-LANGTOOLS_CHANGESET = ca9d8b242a10
-OPENJDK_CHANGESET = 6aafb6fe0a1e
+CORBA_CHANGESET = 9e002eaf26ed
+JAXP_CHANGESET = 3369fa5a875b
+JAXWS_CHANGESET = 26bcf28b3a60
+JDK_CHANGESET = 52225839bbea
+LANGTOOLS_CHANGESET = 545e512eb4de
+OPENJDK_CHANGESET = 653c2662034d
 
-CORBA_SHA256SUM = 0049439ea08f8391c0dae464ceb249f0af9d8e70c68142a734ceb25fa145e764
-JAXP_SHA256SUM = 9fbd60855406879b898843d7eeac2a5df64b0ccdeb927c615c5be648b8fac70b
-JAXWS_SHA256SUM = c9fcc1553bbb4fe1dd5ae4616b6a1f52f42c2bb990fd1cbdafeac43bfd6b30f7
-JDK_SHA256SUM = e93cd330b2346bc6145bb76a141233aa1cc083eb25bbc82819632e1581290d81
-LANGTOOLS_SHA256SUM = 13e700318ed4a00bc85890525a1fe16b7ff4798ad9e49acdf730b6dfe1a6b4e4
-OPENJDK_SHA256SUM = 5cacafbe543ad4b9179ab1cbfdb7d9baf8aa04d954510b9e7baf0bfef7db6878
+CORBA_SHA256SUM = 2f728daac0ca88e7097a223f8c1ceaff8b4597e4622c5e365931edb25aa04538
+JAXP_SHA256SUM = ba1ba48e9ad9ee36df344e6e283f0f7a9f8aa9cee223c8ea2f2ee711092091fc
+JAXWS_SHA256SUM = 753093e71ac609b9350bf16daf230fdc2f873cd573428883448098e39e4c041a
+JDK_SHA256SUM = ec1118f52eb208a529e99ec1a64351b737bc0f892e05f0ffd4327b4be533e761
+LANGTOOLS_SHA256SUM = 004ec63ebdd0b6182c2bde3e190bb745a0d932ad7b05901a4376a04f06158813
+OPENJDK_SHA256SUM = e6bea22acb9e89e200fdc2a4a7a04ecee042f3ea9f9a49bab739fdd2598e4ce3
 
 DROP_URL = http://icedtea.classpath.org/download/drops
 
@@ -388,7 +388,8 @@ ICEDTEA_PATCHES += \
 	patches/cacao/pr2032.patch \
 	patches/cacao/pr2520-tempdir.patch \
 	patches/cacao/pr2652-classloader.patch \
-	patches/cacao/pr2781-refactoring_error.patch
+	patches/cacao/pr2781-refactoring_error.patch \
+	patches/cacao/pr3136-unsafe_methods.patch
 else
 if USING_CACAO
 ICEDTEA_PATCHES += \
@@ -406,7 +407,8 @@ ICEDTEA_PATCHES += \
 	patches/jamvm/find_class_from_caller.patch \
 	patches/jamvm/pr2172-tempdir.patch \
 	patches/jamvm/noexecstack.patch \
-	patches/jamvm/pr2665.patch
+	patches/jamvm/pr2665.patch \
+	patches/jamvm/pr3134-unsafe_methods.patch
 endif
 
 if ENABLE_NSS
@@ -619,8 +621,8 @@ ICEDTEA_ENV = \
 	ALT_OUTPUTDIR="$(BUILD_OUTPUT_DIR)" \
 	VERBOSE="$(VERBOSE)" \
 	STATIC_CXX="false" \
-	BUILD_GCC="$(CC)" \
-	BUILD_CXX="$(CXX)" \
+	CC="$(CC)" \
+	CXX="$(CXX)" \
 	SYSTEM_CUPS="${ENABLE_SYSTEM_CUPS}" \
 	CUPS_LIBS="${CUPS_LIBS}" \
 	CUPS_CFLAGS="${CUPS_CFLAGS}" \
@@ -2033,7 +2035,7 @@ stamps/icedtea.stamp: stamps/bootstrap-directory-symlink-stage2.stamp \
 	  $(ICEDTEA_ENV) \
 	  -C openjdk/ \
 	  $(ICEDTEA_BUILD_TARGET)
-	$(abs_top_builddir)/pax-mark-vm $(BUILD_SDK_DIR)
+	$(abs_top_builddir)/pax-mark-vm $(BUILD_SDK_DIR) true
 	mkdir -p $(BUILD_SDK_DIR)/jre/lib/$(INSTALL_ARCH_DIR)
 	mkdir -p $(BUILD_JRE_DIR)/lib/$(INSTALL_ARCH_DIR)
 	mkdir -p $(BUILD_SDK_DIR)/jre/lib/ext
@@ -2185,7 +2187,7 @@ stamps/icedtea-debug.stamp: stamps/bootstrap-directory-symlink-stage2.stamp \
 	  $(ICEDTEA_ENV) \
 	  -C openjdk/ \
 	  $(ICEDTEA_DEBUG_BUILD_TARGET)
-	$(abs_top_builddir)/pax-mark-vm $(BUILD_DEBUG_SDK_DIR)
+	$(abs_top_builddir)/pax-mark-vm $(BUILD_DEBUG_SDK_DIR) true
 	mkdir -p $(BUILD_DEBUG_SDK_DIR)/jre/lib/$(INSTALL_ARCH_DIR)
 	mkdir -p $(BUILD_DEBUG_JRE_DIR)/lib/$(INSTALL_ARCH_DIR)
 	mkdir -p $(BUILD_DEBUG_SDK_DIR)/jre/lib/ext
@@ -2339,7 +2341,7 @@ clean-icedtea-stage2: clean-add-jamvm clean-check-crypto clean-add-archive clean
 
 stamps/icedtea-debug-stage2.stamp: stamps/icedtea-debug.stamp \
  stamps/add-cacao-debug.stamp stamps/add-zero-debug.stamp stamps/add-jamvm-debug.stamp \
- stamps/add-systemtap-debug.stamp stamps/add/tzdata-support-debug.stamp \
+ stamps/add-systemtap-debug.stamp stamps/add-tzdata-support-debug.stamp \
  stamps/check-crypto-debug.stamp stamps/add-archive-debug.stamp stamps/split-debuginfo-debug.stamp \
  stamps/add-mime-types-file-debug.stamp
 	mkdir -p stamps
@@ -2359,7 +2361,7 @@ stamps/icedtea-boot.stamp: stamps/bootstrap-directory-symlink-stage1.stamp \
 	  $(ICEDTEA_ENV_BOOT) \
 	  -C openjdk-boot \
 	  $(ICEDTEA_BUILD_TARGET)
-	$(abs_top_builddir)/pax-mark-vm $(BUILD_BOOT_SDK_DIR)
+	$(abs_top_builddir)/pax-mark-vm $(BUILD_BOOT_SDK_DIR) true
 # Fix permissions on JARs updated during build if PR1437 bug is present
 if PR1437_PRESENT
 	if [ -e $(BUILD_BOOT_SDK_DIR)/lib/sa-jdi.jar ] ; then \
@@ -3026,7 +3028,7 @@ stamps/rt.stamp: stamps/rt-class-files.stamp
 	     cp -a ../../$$dirs $$destpath ; \
 	   done ; \
 	   if [ -w $(STAGE1_BOOT_RUNTIME) ] ; then \
-	     $(ZIP) -qur $(STAGE1_BOOT_RUNTIME) com java javax sun ; \
+	     $(ZIP) -qr $(STAGE1_BOOT_RUNTIME) com java javax sun ; \
 	   fi ; ) \
 	fi
 	mkdir -p stamps
@@ -3257,7 +3259,7 @@ endif
 	for files in $(BUILD_SDK_DIR)/tapset/*.stp; do \
 	  $(call install_file,$${files},$(DESTDIR)${prefix}/tapset,$(INSTALL_DATA));\
 	done
-	$(abs_top_builddir)/pax-mark-vm $(DESTDIR)${prefix}
+	$(abs_top_builddir)/pax-mark-vm $(DESTDIR)${prefix} false
 
 install-data-local:
 	${mkinstalldirs} $(DESTDIR)${prefix}
