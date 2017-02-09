@@ -2,9 +2,9 @@
 
 Index: openjdk/hotspot/make/linux/makefiles/gcc.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/gcc.make.orig
+--- openjdk/hotspot/make/linux/makefiles/gcc.make
 +++ openjdk/hotspot/make/linux/makefiles/gcc.make
-@@ -95,7 +95,7 @@ CFLAGS += -fvisibility=hidden
+@@ -102,7 +102,7 @@ CFLAGS += -fno-delete-null-pointer-check
  endif
  
  ARCHFLAG = $(ARCHFLAG/$(BUILDARCH))

@@ -14,9 +14,9 @@ Forwarded: not-yet
 
 Index: openjdk/jdk/src/share/classes/java/awt/color/ICC_Profile.java
 ===================================================================
---- openjdk/jdk/src/share/classes/java/awt/color/ICC_Profile.java.orig
+--- openjdk/jdk/src/share/classes/java/awt/color/ICC_Profile.java
 +++ openjdk/jdk/src/share/classes/java/awt/color/ICC_Profile.java
-@@ -1821,9 +1821,6 @@
+@@ -1825,9 +1825,6 @@ public class ICC_Profile implements Seri
                      dir = st.nextToken();
                      fullPath = dir + File.separatorChar + fileName;
                      f = new File(fullPath);
@@ -25,8 +25,8 @@ Index: openjdk/jdk/src/share/classes/java/awt/color/ICC_Profile.java
 -                    }
                  }
              }
-
-@@ -1860,7 +1857,7 @@
+ 
+@@ -1864,7 +1861,7 @@ public class ICC_Profile implements Seri
              File.separatorChar + "lib" + File.separatorChar + "cmm";
          String fullPath = dir + File.separatorChar + fileName;
          File f = new File(fullPath);

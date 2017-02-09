@@ -1,0 +1,32 @@
+# HG changeset patch
+# User igerasim
+# Date 1472571751 -10800
+#      Tue Aug 30 18:42:31 2016 +0300
+# Node ID 6cb0106507eb65287672d06d8c85146d20399168
+# Parent  ec36155c851705007cdad3d0f24ed6c9a6cde769
+8161743: Provide proper login context
+Reviewed-by: ahgross, vinnie, xuelei
+
+--- openjdk/jdk/src/share/classes/com/sun/security/auth/module/LdapLoginModule.java.orig
++++ openjdk/jdk/src/share/classes/com/sun/security/auth/module/LdapLoginModule.java
+@@ -425,7 +425,6 @@ public class LdapLoginModule implements
+             constraints = new SearchControls();
+             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+             constraints.setReturningAttributes(new String[0]); //return no attrs
+-            constraints.setReturningObjFlag(true); // to get the full DN
+         }
+ 
+         authzIdentity = (String)options.get(AUTHZ_IDENTITY);
+@@ -885,11 +884,7 @@ public class LdapLoginModule implements
+             // (Use the first entry if more than one is returned)
+             if (results.hasMore()) {
+                 SearchResult entry = results.next();
+-
+-                // %%% - use the SearchResult.getNameInNamespace method
+-                //        available in JDK 1.5 and later.
+-                //        (can remove call to constraints.setReturningObjFlag)
+-                userDN = ((Context)entry.getObject()).getNameInNamespace();
++                userDN = entry.getNameInNamespace();
+ 
+                 if (debug) {
+                     System.out.println("\t\t[LdapLoginModule] found entry: " +

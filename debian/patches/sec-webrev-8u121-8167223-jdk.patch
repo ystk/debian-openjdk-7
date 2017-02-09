@@ -1,0 +1,40 @@
+# HG changeset patch
+# User aefimov
+# Date 1479469578 -10800
+#      Fri Nov 18 14:46:18 2016 +0300
+# Node ID cd0585378c46c48df6e59e967b779e68657fb408
+# Parent  683c9263a5b1ab525db02d15f0c3de62a09dba75
+8167223: URL handling improvements
+Reviewed-by: prappo, chegar
+
+--- openjdk/jdk/src/share/classes/java/net/URLStreamHandler.java.orig
++++ openjdk/jdk/src/share/classes/java/net/URLStreamHandler.java
+@@ -162,9 +162,9 @@ public abstract class URLStreamHandler {
+             (spec.charAt(start + 1) == '/')) {
+             start += 2;
+             i = spec.indexOf('/', start);
+-            if (i < 0) {
++            if (i < 0 || i > limit) {
+                 i = spec.indexOf('?', start);
+-                if (i < 0)
++                if (i < 0 || i > limit)
+                     i = limit;
+             }
+ 
+@@ -172,8 +172,14 @@ public abstract class URLStreamHandler {
+ 
+             int ind = authority.indexOf('@');
+             if (ind != -1) {
+-                userInfo = authority.substring(0, ind);
+-                host = authority.substring(ind+1);
++                if (ind != authority.lastIndexOf('@')) {
++                    // more than one '@' in authority. This is not server based
++                    userInfo = null;
++                    host = null;
++                } else {
++                    userInfo = authority.substring(0, ind);
++                    host = authority.substring(ind+1);
++                }
+             } else {
+                 userInfo = null;
+             }

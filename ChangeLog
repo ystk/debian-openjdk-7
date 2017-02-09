@@ -1,3 +1,168 @@
+2016-11-13  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2016-11-11  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.8.
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Bump to 121.
+	(BUILD_VERSION): Reset to b00.
+	(CORBA_CHANGESET): Update to icedtea-2.6.8.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.8.
+	* hotspot.map.in: Update to icedtea-2.6.8.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new cases in
+	java.net.URLConnection, java.net.URL,
+	sun.net.TransferProtocolClient,
+	sun.net.www.protocol.http.AuthenticationHeader
+	and sun.net.www.protocol.http.HttpURLConnection.
+	* patches/boot/ecj-multicatch.patch:
+	Add new cases in
+	sun.net.www.protocol.http.HttpURLConnection,
+	com.sun.net.httpserver.spi.HttpServerProvider and
+	sun.net.ftp.FtpClientProvider.
+
+2016-11-08  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3212: Disable ARM32 JIT by default
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_ENABLE_ARM32JIT): Set default to no.
+
+2016-11-03  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3202: Update infinality configure test
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_ENABLE_INFINALITY): Allow Infinality to be
+	enabled if TT_CONFIG_OPTION_SUBPIXEL_HINTING is
+	set (FreeType >= 2.7)
+
+2016-08-18  Stefan Ring <stefan@complang.tuwien.ac.at>
+
+	PR3136: CACAO is broken due to 2 new native
+	methods in sun.misc.Unsafe (from S8158260)
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add CACAO patch for PR3136.
+	* NEWS: Updated.
+	* patches/cacao/pr3136-unsafe_methods.patch:
+	Add implementation of isBigEndian0 and unalignedAccess0.
+
+2016-08-10  Tiago Stuermer Daitx  <tdaitx@gmail.com>
+
+	PR3134: JamVM is broken due to 2 new native
+	methods in sun.misc.Unsafe (from S8158260)
+	* Makefile.am:
+	(ICEDTEA_PATCHES): Add JamVM patch for PR3134.
+	* NEWS: Updated.
+	* patches/jamvm/pr3134-unsafe_methods.patch:
+	Add implementation of isBigEndian0 and unalignedAccess0.
+
+2016-08-19  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3166: invalid zip timestamp handling leads to
+	error building bootstrap-javac
+	* AUTHORS: Add Ricardo Ribalda.
+	* NEWS: Updated.
+
+2016-08-19  Ricardo Ribalda  <ricardo.ribalda@gmail.com>
+
+	PR3166: invalid zip timestamp handling leads to
+	error building bootstrap-javac
+	* Makefile.am:
+	(rt): Don't use -u so files are always overwritten,
+	regardless of timestamps.
+
+2016-08-14  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3141: Pass $(CC) and $(CXX) to OpenJDK build
+	* Makefile.am:
+	(ICEDTEA_ENV): Set CC and CXX instead
+	of BUILD_GCC and BUILD_CXX.
+	* NEWS: Updated.
+
+2016-08-19  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3135: Makefile.am rule
+	stamps/add/tzdata-support-debug.stamp has a typo in
+	add-tzdata dependency
+	* NEWS: Updated.
+
+2016-08-10  Tiago Sturmer Daitx  <tdaitx@linux.vnet.ibm.com>
+
+	PR3135: Makefile.am rule
+	stamps/add/tzdata-support-debug.stamp has a typo in
+	add-tzdata dependency
+	* Makefile.am:
+	(icedtea-debug-stage2): Fix typo in
+	add-tzdata-support-debug dependency.
+
+2016-08-04  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3128: pax-mark-vm script calls "exit -1" which
+	is invalid in dash
+	* NEWS: Updated.
+	* pax-mark-vm.in:
+	Use POSIX-compliant exit value.
+
+2016-04-07  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3131: PaX marking fails on filesystems which
+	don't support extended attributes
+	* Makefile.am:
+	(icedtea): Pass true to pax-mark-vm to fail
+	if PaX marking fails.
+	(icedtea-debug): Likewise.
+	(icedtea-boot): Likewise.
+	(install-exec-local): Pass false to pax-mark-vm
+	so that only a warning is produced if PaX marking
+	fails on the installed version.
+	* NEWS: Updated.
+	* pax-mark-vm.in:
+	Add a second option, FAIL_ON_ERROR, which will
+	cause the script to exit if it can't PaX mark
+	when set to true, but just issue a warning when
+	set to false.
+
+2016-10-27  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* Makefile.am,
+	(CORBA_CHANGESET): Update to icedtea-2.6.8pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.8pre01.
+	* hotspot.map.in: Update to icedtea-2.6.8pre01.
+	* patches/boot/ecj-diamond.patch:
+	Add new case in com.sun.jndi.ldap.LdapClient.
+
+2016-07-28  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.8.
+	* configure.ac: Bump to 2.6.8pre00.
+
 2016-04-06  Andrew John Hughes  <gnu_andrew@member.fsf.org>
 
 	PR3119: Makefile handles cacerts as a symlink,

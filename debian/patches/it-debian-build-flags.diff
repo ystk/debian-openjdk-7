@@ -3,9 +3,11 @@ Author: Damien Raude-Morvan <drazzib@debian.org>
 Forwarded: not-needed
 Last-Update: 2014-07-06
 
---- openjdk-7-7u95-2.6.4.orig/Makefile.am
-+++ openjdk-7-7u95-2.6.4/Makefile.am
-@@ -153,7 +153,7 @@
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -152,7 +152,7 @@ IT_JAVAC_SETTINGS=-g -encoding utf-8 $(J
  IT_JAVACFLAGS=$(IT_JAVAC_SETTINGS) -source $(IT_LANGUAGE_SOURCE_VERSION) -target $(IT_CLASS_TARGET_VERSION)
  
  # Flags
@@ -14,7 +16,7 @@ Last-Update: 2014-07-06
  
  # Conditional defintions
  
-@@ -2497,7 +2497,8 @@
+@@ -2586,7 +2586,8 @@ stamps/jamvm.stamp: $(OPENJDK_TREE) stam
  if BUILD_JAMVM
  	cd jamvm/jamvm && \
  	./autogen.sh --with-java-runtime-library=openjdk7 \

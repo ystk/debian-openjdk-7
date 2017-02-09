@@ -383,7 +383,7 @@ ifeq (,$(filter $(distrel),squeeze wheezy lucid precise quantal raring saucy tru
   with_systemtap = yes
 endif
 
-ifneq (,$(filter $(DEB_HOST_ARCH), aarch64 sparc64))
+ifneq (,$(filter $(DEB_HOST_ARCH), arm64 sparc64))
   USE_PRECOMPILED_HEADER = 0
   export USE_PRECOMPILED_HEADER
 endif
@@ -424,12 +424,10 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/fontconfig-wqy-microhei.patch \
 	debian/patches/icc_loading_with_symlink.diff \
 	debian/patches/zero-fpu-control-is-noop.diff \
-	debian/patches/zero-missing-headers.diff \
 	debian/patches/libpcsclite-dlopen.diff \
 	debian/patches/dnd-files.patch \
 	debian/patches/jdk-bold-swing-fonts.patch \
 	debian/patches/javadoc-sort-enum-and-annotation-types.patch \
-	debian/patches/hotspot-aarch64-nopch.diff \
 
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \
@@ -489,30 +487,28 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
   endif    
 endif
 
-# 8u111 security update backports
+# Security update backports from 8u121.
 DISTRIBUTION_PATCHES += \
-	debian/patches/sec-webrev-8u111-S8146490.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8151921.langtools.patch \
-	debian/patches/sec-webrev-8u111-S8155968.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8048357-backport.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8155973.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8156794.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8157176.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8157739.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8157749.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8157753.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8158302.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8158993.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8159495.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8159503.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8159511.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8159515.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8159515.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8159519.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8160090.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8160094.jdk.patch \
-	debian/patches/sec-webrev-8u111-S8160591.hotspot.patch \
-	debian/patches/sec-webrev-8u111-S8160838.jdk.patch
+	debian/patches/sec-webrev-8u121-8151934-jdk.patch \
+	debian/patches/sec-webrev-8u121-8160108-jdk-backport-for-8156802.patch \
+	debian/patches/sec-webrev-8u121-8156802-jdk.patch \
+	debian/patches/sec-webrev-8u121-8158406-jdk.patch \
+	debian/patches/sec-webrev-8u121-8158997-jdk.patch \
+	debian/patches/sec-webrev-8u121-8159507-hotspot.patch \
+	debian/patches/sec-webrev-8u121-8161218-hotspot.patch \
+	debian/patches/sec-webrev-8u121-8161743-jdk.patch \
+	debian/patches/sec-webrev-8u121-8162577-jdk.patch \
+	debian/patches/sec-webrev-8u121-8162973-jdk.patch \
+	debian/patches/sec-webrev-8u121-8164143-jdk.patch \
+	debian/patches/sec-webrev-8u121-8164147-jdk.patch \
+	debian/patches/sec-webrev-8u121-8165071-jdk.patch \
+	debian/patches/sec-webrev-8u121-8165344-jdk.patch \
+	debian/patches/sec-webrev-8u121-8166988-jdk.patch \
+	debian/patches/sec-webrev-8u121-8167104-hotspot.patch \
+	debian/patches/sec-webrev-8u121-8167223-jdk.patch \
+	debian/patches/sec-webrev-8u121-8168705-jdk.patch \
+	debian/patches/sec-webrev-8u121-8168714-jdk.patch \
+	debian/patches/sec-webrev-8u121-8168728-jdk.patch
 
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 

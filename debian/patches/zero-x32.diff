@@ -1,6 +1,6 @@
 Index: openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 ===================================================================
---- openjdk/hotspot/src/os/linux/vm/os_linux.cpp.orig
+--- openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 +++ openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 @@ -2049,7 +2049,7 @@ void * os::dll_load(const char *filename
  
@@ -13,7 +13,7 @@ Index: openjdk/hotspot/src/os/linux/vm/os_linux.cpp
      static  Elf32_Half running_arch_code=EM_IA_64;
 Index: openjdk/corba/make/common/shared/Platform.gmk
 ===================================================================
---- openjdk/corba/make/common/shared/Platform.gmk.orig
+--- openjdk/corba/make/common/shared/Platform.gmk
 +++ openjdk/corba/make/common/shared/Platform.gmk
 @@ -163,8 +163,12 @@ ifeq ($(SYSTEM_UNAME), Linux)
                  ia64) \
@@ -32,9 +32,9 @@ Index: openjdk/corba/make/common/shared/Platform.gmk
                      echo sparc \
 Index: openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
 ===================================================================
---- openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c.orig
+--- openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
 +++ openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
-@@ -35,7 +35,6 @@
+@@ -41,7 +41,6 @@
  #endif
  #ifdef __linux__
  #include <unistd.h>
@@ -44,7 +44,7 @@ Index: openjdk/jdk/src/solaris/native/java/net/PlainDatagramSocketImpl.c
  
 Index: openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
 ===================================================================
---- openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c.orig
+--- openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
 +++ openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
 @@ -43,7 +43,6 @@
  #endif
@@ -56,7 +56,7 @@ Index: openjdk/jdk/src/solaris/native/java/net/PlainSocketImpl.c
  #include "jvm.h"
 Index: openjdk/jdk/make/jdk_generic_profile.sh
 ===================================================================
---- openjdk/jdk/make/jdk_generic_profile.sh.orig
+--- openjdk/jdk/make/jdk_generic_profile.sh
 +++ openjdk/jdk/make/jdk_generic_profile.sh
 @@ -271,7 +271,12 @@ if [ "${ZERO_BUILD}" = true ] ; then
    # subdirectory under $JAVA_HOME/jre/lib
@@ -100,7 +100,7 @@ Index: openjdk/jdk/make/jdk_generic_profile.sh
    export ZERO_ARCHDEF
 Index: openjdk/jdk/make/common/shared/Platform.gmk
 ===================================================================
---- openjdk/jdk/make/common/shared/Platform.gmk.orig
+--- openjdk/jdk/make/common/shared/Platform.gmk
 +++ openjdk/jdk/make/common/shared/Platform.gmk
 @@ -180,8 +180,12 @@ ifeq ($(SYSTEM_UNAME), Linux)
                  ia64) \

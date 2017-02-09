@@ -1,8 +1,8 @@
 Index: openjdk/hotspot/make/linux/makefiles/gcc.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/gcc.make.orig
+--- openjdk/hotspot/make/linux/makefiles/gcc.make
 +++ openjdk/hotspot/make/linux/makefiles/gcc.make
-@@ -171,7 +171,11 @@ CFLAGS_WARN/DEFAULT = $(WARNINGS_ARE_ERR
+@@ -178,7 +178,11 @@ CFLAGS_WARN/DEFAULT = $(WARNINGS_ARE_ERR
  CFLAGS_WARN/BYFILE = $(CFLAGS_WARN/$@)$(CFLAGS_WARN/DEFAULT$(CFLAGS_WARN/$@)) 
  
  # The flags to use for an Optimized g++ build

@@ -12,7 +12,7 @@ Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
      public String toString() {
          switch  (WMID) {
            case NO_WM:
-@@ -591,7 +592,7 @@ final class XWM
+@@ -605,7 +606,7 @@ final class XWM
      // TODO: according to wikipedia, compiz is now reparenting. This should
      // probably be updated.
      static boolean isNonReparentingWM() {
@@ -21,7 +21,7 @@ Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
      }
  
      /*
-@@ -782,9 +783,17 @@ final class XWM
+@@ -802,9 +803,17 @@ final class XWM
               * supports WIN or _NET wm spec.
               */
              else if (l_net_protocol.active()) {
@@ -41,7 +41,7 @@ Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
              }
              /*
               * Check for legacy WMs.
-@@ -795,6 +804,8 @@ final class XWM
+@@ -815,6 +824,8 @@ final class XWM
                  awt_wmgr = XWM.MOTIF_WM;
              } else if (isOpenLook()) {
                  awt_wmgr = XWM.OPENLOOK_WM;
@@ -50,7 +50,7 @@ Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWM.java
              } else {
                  awt_wmgr = XWM.OTHER_WM;
              }
-@@ -1310,6 +1321,7 @@ final class XWM
+@@ -1346,6 +1357,7 @@ final class XWM
                    res = new Insets(28, 6, 6, 6);
                    break;
                case NO_WM:

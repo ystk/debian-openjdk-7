@@ -7,16 +7,16 @@ tarballs="$tarballs icedtea-sound.tar.gz"
 jamvmtb=jamvm-2.0.0.tar.gz
 
 # tarballs location
-tarballdir=7u111
+tarballdir=7u121
 
 # icedtea upstream location (as extracted from icedtea's tarball)
-icedtea_checkout=icedtea-2.6.7
+icedtea_checkout=icedtea-2.6.8
 
 # openjdk's debian location (usually fetched from bzr or the latest openjdk)
 debian_checkout=openjdk7
 
 base=openjdk-7
-version=7u111-2.6.7
+version=7u121-2.6.8
 
 # output directory
 pkgdir=$base-$version

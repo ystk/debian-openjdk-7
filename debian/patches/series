@@ -2,7 +2,7 @@
 # all OpenJDK patches are applied by the IcedTea build system.
 
 it-debian-build-flags.diff
-it-set-compiler.diff
+#it-set-compiler.diff
 #it-aarch64-zero-default.diff aarch64 hotspot merged?
 #it-sparc-zero.diff
 it-x32-zero.diff
@@ -11,5 +11,4 @@ it-use-quilt.diff
 it-patch-updates.diff
 it-nss-softokn-config.diff
 it-jamvm-2.0.diff
-it-jamvm-8158260-unsafe-methods.patch
 it-remove-samevm.patch

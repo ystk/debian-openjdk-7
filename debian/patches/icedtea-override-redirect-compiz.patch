@@ -2,7 +2,7 @@ Index: openjdk/jdk/src/solaris/classes/sun/awt/X11/XWindowPeer.java
 ===================================================================
 --- openjdk/jdk/src/solaris/classes/sun/awt/X11/XWindowPeer.java
 +++ openjdk/jdk/src/solaris/classes/sun/awt/X11/XWindowPeer.java
-@@ -1155,6 +1155,7 @@ class XWindowPeer extends XPanelPeer imp
+@@ -1163,6 +1163,7 @@ class XWindowPeer extends XPanelPeer imp
      boolean isOverrideRedirect() {
          return XWM.getWMID() == XWM.OPENLOOK_WM ||
              (XWM.getWMID() == XWM.METACITY_WM ? true : false) ||

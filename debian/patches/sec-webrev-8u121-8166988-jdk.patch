@@ -1,0 +1,37 @@
+# HG changeset patch
+# User dmarkov
+# Date 1476276215 -10800
+#      Wed Oct 12 15:43:35 2016 +0300
+# Node ID b59238f0e1617020b509101da8025c6121c0e5b7
+# Parent  032874d46bf95478cb86690b3c91d335c0764b0b
+8166988: Improve image processing performance
+Reviewed-by: prr
+
+--- openjdk/jdk/src/share/classes/com/sun/imageio/plugins/png/PNGImageReader.java.orig
++++ openjdk/jdk/src/share/classes/com/sun/imageio/plugins/png/PNGImageReader.java
+@@ -714,7 +714,11 @@ public class PNGImageReader extends Imag
+                     parse_iCCP_chunk(chunkLength);
+                     break;
+                 case iTXt_TYPE:
+-                    parse_iTXt_chunk(chunkLength);
++                    if (ignoreMetadata) {
++                        stream.skipBytes(chunkLength);
++                    } else {
++                        parse_iTXt_chunk(chunkLength);
++                    }
+                     break;
+                 case pHYs_TYPE:
+                     parse_pHYs_chunk();
+@@ -738,7 +742,11 @@ public class PNGImageReader extends Imag
+                     parse_tRNS_chunk(chunkLength);
+                     break;
+                 case zTXt_TYPE:
+-                    parse_zTXt_chunk(chunkLength);
++                    if (ignoreMetadata) {
++                        stream.skipBytes(chunkLength);
++                    } else {
++                        parse_zTXt_chunk(chunkLength);
++                    }
+                     break;
+                 default:
+                     // Read an unknown chunk

@@ -2,7 +2,7 @@ Index: openjdk/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
 ===================================================================
 --- openjdk/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
 +++ openjdk/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
-@@ -331,7 +331,7 @@ int CppInterpreter::native_entry(methodO
+@@ -368,7 +368,7 @@ int CppInterpreter::native_entry(methodO
    ThreadStateTransition::transition_from_java(thread, _thread_in_native);
  
    // Make the call

@@ -3,9 +3,11 @@ Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: not accepted
 Last-Update: 2014-07-06
 
---- openjdk-7-7u95-2.6.4.orig/Makefile.am
-+++ openjdk-7-7u95-2.6.4/Makefile.am
-@@ -1646,132 +1646,37 @@
+Index: b/Makefile.am
+===================================================================
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1665,132 +1665,37 @@ clean-fonts:
  	rm -f stamps/fonts.stamp
  
  stamps/patch-fsg.stamp: stamps/extract.stamp stamps/fonts.stamp
@@ -160,7 +162,7 @@ Last-Update: 2014-07-06
  	fi
  
  stamps/versioning.stamp: stamps/patch.stamp
-@@ -1841,54 +1746,20 @@
+@@ -1860,54 +1765,20 @@ clean-clone-boot:
  	rm -f stamps/clone-boot.stamp
  
  stamps/patch-boot.stamp: stamps/clone-boot.stamp

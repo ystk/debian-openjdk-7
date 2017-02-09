@@ -1,8 +1,64 @@
-openjdk-7 (7u111-2.6.7-2~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u121-2.6.8-2~deb8u1) jessie-security; urgency=medium
 
-  * Rebuild for jessie-security
+  * Rebuild for jessie
 
- -- Moritz Mühlenhoff <jmm@debian.org>  Sat, 05 Nov 2016 18:45:22 +0100
+ -- Moritz Mühlenhoff <jmm@debian.org>  Tue, 07 Feb 2017 16:41:50 +0100
+
+openjdk-7 (7u121-2.6.8-2) experimental; urgency=high
+
+  [ Tiago Stürmer Daitx ]
+  * Security fixes from 8u121:
+    - S8167104, CVE-2017-3289: Custom class constructor code can bypass the
+      required call to super.init allowing for uninitialized objects to be
+      created.
+    - S8164143, CVE-2017-3260: It is possible to corrupt memory by calling
+      dispose() on a CMenuComponentmultiple times.
+    - S8168714, CVE-2016-5546: ECDSA will accept signatures that have various
+      extraneous bytes added to them whereas the signature is supposed to be
+      unique.
+    - S8166988, CVE-2017-3253: The PNG specification allows the [iz}Txt
+      sections to be 2^32-1 bytes long so these should not be uncompressed
+      unless the user explicitly requests it.
+    - S8168728, CVE-2016-5548: DSA signing exhibits a timing bias that may
+      leak information about k.
+    - S8161743, CVE-2017-3252: LdapLoginModule incorrectly tries to
+      deserialize responses from an LDAP server when an LDAP context is
+      expected.
+    - S8167223, CVE-2016-5552: Parsing of URLs can be inconsistent with how
+      users or external applications would interpret them leading to possible
+      security issues.
+    - S8168705, CVE-2016-5547: A value from an InputStream is read directly
+      into the size argument of a new byte[] without validation.
+    - S8164147, CVE-2017-3261: An integer overflow exists in
+      SocketOutputStream which can lead to memorydisclosure.
+    - S8151934, CVE-2017-3231: Under some circumstances URLClassLoader will
+      dispatch HTTP GET requests where the invoker does not have permission.
+    - S8165071, CVE-2016-2183: 3DES can be exploited for block collisions when
+      long running sessions are allowed.
+  * Missing
+    - S8165344, CVE-2017-3272: A protected field can be leveraged into type
+      confusion.
+    - S8156802, CVE-2017-3241: RMI deserialization should limit the types
+      deserialized to prevent attacks that could escape the sandbox.
+  * Ignored
+    - S8168724, CVE-2016-5549: ECDSA signing exhibits a timing bias that may
+      leak information about k.
+
+ -- Matthias Klose <doko@ubuntu.com>  Tue, 07 Feb 2017 11:09:39 +0100
+
+openjdk-7 (7u121-2.6.8-1) experimental; urgency=medium
+
+  * IcedTea release 2.6.8 (based on 7u121):
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 14 Nov 2016 13:38:40 +0100
+
+openjdk-7 (7u111-2.6.7-3) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * Don't use precompiled header files on arm64.
+  * Update the sec-webrev-8u111-S8159503.hotspot patch.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 05 Nov 2016 13:19:09 +0100
 
 openjdk-7 (7u111-2.6.7-2) experimental; urgency=medium
 
