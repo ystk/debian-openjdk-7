@@ -3,25 +3,28 @@ Section: java
 Priority: optional
 Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
 Uploaders: Matthias Klose <doko@ubuntu.com>, Damien Raude-Morvan <drazzib@debian.org>
-Build-Depends: debhelper (>= 5),
+Build-Depends: debhelper (>= 9),
   m4, lsb-release, wget, zip, unzip, sharutils,
   gawk, cpio, pkg-config, procps, time, wdiff,
-  fastjar (>= 2:0.96-0ubuntu2),  dh-autoreconf, quilt,
-  ant, ant-optional, libtool, g++-4.9,
-   ecj-gcj [amd64 armel arm64 armhf hppa i386 ia64 lpia powerpc powerpcspe ppc64 ppc64el m68k mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64], gcj-jdk [amd64 armel arm64 armhf hppa i386 ia64 lpia powerpc powerpcspe ppc64 ppc64el mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64], openjdk-7-jdk (>= 6b18) [alpha mips mips64 mips64el],
+  xvfb, xauth, xfonts-base, libgl1-mesa-dri [!x32],
+  xfwm4, dbus-x11, x11-xkb-utils,
+  fastjar (>= 2:0.96-0ubuntu2), ant, ant-optional,
+  libpulse-dev (>= 0.9.12),
+  mauve,
+   dh-autoreconf, quilt,
+  libtool, g++-4.9,
+   ecj-gcj [amd64 armel arm64 armhf hppa i386 ia64 powerpc powerpcspe ppc64 ppc64el m68k mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64], gcj-jdk [amd64 armel arm64 armhf hppa i386 ia64 powerpc powerpcspe ppc64 ppc64el mipsel sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64], openjdk-7-jdk (>= 6b18) [alpha mips mips64 mips64el],
   libxtst-dev, libxi-dev, libxt-dev, libxaw7-dev, libxrender-dev, libasound2-dev, libfreetype6-dev (>= 2.2.1), libgtk2.0-dev, liblcms2-dev, libxinerama-dev, libkrb5-dev, xsltproc, libcups2-dev, libpcsclite-dev, librhino-java (>= 1.7R3~), fonts-ipafont-mincho,
   libffi-dev, 
   zlib1g-dev, libattr1-dev, libpng-dev, libjpeg-dev, libgif-dev, libsctp-dev [linux-any],
-  libpulse-dev (>= 0.9.12),
   libnss3-dev (>= 2:3.17.1), systemtap-sdt-dev,
-  mauve, xvfb, xauth, xfonts-base, libgl1-mesa-dri [!x32], twm | metacity, twm | dbus-x11, x11-xkb-utils,
 Standards-Version: 3.9.8
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7
 
 Package: openjdk-7-jdk
-Architecture: alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
@@ -36,12 +39,12 @@ Description: OpenJDK Development Kit (JDK)
  from the IcedTea project.
 
 Package: openjdk-7-jre-headless
-Architecture: alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
 Pre-Depends: ${dpkg:Depends}, ${multiarch:Depends}
 Depends: ${jredefault:Depends}, ${cacert:Depends}, ${tzdata:Depends}, ${jcommon:Depends}, ${dlopenhl:Depends}, ${mountpoint:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Recommends: ${dlopenhl:Recommends}, ${jamvm:Recommends}
-Suggests: ${jamvm:Suggests}, libnss-mdns, sun-java6-fonts, fonts-dejavu-extra, fonts-ipafont-gothic, fonts-ipafont-mincho, ttf-wqy-microhei | ttf-wqy-zenhei, fonts-indic,
+Suggests: ${jamvm:Suggests}, libnss-mdns, sun-java6-fonts, fonts-dejavu-extra, fonts-ipafont-gothic, fonts-ipafont-mincho, ttf-wqy-microhei | ttf-wqy-zenhei, ttf-indic-fonts, fonts-indic,
 Provides: java-runtime-headless, java2-runtime-headless, java5-runtime-headless, java6-runtime-headless, java7-runtime-headless, ${defaultvm:Provides}, ${jvm:Provides}
 Replaces: openjdk-7-jre-lib (<< 7u45-2.4.3-1)
 Conflicts: ${multiarch:Conflicts}
@@ -55,7 +58,7 @@ Description: OpenJDK Java runtime, using ${vm:Name} (headless)
  from the IcedTea project.
 
 Package: openjdk-7-jre
-Architecture: alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre-headless (= ${binary:Version}), ${xandsound:Depends}, ${shlibs:Depends}, ${dlopenjre:Depends}, ${misc:Depends}, ${dep:bridge}
@@ -88,7 +91,7 @@ Description: OpenJDK Java runtime (architecture independent libraries)
  This is a transitional package. You can safely remove it.
 
 Package: openjdk-7-demo
-Architecture: alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Priority: extra
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
@@ -131,7 +134,7 @@ Description: OpenJDK Development Kit (JDK) documentation
  from the IcedTea project.
 
 Package: openjdk-7-dbg
-Architecture: alpha amd64 armel armhf arm64 i386 ia64 lpia mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
+Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
 Priority: extra
 Section: debug
@@ -149,7 +152,7 @@ Description: Java runtime based on OpenJDK (debugging symbols)
  from the IcedTea project.
 
 Package: icedtea-7-jre-jamvm
-Architecture: amd64 armel armhf i386 lpia powerpc kfreebsd-i386 kfreebsd-amd64
+Architecture: amd64 armel armhf i386 powerpc kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
 Priority: extra
 Pre-Depends: ${dpkg:Depends}
@@ -162,7 +165,7 @@ Description: Alternative JVM for OpenJDK, using JamVM
  The VM is started with the option `-jamvm'. See the README.Debian for details.
 
 Package: openjdk-7-jre-zero
-Architecture: amd64 i386 lpia ppc64 ppc64el kfreebsd-amd64 kfreebsd-i386 
+Architecture: amd64 i386 ppc64 ppc64el kfreebsd-amd64 kfreebsd-i386 
 Multi-Arch: same
 Priority: extra
 Pre-Depends: ${dpkg:Depends}

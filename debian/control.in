@@ -3,18 +3,21 @@ Section: java
 Priority: optional
 Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
 Uploaders: Matthias Klose <doko@ubuntu.com>, Damien Raude-Morvan <drazzib@debian.org>
-Build-Depends: debhelper (>= 5),
+Build-Depends: debhelper (>= 9),
   m4, lsb-release, wget, zip, unzip, sharutils,
   gawk, cpio, pkg-config, procps, time, wdiff,
-  @bd_fastjar@ @bd_compress@ @bd_autotools@
-  @bd_ant@ @bd_jamvm@ @bd_gcc@
+  xvfb, xauth, xfonts-base, libgl1-mesa-dri [!x32],
+  xfwm4, dbus-x11, x11-xkb-utils,
+  fastjar (>= 2:0.96-0ubuntu2), ant, ant-optional,
+  libpulse-dev (>= 0.9.12),
+  mauve,
+  @bd_compress@ @bd_autotools@
+  @bd_jamvm@ @bd_gcc@
   @bd_bootstrap@
   @bd_openjdk@
   @bd_zero@ @bd_shark@
   @bd_syslibs@
-  @bd_pulsejava@
   @bd_nss@ @bd_systemtap@
-  @bd_mauve@ @bd_xvfb@
 Standards-Version: 3.9.8
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7

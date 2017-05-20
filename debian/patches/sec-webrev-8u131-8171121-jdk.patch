@@ -1,0 +1,75 @@
+# HG changeset patch
+# User rpatil
+# Date 1482748245 -19800
+#      Mon Dec 26 16:00:45 2016 +0530
+# Node ID 1f2ff3f1882a40f61fb15f99a21b7f2bd3b0d7d1
+# Parent  5e42dd6568548139b4a5223cfed142c93fe1b0d6
+8171121: Enhancing jar checking
+Reviewed-by: ascarpino
+
+--- openjdk/jdk/src/share/lib/security/java.security-linux.orig
++++ openjdk/jdk/src/share/lib/security/java.security-linux
+@@ -474,7 +474,7 @@ jdk.certpath.disabledAlgorithms=MD2, MD5
+ # implementation. It is not guaranteed to be examined and used by other
+ # implementations.
+ #
+-jdk.jar.disabledAlgorithms=MD2, RSA keySize < 1024
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024
+ 
+ # Algorithm restrictions for Secure Socket Layer/Transport Layer Security
+ # (SSL/TLS) processing
+--- openjdk/jdk/src/share/lib/security/java.security-macosx.orig
++++ openjdk/jdk/src/share/lib/security/java.security-macosx
+@@ -478,7 +478,7 @@ jdk.certpath.disabledAlgorithms=MD2, MD5
+ # implementation. It is not guaranteed to be examined and used by other
+ # implementations.
+ #
+-jdk.jar.disabledAlgorithms=MD2, RSA keySize < 1024
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024
+ 
+ # Algorithm restrictions for Secure Socket Layer/Transport Layer Security
+ # (SSL/TLS) processing
+--- openjdk/jdk/src/share/lib/security/java.security-solaris.orig
++++ openjdk/jdk/src/share/lib/security/java.security-solaris
+@@ -477,7 +477,7 @@ jdk.certpath.disabledAlgorithms=MD2, MD5
+ # implementation. It is not guaranteed to be examined and used by other
+ # implementations.
+ #
+-jdk.jar.disabledAlgorithms=MD2, RSA keySize < 1024
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024
+ 
+ # Algorithm restrictions for Secure Socket Layer/Transport Layer Security
+ # (SSL/TLS) processing
+--- openjdk/jdk/src/share/lib/security/java.security-windows.orig
++++ openjdk/jdk/src/share/lib/security/java.security-windows
+@@ -478,7 +478,7 @@ jdk.certpath.disabledAlgorithms=MD2, MD5
+ # implementation. It is not guaranteed to be examined and used by other
+ # implementations.
+ #
+-jdk.jar.disabledAlgorithms=MD2, RSA keySize < 1024
++jdk.jar.disabledAlgorithms=MD2, MD5, RSA keySize < 1024
+ 
+ # Algorithm restrictions for Secure Socket Layer/Transport Layer Security
+ # (SSL/TLS) processing
+--- openjdk/jdk/test/sun/security/tools/jarsigner/TimestampCheck.java.orig
++++ openjdk/jdk/test/sun/security/tools/jarsigner/TimestampCheck.java
+@@ -60,7 +60,7 @@ import sun.security.x509.X500Name;
+ 
+ /*
+  * @test
+- * @bug 6543842 6543440 6939248 8009636 8024302 8163304 8169911 8169688
++ * @bug 6543842 6543440 6939248 8009636 8024302 8163304 8169911 8169688 8171121
+  * @summary checking response of timestamp
+  * @modules java.base/sun.security.pkcs
+  *          java.base/sun.security.timestamp
+@@ -348,8 +348,8 @@ public class TimestampCheck {
+                         .shouldHaveExitValue(0);
+                 checkTimestamp("tsaalg.jar", defaultPolicyId, "SHA-1");
+ 
+-                sign("weak", "-digestalg", "MD2",
+-                                "-sigalg", "MD2withRSA", "-tsadigestalg", "MD2")
++                sign("weak", "-digestalg", "MD5",
++                                "-sigalg", "MD5withRSA", "-tsadigestalg", "MD5")
+                         .shouldHaveExitValue(0);
+                 checkWeak("weak.jar");
+ 

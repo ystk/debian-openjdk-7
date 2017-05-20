@@ -1,0 +1,62 @@
+# HG changeset patch
+# User rpatil
+# Date 1488203357 -19800
+#      Mon Feb 27 19:19:17 2017 +0530
+# Node ID f672cb804684d14e768584ff2eff8168bacd5798
+# Parent  81ddd5fc5a4ec4445daa4dfce18fa9af9e2b5e10
+8171533: Better email transfer
+Reviewed-by: dfuchs, chegar, vtewari
+
+--- openjdk/jdk/src/share/classes/sun/net/smtp/SmtpClient.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/smtp/SmtpClient.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1995, 2003, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1995, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -43,6 +43,7 @@ import sun.net.TransferProtocolClient;
+ 
+ public class SmtpClient extends TransferProtocolClient {
+ 
++    private static int DEFAULT_SMTP_PORT = 25;
+     String mailhost;
+     SmtpPrintStream message;
+ 
+@@ -74,6 +75,10 @@ public class SmtpClient extends Transfer
+     }
+ 
+     public void to(String s) throws IOException {
++        if (s.indexOf('\n') != -1) {
++            throw new IOException("Illegal SMTP command",
++                    new IllegalArgumentException("Illegal carriage return"));
++        }
+         int st = 0;
+         int limit = s.length();
+         int pos = 0;
+@@ -116,16 +121,21 @@ public class SmtpClient extends Transfer
+     }
+ 
+     public void from(String s) throws IOException {
+-        if (s.startsWith("<"))
++        if (s.indexOf('\n') != -1) {
++            throw new IOException("Illegal SMTP command",
++                    new IllegalArgumentException("Illegal carriage return"));
++        }
++        if (s.startsWith("<")) {
+             issueCommand("mail from: " + s + "\r\n", 250);
+-        else
++        } else {
+             issueCommand("mail from: <" + s + ">\r\n", 250);
++        }
+     }
+ 
+     /** open a SMTP connection to host <i>host</i>. */
+     private void openServer(String host) throws IOException {
+         mailhost = host;
+-        openServer(mailhost, 25);
++        openServer(mailhost, DEFAULT_SMTP_PORT);
+         issueCommand("helo "+InetAddress.getLocalHost().getHostName()+"\r\n", 250);
+     }
+ 

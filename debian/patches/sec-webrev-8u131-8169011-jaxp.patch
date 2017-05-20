@@ -1,0 +1,128 @@
+# HG changeset patch
+# User aefimov
+# Date 1484913000 -10800
+#      Fri Jan 20 14:50:00 2017 +0300
+# Node ID 756b7a2f20ccab61fd7d744676bbaa1982170958
+# Parent  1dae4c4b8b400b05c8c91565edaa185530b4e54b
+8169011: Resizing XML parse trees
+Reviewed-by: joehw
+
+--- openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XML11NSDocumentScannerImpl.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XML11NSDocumentScannerImpl.java
+@@ -1,13 +1,14 @@
+ /*
+- * Copyright (c) 2015, 2016, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+  */
+ 
+ /*
+- * Copyright 2005 The Apache Software Foundation.
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License.  You may obtain a copy of the License at
+  *
+  *      http://www.apache.org/licenses/LICENSE-2.0
+  *
+@@ -136,7 +137,7 @@ public class XML11NSDocumentScannerImpl
+         if (DEBUG_START_END_ELEMENT)
+             System.out.println(">>> scanStartElementNS()");
+                 // Note: namespace processing is on by default
+-        fEntityScanner.scanQName(fElementQName, NameType.ATTRIBUTE);
++        fEntityScanner.scanQName(fElementQName, NameType.ELEMENTSTART);
+         // REVISIT - [Q] Why do we need this local variable? -- mrglavas
+         String rawname = fElementQName.rawname;
+         if (fBindNamespaces) {
+@@ -346,7 +347,7 @@ public class XML11NSDocumentScannerImpl
+     protected void scanStartElementName ()
+         throws IOException, XNIException {
+         // Note: namespace processing is on by default
+-        fEntityScanner.scanQName(fElementQName, NameType.ATTRIBUTE);
++        fEntityScanner.scanQName(fElementQName, NameType.ELEMENTSTART);
+         // Must skip spaces here because the DTD scanner
+         // would consume them at the end of the external subset.
+         fSawSpace = fEntityScanner.skipSpaces();
+@@ -572,7 +573,7 @@ public class XML11NSDocumentScannerImpl
+             System.out.println(">>> scanAttribute()");
+ 
+         // name
+-        fEntityScanner.scanQName(fAttributeQName, NameType.ATTRIBUTE);
++        fEntityScanner.scanQName(fAttributeQName, NameType.ATTRIBUTENAME);
+ 
+         // equals
+         fEntityScanner.skipSpaces();
+--- openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLDTDScannerImpl.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLDTDScannerImpl.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003, 2016, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2003, 2017, Oracle and/or its affiliates. All rights reserved.
+  */
+ 
+ /*
+@@ -1208,7 +1208,7 @@ implements XMLDTDScanner, XMLComponent,
+ 
+         // definitions
+         while (!fEntityScanner.skipChar('>', null)) {
+-            String name = fEntityScanner.scanName(NameType.ATTRIBUTE);
++            String name = fEntityScanner.scanName(NameType.ATTRIBUTENAME);
+             if (name == null) {
+                 reportFatalError("AttNameRequiredInAttDef",
+                 new Object[]{elName});
+@@ -1352,7 +1352,7 @@ implements XMLDTDScanner, XMLComponent,
+             fMarkUpDepth++;
+             do {
+                 skipSeparator(false, !scanningInternalSubset());
+-                String aName = fEntityScanner.scanName(NameType.ATTRIBUTE);
++                String aName = fEntityScanner.scanName(NameType.ATTRIBUTENAME);
+                 if (aName == null) {
+                     reportFatalError("MSG_NAME_REQUIRED_IN_NOTATIONTYPE",
+                     new Object[]{elName, atName});
+--- openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLNSDocumentScannerImpl.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLNSDocumentScannerImpl.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003, 2016, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2003, 2017, Oracle and/or its affiliates. All rights reserved.
+  */
+ 
+ /*
+@@ -411,7 +411,7 @@ public class XMLNSDocumentScannerImpl
+         if (DEBUG_START_END_ELEMENT) System.out.println(this.getClass().toString() +">>> scanAttribute()");
+ 
+         // name
+-        fEntityScanner.scanQName(fAttributeQName, NameType.ATTRIBUTE);
++        fEntityScanner.scanQName(fAttributeQName, NameType.ATTRIBUTENAME);
+ 
+         // equals
+         fEntityScanner.skipSpaces();
+--- openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLStreamReaderImpl.java.orig
++++ openjdk/jaxp/src/com/sun/org/apache/xerces/internal/impl/XMLStreamReaderImpl.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2005, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -562,6 +562,14 @@ public class XMLStreamReaderImpl impleme
+                 switchToXML11Scanner();
+             }
+ 
++            if (fEventType == XMLStreamConstants.CHARACTERS ||
++                    fEventType == XMLStreamConstants.ENTITY_REFERENCE ||
++                    fEventType == XMLStreamConstants.PROCESSING_INSTRUCTION ||
++                    fEventType == XMLStreamConstants.COMMENT ||
++                    fEventType == XMLStreamConstants.CDATA) {
++                    fEntityScanner.checkNodeCount(fEntityScanner.fCurrentEntity);
++            }
++
+             return fEventType;
+         } catch (IOException ex) {
+             // if this error occured trying to resolve the external DTD subset

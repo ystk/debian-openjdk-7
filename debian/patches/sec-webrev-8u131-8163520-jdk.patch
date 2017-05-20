@@ -1,0 +1,226 @@
+# HG changeset patch
+# User dfuchs
+# Date 1481307487 0
+#      Fri Dec 09 18:18:07 2016 +0000
+# Node ID bea5b22daf5ddd941f3bcbf7a4e5fc5244ceb788
+# Parent  03c14a8af52c4dbc67000ebdf89e8ef2a35e60df
+8163520: Reuse cache entries
+Reviewed-by: chegar, aefimov
+
+--- openjdk/jdk/src/share/classes/sun/net/www/http/HttpClient.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/www/http/HttpClient.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1994, 2013, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1994, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -98,7 +98,15 @@ public class HttpClient extends NetworkC
+     // from previous releases.
+     private static boolean retryPostProp = true;
+ 
++    /* Value of the system property jdk.ntlm.cache;
++       if false, then NTLM connections will not be cached.
++       The default value is 'true'. */
++    private static final boolean cacheNTLMProp;
++
+     volatile boolean keepingAlive = false;     /* this is a keep-alive connection */
++    volatile boolean disableKeepAlive;/* keep-alive has been disabled for this
++                                         connection - this will be used when
++                                         recomputing the value of keepingAlive */
+     int keepAliveConnections = -1;    /* number of keep-alives left */
+ 
+     /**Idle timeout value, in milliseconds. Zero means infinity,
+@@ -149,6 +157,9 @@ public class HttpClient extends NetworkC
+         String retryPost = java.security.AccessController.doPrivileged(
+             new sun.security.action.GetPropertyAction("sun.net.http.retryPost"));
+ 
++        String cacheNTLM = java.security.AccessController.doPrivileged(
++            new sun.security.action.GetPropertyAction("jdk.ntlm.cache"));
++
+         if (keepAlive != null) {
+             keepAliveProp = Boolean.valueOf(keepAlive).booleanValue();
+         } else {
+@@ -157,9 +168,15 @@ public class HttpClient extends NetworkC
+ 
+         if (retryPost != null) {
+             retryPostProp = Boolean.valueOf(retryPost).booleanValue();
+-        } else
+-            retryPostProp = true;
++        } else {
++             retryPostProp = true;
++        }
+ 
++        if (cacheNTLM != null) {
++            cacheNTLMProp = Boolean.parseBoolean(cacheNTLM);
++        } else {
++            cacheNTLMProp = true;
++        }
+     }
+ 
+     /**
+@@ -694,6 +711,7 @@ public class HttpClient extends NetworkC
+                 nread += r;
+             }
+             String keep=null;
++            String authenticate=null;
+             ret = b[0] == 'H' && b[1] == 'T'
+                     && b[2] == 'T' && b[3] == 'P' && b[4] == '/' &&
+                 b[5] == '1' && b[6] == '.';
+@@ -722,17 +740,37 @@ public class HttpClient extends NetworkC
+                  */
+                 if (usingProxy) { // not likely a proxy will return this
+                     keep = responses.findValue("Proxy-Connection");
++                    authenticate = responses.findValue("Proxy-Authenticate");
+                 }
+                 if (keep == null) {
+                     keep = responses.findValue("Connection");
++                    authenticate = responses.findValue("WWW-Authenticate");
+                 }
++
++                // 'disableKeepAlive' starts with the value false.
++                // It can transition from false to true, but once true
++                // it stays true.
++                // If cacheNTLMProp is false, and disableKeepAlive is false,
++                // then we need to examine the response headers to figure out
++                // whether we are doing NTLM authentication. If we do NTLM,
++                // and cacheNTLMProp is false, than we can't keep this connection
++                // alive: we will switch disableKeepAlive to true.
++                boolean canKeepAlive = !disableKeepAlive;
++                if (canKeepAlive && cacheNTLMProp == false && authenticate != null) {
++                    authenticate = authenticate.toLowerCase(Locale.US);
++                    canKeepAlive = !authenticate.startsWith("ntlm ");
++                }
++                disableKeepAlive |= !canKeepAlive;
++
+                 if (keep != null && keep.toLowerCase(Locale.US).equals("keep-alive")) {
+                     /* some servers, notably Apache1.1, send something like:
+                      * "Keep-Alive: timeout=15, max=1" which we should respect.
+                      */
+-                    HeaderParser p = new HeaderParser(
++                    if (disableKeepAlive) {
++                        keepAliveConnections = 1;
++                    } else {
++                        HeaderParser p = new HeaderParser(
+                             responses.findValue("Keep-Alive"));
+-                    if (p != null) {
+                         /* default should be larger in case of proxy */
+                         keepAliveConnections = p.findInt("max", usingProxy?50:5);
+                         keepAliveTimeout = p.findInt("timeout", usingProxy?60:5);
+@@ -742,7 +780,7 @@ public class HttpClient extends NetworkC
+                      * We're talking 1.1 or later. Keep persistent until
+                      * the server says to close.
+                      */
+-                    if (keep != null) {
++                    if (keep != null || disableKeepAlive) {
+                         /*
+                          * The only Connection token we understand is close.
+                          * Paranoia: if there is any Connection header then
+@@ -824,7 +862,7 @@ public class HttpClient extends NetworkC
+                 keepAliveConnections = 1;
+                 keepingAlive = false;
+             } else {
+-                keepingAlive = true;
++                keepingAlive = !disableKeepAlive;
+             }
+             failedOnce = false;
+         } else {
+@@ -857,7 +895,7 @@ public class HttpClient extends NetworkC
+                 (cl >= 0 ||
+                  code == HttpURLConnection.HTTP_NOT_MODIFIED ||
+                  code == HttpURLConnection.HTTP_NO_CONTENT)) {
+-                keepingAlive = true;
++                keepingAlive = !disableKeepAlive;
+                 failedOnce = false;
+             } else if (keepingAlive) {
+                 /* Previously we were keeping alive, and now we're not.  Remove
+--- openjdk/jdk/src/share/classes/sun/net/www/protocol/http/AuthenticationInfo.java.orig
++++ openjdk/jdk/src/share/classes/sun/net/www/protocol/http/AuthenticationInfo.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1995, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1995, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -62,8 +62,7 @@ public abstract class AuthenticationInfo
+      * repeatedly, via the Authenticator. Default is false, which means that this
+      * behavior is switched off.
+      */
+-    static boolean serializeAuth;
+-
++    static final boolean serializeAuth;
+     static {
+         serializeAuth = java.security.AccessController.doPrivileged(
+             new sun.security.action.GetBooleanAction(
+@@ -103,6 +102,16 @@ public abstract class AuthenticationInfo
+     public String getProtocolScheme() {
+         return protocol;
+     }
++    /**
++     * Whether we should cache this instance in the AuthCache.
++     * This method returns {@code true} by default.
++     * Subclasses may override this method to add
++     * additional restrictions.
++     * @return {@code true} by default.
++     */
++    protected boolean useAuthCache() {
++        return true;
++    }
+ 
+     /**
+      * requests is used to ensure that interaction with the
+@@ -339,9 +348,11 @@ public abstract class AuthenticationInfo
+      */
+     void addToCache() {
+         String key = cacheKey(true);
+-        cache.put(key, this);
+-        if (supportsPreemptiveAuthorization()) {
+-            cache.put(cacheKey(false), this);
++        if (useAuthCache()) {
++            cache.put(key, this);
++            if (supportsPreemptiveAuthorization()) {
++                cache.put(cacheKey(false), this);
++            }
+         }
+         endAuthRequest(key);
+     }
+--- openjdk/jdk/src/solaris/classes/sun/net/www/protocol/http/ntlm/NTLMAuthentication.java.orig
++++ openjdk/jdk/src/solaris/classes/sun/net/www/protocol/http/ntlm/NTLMAuthentication.java
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2005, 2011, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2005, 2016, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -73,11 +73,15 @@ public class NTLMAuthentication extends
+ 
+     private String hostname;
+     private static String defaultDomain; /* Domain to use if not specified by user */
++    private static final boolean ntlmCache;  /* Whether cache is enabled for NTLM */
+ 
+     static {
+         defaultDomain = java.security.AccessController.doPrivileged(
+             new sun.security.action.GetPropertyAction("http.auth.ntlm.domain", ""));
+-    };
++        String ntlmCacheProp = java.security.AccessController.doPrivileged(
++            new sun.security.action.GetPropertyAction("jdk.ntlm.cache", "true"));
++        ntlmCache = Boolean.parseBoolean(ntlmCacheProp);
++    }
+ 
+     public static boolean supportsTransparentAuth () {
+         return false;
+@@ -166,6 +170,11 @@ public class NTLMAuthentication extends
+         init (pw);
+     }
+ 
++    @Override
++    protected boolean useAuthCache() {
++        return ntlmCache && super.useAuthCache();
++    }
++
+     /**
+      * @return true if this authentication supports preemptive authorization
+      */

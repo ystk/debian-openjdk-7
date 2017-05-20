@@ -225,8 +225,8 @@ host_triplet = @host@
 @ENABLE_JAVA_DEBUGINFO_TRUE@am__append_44 = \
 @ENABLE_JAVA_DEBUGINFO_TRUE@	DEBUG_CLASSFILES="true"
 
-@ENABLE_INFINALITY_TRUE@am__append_45 = \
-@ENABLE_INFINALITY_TRUE@       INFINALITY_SUPPORT="true"
+@ENABLE_IMPROVED_FONT_RENDERING_TRUE@am__append_45 = \
+@ENABLE_IMPROVED_FONT_RENDERING_TRUE@	IMPROVED_FONT_RENDERING="true"
 
 @USE_ALT_CACERTS_FILE_TRUE@am__append_46 = \
 @USE_ALT_CACERTS_FILE_TRUE@	ALT_CACERTS_FILE="${CACERTS_FILE}"
@@ -579,7 +579,6 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -588,21 +587,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-JDK_UPDATE_VERSION = 121
+JDK_UPDATE_VERSION = 131
 BUILD_VERSION = b00
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
-CORBA_CHANGESET = 9e002eaf26ed
-JAXP_CHANGESET = 3369fa5a875b
-JAXWS_CHANGESET = 26bcf28b3a60
-JDK_CHANGESET = 52225839bbea
-LANGTOOLS_CHANGESET = 545e512eb4de
-OPENJDK_CHANGESET = 653c2662034d
-CORBA_SHA256SUM = 2f728daac0ca88e7097a223f8c1ceaff8b4597e4622c5e365931edb25aa04538
-JAXP_SHA256SUM = ba1ba48e9ad9ee36df344e6e283f0f7a9f8aa9cee223c8ea2f2ee711092091fc
-JAXWS_SHA256SUM = 753093e71ac609b9350bf16daf230fdc2f873cd573428883448098e39e4c041a
-JDK_SHA256SUM = ec1118f52eb208a529e99ec1a64351b737bc0f892e05f0ffd4327b4be533e761
-LANGTOOLS_SHA256SUM = 004ec63ebdd0b6182c2bde3e190bb745a0d932ad7b05901a4376a04f06158813
-OPENJDK_SHA256SUM = e6bea22acb9e89e200fdc2a4a7a04ecee042f3ea9f9a49bab739fdd2598e4ce3
+CORBA_CHANGESET = 737fd3fbf139
+JAXP_CHANGESET = aa1c302a99fb
+JAXWS_CHANGESET = ea96df8beff4
+JDK_CHANGESET = ce87b1399385
+LANGTOOLS_CHANGESET = dd8e22d986c8
+OPENJDK_CHANGESET = 2dd04ef37829
+CORBA_SHA256SUM = 48df47fac80597978951125fda10366b4f65b73b322abb80aefbe1ec58227989
+JAXP_SHA256SUM = bf4e27af83fc88353986b906a0ac245658cf9d7b34629254e5e21b4aeff0621f
+JAXWS_SHA256SUM = a5d499825c2b7745b73b5e3596057013503bd1df3d60d04cd924e02b25313ca3
+JDK_SHA256SUM = 44feb033ad9ae3d4b10f6561f1743fe28a13bbcacd150f2f33f5ef116fece7c5
+LANGTOOLS_SHA256SUM = 3eb33811bf1f8a56ae19078e35da835273e828293bc355b5b04a416bd3c6c96a
+OPENJDK_SHA256SUM = 444c7dcfbcc665b4bb73b7c8b8256ac4d55fdb614ebdc3684a34d5f274684421
 DROP_URL = http://icedtea.classpath.org/download/drops
 CACAO_VERSION = c182f119eaad
 CACAO_SHA256SUM = eade43f6c5da8b3b5a64e6b206b624eaca88539f80101d7164d6aa426eb590b1
@@ -3584,6 +3583,8 @@ install-data-local:
 	$(INSTALL_DATA) $(BUILD_SDK_DIR)/jre/lib/security/java.security \
 	  $(DESTDIR)${prefix}/jre/lib/security
 	$(INSTALL_DATA) $(BUILD_SDK_DIR)/jre/lib/security/nss.cfg \
+	  $(DESTDIR)${prefix}/jre/lib/security
+	$(INSTALL_DATA) $(BUILD_SDK_DIR)/jre/lib/security/blacklisted.certs \
 	  $(DESTDIR)${prefix}/jre/lib/security
 	for files in $(BUILD_SDK_DIR)/jre/lib/security/*.jar; do \
 	  $(call install_file,$${files},$(DESTDIR)${prefix}/jre/lib/security,$(INSTALL_DATA)) ; \

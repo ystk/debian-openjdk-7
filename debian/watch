@@ -6,7 +6,7 @@
 # GnuPG >= 2.1 is required to be able to handle the IcedTea key.
 
 # Compulsory line, this is a version 4 file.
-version=3
+version=4
 
 # Get IcedTea tarball
 # IcedTea has no 7uXXX version. IcedTea based on OpenJDK 7 based
@@ -20,4 +20,7 @@ version=3
 # inside IcedTea's tarball.
 opts="dversionmangle=s/^7u\d+-//,uversionmangle=s/^[^2]\./0./,pgpsigurlmangle=s%$%.sig%" \
     http://icedtea.classpath.org/download/source/icedtea-([\d\.]*).tar.xz \
-    debian debian/repack
+    debian
+opts="component=icedtea-sound,pgpsigurlmangle=s%$%.sig%" \
+    http://icedtea.wildebeest.org/download/source/icedtea-sound-([\d\.]+).tar.xz \
+    1.0 debian/repack
