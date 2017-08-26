@@ -1,4 +1,4 @@
-AC_INIT([icedtea], [2.6.9], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [2.6.11], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.9 tar-pax foreign])
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_FILES([Makefile])
@@ -42,6 +42,7 @@ AC_CHECK_TOOL([LDD], [ldd])
 dnl OpenJDK's README-builds.html lists gawk as a build dependency so we
 dnl check for it explicitly rather than using AC_PROG_AWK.
 IT_FIND_TOOL([GAWK], [gawk])
+IT_FIND_TOOL([PERL], [perl])
 IT_CHECK_FOR_MERCURIAL
 IT_OBTAIN_HG_REVISIONS
 AC_PATH_TOOL([LSB_RELEASE],[lsb_release])
@@ -328,11 +329,6 @@ public:
 ]])], [AC_MSG_RESULT([yes])], [SDT_H_FOUND='no'; AC_MSG_WARN([systemtap sdt.h or g++ too old])])
 AC_LANG_POP([C++])
 if test "x${SDT_H_FOUND}" = "xyes"; then
- AC_PATH_TOOL([PERL],[perl])
- if test x"${PERL}" = x ; then
-   AC_MSG_WARN([Perl not found in PATH; SystemTap tests will not be able to run])
- fi
- AC_SUBST(PERL)
  AC_PATH_TOOL([STAP],[stap])
  if test x"${STAP}" = x ; then
    AC_MSG_WARN([stap not found in PATH; SystemTap tests will not be able to run])

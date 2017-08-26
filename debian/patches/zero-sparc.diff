@@ -37,19 +37,22 @@ Index: openjdk/hotspot/src/share/vm/opto/output.cpp
      if (t->base() == Type::Long && OptoReg::is_reg(regnum)) {
        // For SPARC we have to swap high and low words for
        // long values stored in a single-register (g0-g7).
-Index: openjdk/hotspot/src/share/vm/opto/chaitin.hpp
-===================================================================
---- openjdk/hotspot/src/share/vm/opto/chaitin.hpp
-+++ openjdk/hotspot/src/share/vm/opto/chaitin.hpp
-@@ -293,7 +293,7 @@ public:
- // TEMPORARILY REPLACED WITH COMMAND LINE FLAG
- 
- //// !!!!! Magic Constants need to move into ad file
--#ifdef SPARC
-+#if defined(SPARC) && !defined(ZERO)
- //#define FLOAT_PRESSURE 30  /*     SFLT_REG_mask.Size() - 1 */
- //#define INT_PRESSURE   23  /* NOTEMP_I_REG_mask.Size() - 1 */
- #define FLOAT_INCREMENT(regs) regs
+## JDK-8011621 removed this part and while it was applied to 2.6.10
+## it was backed out on OpenJDK (see backport JDK-8160961) for
+## unknown reasons; keeping it in case IcedTea backs it out as well
+#Index: openjdk/hotspot/src/share/vm/opto/chaitin.hpp
+#===================================================================
+#--- openjdk/hotspot/src/share/vm/opto/chaitin.hpp
+#+++ openjdk/hotspot/src/share/vm/opto/chaitin.hpp
+#@@ -293,7 +293,7 @@ public:
+# // TEMPORARILY REPLACED WITH COMMAND LINE FLAG
+# 
+# //// !!!!! Magic Constants need to move into ad file
+#-#ifdef SPARC
+#+#if defined(SPARC) && !defined(ZERO)
+# //#define FLOAT_PRESSURE 30  /*     SFLT_REG_mask.Size() - 1 */
+# //#define INT_PRESSURE   23  /* NOTEMP_I_REG_mask.Size() - 1 */
+# #define FLOAT_INCREMENT(regs) regs
 Index: openjdk/hotspot/src/share/vm/opto/chaitin.cpp
 ===================================================================
 --- openjdk/hotspot/src/share/vm/opto/chaitin.cpp

@@ -1182,12 +1182,12 @@ Forwarded: no
 @@ -1039,7 +1039,7 @@ static int  openSocket(JNIEnv *env, int
  
  
- /** Linux, AIX **/
--#if !defined(__solaris__)
-+#if !defined(__solaris__) && !defined(__FreeBSD_kernel__)
+ /** Linux, AIX. For Solaris and BSD there are similar sections below. **/
+-#if !defined(__solaris__) && !defined(_ALLBSD_SOURCE)
++#if !defined(__solaris__) && !defined(_ALLBSD_SOURCE) && !defined(__FreeBSD_kernel__)
+ 
  /* Open socket for further ioct calls, try v4 socket first and
   * if it falls return v6 socket
-  */
 @@ -1771,7 +1771,11 @@ static int getMacAddress(JNIEnv *env, in
       * try the old way.
       */

@@ -9,9 +9,7 @@ Build-Depends: debhelper (>= 9),
   xvfb, xauth, xfonts-base, libgl1-mesa-dri [!x32],
   xfwm4, dbus-x11, x11-xkb-utils,
   fastjar (>= 2:0.96-0ubuntu2), ant, ant-optional,
-  libpulse-dev (>= 0.9.12),
-  mauve,
-  @bd_compress@ @bd_autotools@
+  libpulse-dev (>= 0.9.12), mauve, dh-autoreconf, quilt,
   @bd_jamvm@ @bd_gcc@
   @bd_bootstrap@
   @bd_openjdk@
@@ -30,7 +28,7 @@ Pre-Depends: ${dpkg:Depends}
 Depends: @basename@-jre (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libxt-dev
 Suggests: @basename@-demo, @basename@-source, visualvm
-Provides: java-sdk, java2-sdk, java5-sdk, java6-sdk, java7-sdk, java-compiler
+Provides: java-sdk, java2-sdk, java5-sdk, java6-sdk, java7-sdk, java-compiler, @basename@-jdk-headless
 Description: OpenJDK Development Kit (JDK)
  OpenJDK is a development environment for building applications,
  applets, and components using the Java programming language.

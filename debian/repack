@@ -43,23 +43,8 @@ fi
 package_name=$(dpkg-parsechangelog --show-field=Source)
 icedtea_version="$2"
 old_orig_file=$(ls ../${package_name}_${icedtea_version}.orig.tar* | head -n1)
-
 old_orig_file_name="$(basename ${old_orig_file})"
 deb_orig_path="$(dirname "${old_orig_file}")"
-
-temp_dir="$(mktemp -d -t)"
-exit_sigspecs="ERR EXIT SIGTERM SIGHUP SIGINT SIGQUIT"
-
-function cleanup_exit() {
-    exit_status=$?
-    trap - $exit_sigspecs
-
-    rm -rf "${temp_dir}"
-    printf "Cleaned up working directory ‘${temp_dir}’\n"
-
-    exit $exit_status
-}
-trap cleanup_exit $exit_sigspecs
 
 # get JDK update version
 printf "Get JDK update version from Makefile.am in upstream source ‘${old_orig_file}’:\n"
@@ -68,42 +53,38 @@ source <(tar -O -x -f "${old_orig_file}" --wildcards "*/Makefile.am" | grep "^JD
 # new debian version
 pkg_version=7u${JDK_UPDATE_VERSION}-${icedtea_version}
 
-# MUT tarballs
-tarball_basename="${package_name}_${pkg_version}.orig"
-itsound_basename="${tarball_basename}-icedtea-sound"
-drops_basename="${tarball_basename}-drops"
+# orig dir and tarball
+orig_basename="${package_name}-${pkg_version}.orig"
+openjdk_tarball="${deb_orig_path}/${package_name}_${pkg_version}.orig.tar.gz"
 
-# rename orig tarballs to add the openjdk update version
-if [ "${old_orig_file_name%%.tar.*}" != "${tarball_basename}" ]; then
-  printf "Add OpenJDK update version to orig tarballs:\n"
-  for f in $(ls ${old_orig_file%%.tar.*}*); do
-    new_orig_file="${f/$icedtea_version/$pkg_version}"
-    mv -v "$f" "${new_orig_file}"
-  done
+# do not overwrite existing orig file
+if [ -e "${openjdk_tarball}" ]; then
+  printf "ERROR: OpenJDK orig file exists at '${openjdk_tarball}'. Stopping now.\n"
+  exit 1
 fi
 
 # tarball directory
-# use environment variable if set otherwise download to temporary directory
-tarball_dir=${TARBALLDIR-${temp_dir}}
+tarball_dir="${deb_orig_path}/${orig_basename}"
+
+# Unpack IcedTea
+mkdir -p "${deb_orig_path}/${orig_basename}"
+tar -xf "${old_orig_file}" -C "${deb_orig_path}/${orig_basename}" --strip-components=1
 
 # Get OpenJDK+components, unpack, and repack the whole forest
 printf "Packing OpenJDK components together\n"
-pushd "${tarball_dir}"
-mkdir -p "${drops_basename}"
 
 printf "Fetching OpenJDK modules tarballs\n"
-wget -P ${drops_basename} -e robots=off -L -r -np -nd -N -A "*.tar.bz2" http://icedtea.wildebeest.org/download/drops/icedtea7/${icedtea_version}/
+wget -P "${deb_orig_path}/${orig_basename}" -e robots=off -L -r -np -nd -N -A "*.tar.bz2" http://icedtea.wildebeest.org/download/drops/icedtea7/${icedtea_version}/
 
 printf "Fetching JamVM tarball\n"
-wget -P ${drops_basename} -q -nd -N http://icedtea.classpath.org/download/drops/jamvm/jamvm-2.0.0.tar.gz
+wget -P "${deb_orig_path}/${orig_basename}" -q -nd -N http://icedtea.classpath.org/download/drops/jamvm/jamvm-2.0.0.tar.gz
 
-# pack all tarball modules together, later on icedtea will checksum them for us
-drops_tarball="${deb_orig_path}/${drops_basename}.tar.gz"
-printf "Packaging OpenJDK/JamVM/IcedTea-Sound drops tarballs to '${drops_tarball}'.\n"
-tar -caf "${drops_tarball}" "${drops_basename}"
+printf "Copying IcedTea Sound tarball\n"
+cp "${deb_orig_path}"/icedtea-sound-*.tar.xz "${deb_orig_path}/${orig_basename}"
 
-# done with tarballs, exit tarballdir
-popd
+# repack tarball 
+printf "Packaging IcedTea/OpenJDK/JamVM/IcedTea-Sound to '${deb_orig_path}/${orig_basename}'.\n"
+tar -caf "${openjdk_tarball}" -C "${deb_orig_path}" "${orig_basename}"
 
 printf "Done. Calling uupdate\n"
 uupdate --find --upstream-version ${pkg_version}

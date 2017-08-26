@@ -1,8 +1,102 @@
-openjdk-7 (7u131-2.6.9-2~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u151-2.6.11-1~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Wed, 17 May 2017 17:54:57 +0100
+ -- Moritz Muehlenhoff <jmm@debian.org>  Thu, 24 Aug 2017 10:01:34 +0200
+
+openjdk-7 (7u151-2.6.11-1) experimental; urgency=medium
+
+  * IcedTea release 2.6.11 (based on 7u151). Closes: #869816.
+  * Security fixes:
+    - S8163958, CVE-2017-10102: Improved garbage collection.
+    - S8167228: Update to libpng 1.6.28.
+    - S8169209, CVE-2017-10053: Improved image post-processing steps.
+    - S8169392, CVE-2017-10067: Additional jar validation steps.
+    - S8170966, CVE-2017-10081: Right parenthesis issue.
+    - S8172204, CVE-2017-10087: Better Thread Pool execution.
+    - S8172461, CVE-2017-10089: Service Registration Lifecycle.
+    - S8172465, CVE-2017-10090: Better handling of channel groups.
+    - S8172469, CVE-2017-10096: Transform Transformer Exceptions.
+    - S8173286, CVE-2017-10101: Better reading of text catalogs.
+    - S8173697, CVE-2017-10107: Less Active Activations.
+    - S8173770, CVE-2017-10074: Image conversion improvements.
+    - S8174098, CVE-2017-10110: Better image fetching.
+    - S8174105, CVE-2017-10108: Better naming attribution.
+    - S8174113, CVE-2017-10109: Better sourcing of code.
+    - S8174770: Check registry registration location.
+    - S8174873: Improved certificate processing.
+    - S8175106, CVE-2017-10115: Higher quality DSA operations.
+    - S8175110, CVE-2017-10118: Higher quality ECDSA operations.
+    - S8176055: JMX diagnostic improvements.
+    - S8176067, CVE-2017-10116: Proper directory lookup processing.
+    - S8176760, CVE-2017-10135: Better handling of PKCS8 material.
+    - S8178135, CVE-2017-10176: Additional elliptic curve support.
+    - S8181420, CVE-2017-10074: PPC: Image conversion improvements.
+    - S8182054, CVE-2017-10243: Improve wsdl support.
+    - S8183551, CVE-2017-10074, PR3423: AArch64: Image conversion improvements.
+    - S8184119, CVE-2017-10111: Incorrect return processing for the LF editor
+      of MethodHandles.permuteArguments.
+
+  [ Tiago Stürmer Daitx ]
+  * d/control.in:
+    - remove @bd_compress@ dependency.
+    - replace @bd_autotools@ with fixed dependencies.
+  * d/control.tests: package to hold all tests artifacts and logs.
+  * d/repack: fixed and simplified download script.
+  * d/rules:
+    - include openjdk-7-tests package on Ubuntu derivatives only.
+    - only save the full jtreg results when the openjdk-7-tests package
+      is being built, otherwise stick to old behaviour (keep compressed
+      test summaries + failed test results). Closes: #863007, #865533.
+    - only run the long jdk testsuite when default vm is a hotspot.
+    - only run the full testsuite for zero alternative vm on very fast
+      systems, otherwise stick to the hotspot testsuite to avoid long
+      build times.
+    - remove with_nss as all supported releases have it now.
+    - remove gcc/g++ configurations for EOL releases.
+    - keep libjpeg8 dependency on wheezy, replace it with libjpeg62-turbo
+      on other Debian releases and libjpeg-turbo8 on Ubuntu. Closes: #766601.
+    - remove old logic to depend on libcupsys2.
+    - always set rhino_source, all supported releases have dpkg > 1.16.2.
+    - remove bd_compress and pkg_compress as they haven't been used for
+      quite a while.
+    - remove with_wgy_zenhai logic, lenny is EOL.
+    - remove bd_autotools logic if/then, call dh_autoreconf and
+      dh_autoreconf_clean.
+    - simplify bootstrap dependency logic and remove EOL releases.
+    - remove EOL releases from gcc/g++ dependency logic.
+    - remove unused jamvm_defaults and simplify jamvm_archs logic.
+    - use ttf-indic-fonts for trusty, otherwise stick to fonts-indic.
+    - patch configure after dh_autoreconf call to include additional
+      /usr/lib/jvm directories; setting DEB_HOST_ARCH=alpha to check
+      if patches apply correctly fails because alpha requires a jdk for
+      bootstrap and IcedTea does not look into our usual directories.
+  * d/p/fontconfig-arphic-uming.diff: removed, not used since lenny.
+  * d/p/jdk-getAccessibleValue.diff: libatk-wrapper-java: File selection
+    dialog not refreshed when changing directory. Kindly provided by
+    Samuel Thibault. Closes: #827741.
+  * d/p/jdk-S8173783-fix-illegalargumentexception-regression.patch:
+    deleted, included in IcedTea 2.6.10.
+  * d/p/kfreebsd-support-jdk.diff: updated, was failing to apply due to
+    jdk changes in NetworkInterface.c.
+  * d/p/sec-webrev-8u131-*.patch: deleted, included in IcedTea 2.6.10.
+  * d/p/zero-sparc.diff: commented out chaitin.hpp hunk #1 as that #ifdef
+    has been removed by JDK-8011621 (backported by IcedTea 2.6.10); this 
+    was also backported to 7u131 through JDK-8160961 but then backed out,
+    better keep the hunk in case IcedTea decides to back it out as well.
+
+  [ Matthias Klose ]
+  * Build using gcc-6 on recent releases.
+  * Fix libjvm.so's .debug file names. Closes: #865749. LP: #1548434.
+
+ -- Matthias Klose <doko@ubuntu.com>  Wed, 23 Aug 2017 16:02:57 +0200
+
+openjdk-7 (7u131-2.6.9-3) experimental; urgency=medium
+
+  * Only include the failing tests in the packages, not the whole test world.
+  * openjdk-7-jdk: Provide openjdk-7-jdk-headless.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 20 May 2017 15:52:17 -0700
 
 openjdk-7 (7u131-2.6.9-2) experimental; urgency=high
 
