@@ -1,3 +1,199 @@
+2017-08-08  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2017-08-01  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.11.
+	* Makefile.am,
+	(JDK_UPDATE_VERSION): Bump to 141.
+	(BUILD_VERSION): Set to b01.
+	(CORBA_CHANGESET): Update to icedtea-2.6.11.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.11.
+	* hotspot.map.in: Update to icedtea-2.6.11.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add cases in
+	java.util.jar.Attributes, java.util.jar.JarVerifier,
+	javax.imageio.spi.ServiceRegistry,
+	sun.management.ConnectorAddressLink,
+	sun.management.counter.perf.PerfInstrumentation,
+	sun.management.Flag,
+	sun.management.GarbageCollectionNotifInfoCompositeData,
+	sun.management.HotspotCompilation,
+	sun.management.HotspotDiagnostic,
+	sun.management.HotspotThread,
+	sun.management.jmxremote.ConnectorBootstrap,
+	sun.management.ManagementFactoryHelper,
+	sun.management.MappedMXBeanType,
+	sun.management.NotificationEmitterSupport,
+	sun.management.RuntimeImpl,
+	sun.net.RegisterDomain,
+	sun.tools.jar.CommandLine,
+	sun.tools.jar.Manifest and sun.tools.jar.SignatureFile
+	* patches/boot/ecj-multicatch.patch:
+	Add cases in
+	com.sun.imageio.plugins.jpeg.JPEGImageReader,
+	sun.management.Agent,
+	sun.management.GarbageCollectionNotifInfoCompositeData,
+	sun.management.GcInfoCompositeData,
+	sun.rmi.server.UnicastRef, sun.rmi.server.UnicastServerRef,
+	javax.xml.transform.TransformerException,
+	com.sun.xml.internal.ws.util.xml.XmlUtil,
+	sun.rmi.registry.RegistryImpl_Skel and
+	sun.rmi.transport.DGCImpl_Stub
+	* patches/boot/ecj-stringswitch.patch: Regenerated.
+	* patches/boot/ecj-trywithresources.patch:
+	Add cases in
+	sun.management.jmxremote.ConnectorBootstrap.
+
+2017-08-01  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.11pre01.
+	* Makefile.am,
+	(CORBA_CHANGESET): Update to icedtea-2.6.11pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.11pre01.
+	* hotspot.map.in: Update to icedtea-2.6.11pre01.
+
+2017-06-05  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.11.
+	* configure.ac: Bump to 2.6.11pre00.
+
+2017-05-16  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2017-05-15  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3390: javac.in and javah.in should use @PERL@
+	rather than a hardcoded path
+	* javac.in: Use @PERL@.
+	* javah.in: Likewise.
+
+2017-05-10  Andrew John Hughes  <gnu.andrew@member.fsf.org>
+
+	PR3379: Perl should be mandatory
+	* NEWS: Updated.
+	* configure.ac:
+	Change Perl macro invocation to use IT_FIND_TOOL
+	and make it unconditional.
+
+2017-05-12  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.10.
+	(JDK_UPDATE_VERSION): Bump to 141.
+	(BUILD_VERSION): Bump to b02.
+	(CORBA_CHANGESET): Update to icedtea-2.6.10.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.10.
+	* hotspot.map.in: Update to icedtea-2.6.10.
+	* patches/boot/ecj-diamond.patch:
+	Add new cases in java.awt.Cursor,
+	java.awt.datatransfer.Clipboard,
+	java.awt.EventQueue, java.awt.MenuBar,
+	java.awt.Menu, java.awt.RenderingHints,
+	sun.net.www.protocol.http.NegotiateAuthentication,
+	com.sun.jndi.ldap.pool.Connections and
+	com.sun.jndi.ldap.pool.Pool.
+	* patches/boot/ecj-trywithresources.patch:
+	Add new case in sun.awt.SunToolkit.
+
+2017-04-03  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3349: Architectures unsupported by SystemTap
+	tapsets throw a parse error
+	Patch by David Smith <dsmith@redhat.com>
+	* AUTHORS: Add David Smith.
+	* NEWS: Updated.
+	* tapset/jstack.stp.in:
+	Call the error function if no architecture is matched.
+
+2017-03-15  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3347: jstack.stp should support AArch64
+	Patch by Andrew Dinn <adinn@redhat.com>
+	and Mark Wielaard <mjw@redhat.com>
+	* AUTHORS: Add Andrew Dinn.
+	* NEWS: Updated.
+	* tapset/jstack.stp.in:
+	Add AArch64 support.
+
+2017-04-26  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR2732: Raise javadoc memory limits for CACAO
+	again!
+	* NEWS: Updated.
+
+2015-11-30  James Le Cuirot  <chewi@gentoo.org>
+
+	PR2732: Raise javadoc memory limits for CACAO
+	again!
+	* patches/cacao/memory.patch: Increase memory
+	limits so a build with CACAO and doc generation
+	succeeds.
+
+2017-04-27  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to icedtea-2.6.10pre01.
+	* Makefile.am,
+	(CORBA_CHANGESET): Update to icedtea-2.6.10pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.10pre01.
+	* hotspot.map.in: Update to icedtea-2.6.10pre01.
+	* patches/boot/ecj-diamond.patch: Regenerated.
+	* patches/rh1022017.patch: Likewise.
+
+2017-04-03  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.10.
+	* configure.ac: Bump to 2.6.10pre00.
+
 2017-02-14  Andrew John Hughes  <gnu_andrew@member.fsf.org>
 
 	* NEWS: Set release date to today.

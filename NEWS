@@ -12,6 +12,190 @@ JEPX - http://openjdk.java.net/jeps/X
 
 CVE-XXXX-YYYY: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release 2.6.11 (2017-08-08):
+
+* Security fixes
+  - S8163958, CVE-2017-10102: Improved garbage collection
+  - S8167228: Update to libpng 1.6.28
+  - S8169209, CVE-2017-10053: Improved image post-processing steps
+  - S8169392, CVE-2017-10067: Additional jar validation steps
+  - S8170966, CVE-2017-10081: Right parenthesis issue
+  - S8172204, CVE-2017-10087: Better Thread Pool execution
+  - S8172461, CVE-2017-10089: Service Registration Lifecycle
+  - S8172465, CVE-2017-10090: Better handling of channel groups
+  - S8172469, CVE-2017-10096: Transform Transformer Exceptions
+  - S8173286, CVE-2017-10101: Better reading of text catalogs
+  - S8173697, CVE-2017-10107: Less Active Activations
+  - S8173770, CVE-2017-10074: Image conversion improvements
+  - S8174098, CVE-2017-10110: Better image fetching
+  - S8174105, CVE-2017-10108: Better naming attribution
+  - S8174113, CVE-2017-10109: Better sourcing of code
+  - S8174770: Check registry registration location
+  - S8174873: Improved certificate processing
+  - S8175106, CVE-2017-10115: Higher quality DSA operations
+  - S8175110, CVE-2017-10118: Higher quality ECDSA operations
+  - S8176055: JMX diagnostic improvements
+  - S8176067, CVE-2017-10116: Proper directory lookup processing
+  - S8176760, CVE-2017-10135: Better handling of PKCS8 material
+  - S8178135, CVE-2017-10176: Additional elliptic curve support
+  - S8181420, CVE-2017-10074: PPC: Image conversion improvements
+  - S8183551, CVE-2017-10074, PR3423: AArch64: Image conversion improvements
+  - S8184119, CVE-2017-10111: Incorrect return processing for the LF editor of MethodHandles.permuteArguments
+* Import of OpenJDK 7 u151 build 0
+  - S7117357: Warnings in sun.instrument, tools and other sun.* classes
+  - S7117570: Warnings in sun.mangement.* and its subpackages
+  - S7143230: fix warnings in java.util.jar, sun.tools.jar, zipfs demo, etc.
+  - S8022440: suppress deprecation warnings in sun.rmi
+  - S8024069: replace_in_map() should operate on parent maps
+  - S8026796: Make replace_in_map() on parent maps generic
+  - S8030787: [Parfait] JNI-related warnings from b119 for jdk/src/share/native/sun/awt/image
+  - S8030875: Macros for checking and returning on exceptions
+  - S8031737: CHECK_NULL and CHECK_EXCEPTION macros cleanup
+  - S8034912: backport of 8031737 to jdk8u breaks linux buld.
+  - S8035629: [parfait] JNI exc pending in jdk/src/windows/native/sun/windows/ShellFolder2.cpp
+  - S8037287: Windows build failed after JDK-8030787
+  - S8048703: ReplacedNodes dumps it's content to tty
+  - S8080492: [Parfait] Uninitialised variable in jdk/src/java/desktop/windows/native/libawt/
+  - S8139870: sun.management.LazyCompositeData.isTypeMatched() fails for composite types with items of ArrayType
+  - S8143377: Test PKCS8Test.java fails
+  - S8149450: LdapCtx.processReturnCode() throwing Null Pointer Exception
+  - S8155690: Update libPNG library to the latest up-to-date
+  - S8156804: Better constraint checking (sync with upstream version)
+  - S8162461: Hang due to JNI up-call made whilst holding JNI critical lock
+  - S8165231: java.nio.Bits.unaligned() doesn't return true on ppc
+  - S8165367: Additional tests for JEP 288: Disable SHA-1 Certificates
+  - S8173145: Menu is activated after using mnemonic Alt/Key combination
+  - S8174164: SafePointNode::_replaced_nodes breaks with irreducible loops
+  - S8175097: [TESTBUG] 8174164 fix missed the test
+  - S8175251: Failed to load RSA private key from pkcs12
+  - S8176731: JCK tests in api/javax_xml/transform/ spec conformance started failing after 8172469
+  - S8176769: Remove accidental spec change in jdk8u
+  - S8177449: (tz) Support tzdata2017b
+  - S8178996: [macos] JComboBox doesn't display popup in mixed JavaFX Swing Application on 8u131 and Mac OS 10.12
+  - S8179014: JFileChooser with Windows look and feel crashes on win 10
+  - S8179887: Build failure with glibc >= 2.24: error: 'int readdir_r(DIR*, dirent*, dirent**)' is deprecated
+  - S8180582: The bind to rmiregistry is rejected by registryFilter even though registryFilter is set
+  - S8181591: 8u141 L10n resource file update
+  - S8182054: Improve wsdl support
+  - S8184993: Jar file verification failing with SecurityException: digest missing xxx
+  - S8185501: Missing import in JAXP code
+  - S8185502: No overflow operator on OpenJDK 7
+* Import of OpenJDK 7 u151 build 1
+  - S8185716: OpenJDK 7 PPC64 port uses a different ins_encode format in ppc.ad
+* Backports
+  - S7177216, PR3398, RH1446700: native2ascii changes file permissions of input file
+  - S8179084, PR3410, RH1455694: HotSpot VM fails to start when AggressiveHeap is set
+  - S8181419, PR3414, RH1463144: Race in jdwp invoker handling may lead to crashes or invalid results
+* AArch64 port
+  - S8144028, PR3431: Use AArch64 bit-test instructions in C2
+  - S8152537, PR3431: aarch64: Make use of CBZ and CBNZ when comparing unsigned values with zero.
+
+New in release 2.6.10 (2017-05-16):
+
+* Security fixes
+  - S8163520, CVE-2017-3509: Reuse cache entries
+  - S8163528, CVE-2017-3511: Better library loading
+  - S8165626, CVE-2017-3512: Improved window framing
+  - S8167110, CVE-2017-3514: Windows peering issue
+  - S8169011, CVE-2017-3526: Resizing XML parse trees
+  - S8170222, CVE-2017-3533: Better transfers of files
+  - S8171121, CVE-2017-3539: Enhancing jar checking
+  - S8171533, CVE-2017-3544: Better email transfer
+  - S8172299: Improve class processing
+* New features
+  - PR3347: jstack.stp should support AArch64
+* Import of OpenJDK 7 u141 build 0
+  - S4717864: setFont() does not update Fonts of Menus already on screen
+  - S6474807: (smartcardio) CardTerminal.connect() throws CardException instead of CardNotPresentException
+  - S6518907: cleanup IA64 specific code in Hotspot
+  - S6869327: Add new C2 flag to keep safepoints in counted loops.
+  - S7112912: Message "Error occurred during initialization of VM" on boxes with lots of RAM
+  - S7124213: [macosx] pack() does ignore size of a component; doesn't on the other platforms
+  - S7124219: [macosx] Unable to draw images to fullscreen
+  - S7124552: [macosx] NullPointerException in getBufferStrategy()
+  - S7148275: [macosx] setIconImages() not working correctly (distorted icon when minimized)
+  - S7154841: [macosx] Popups appear behind taskbar
+  - S7155957: closed/java/awt/MenuBar/MenuBarStress1/MenuBarStress1.java hangs on win 64 bit with jdk8
+  - S7160627: [macosx] TextArea has wrong initial size
+  - S7167293: FtpURLConnection connection leak on FileNotFoundException
+  - S7168851: [macosx] Netbeans crashes in CImage.nativeCreateNSImageFromArray
+  - S7197203: sun/misc/URLClassPath/ClassnameCharTest.sh failed, compile error
+  - S8005255: [macosx] Cleanup warnings in sun.lwawt
+  - S8006088: Incompatible heap size flags accepted by VM
+  - S8007295: Reduce number of warnings in awt classes
+  - S8010722: assert: failed: heap size is too big for compressed oops
+  - S8011059: [macosx] Support automatic @2x images loading on Mac OS X
+  - S8014058: Regression tests for 8006088
+  - S8014489: tests/gc/arguments/Test(Serial|CMS|Parallel|G1)HeapSizeFlags jtreg tests invoke wrong class
+  - S8016302: Change type of the number of GC workers to unsigned int (2)
+  - S8024662: gc/arguments/TestUseCompressedOopsErgo.java does not compile.
+  - S8024669: Native OOME when allocating after changes to maximum heap supporting Coops sizing on sparcv9
+  - S8024926: [macosx] AquaIcon HiDPI support
+  - S8025974: l10n for policytool
+  - S8027025: [macosx] getLocationOnScreen returns 0 if parent invisible
+  - S8028212: Custom cursor HiDPI support
+  - S8028471: PPC64 (part 215): opto: Extend ImplicitNullCheck optimization.
+  - S8031573: [macosx] Checkmarks of JCheckBoxMenuItems aren't rendered in high resolution on Retina
+  - S8033534: [macosx] Get MultiResolution image from native system
+  - S8033786: White flashing when opening Dialogs and Menus using Nimbus with dark background
+  - S8035568: [macosx] Cursor management unification
+  - S8041734: JFrame in full screen mode leaves empty workspace after close
+  - S8059803: Update use of GetVersionEx to get correct Windows version in hs_err files
+  - S8066504: GetVersionEx in java.base/windows/native/libjava/java_props_md.c might not get correct Windows version 0
+  - S8079595: Resizing dialog which is JWindow parent makes JVM crash
+  - S8080729: [macosx] java 7 and 8 JDialogs on multiscreen jump to parent frame on focus
+  - S8130769: The new menu can't be shown on the menubar after clicking the "Add" button.
+  - S8133357: 8u65 l10n resource file translation update
+  - S8146602: jdk/test/sun/misc/URLClassPath/ClassnameCharTest.java test fails with NullPointerException
+  - S8147842: IME Composition Window is displayed at incorrect location
+  - S8147910: Cache initial active_processor_count
+  - S8150490: Update OS detection code to recognize Windows Server 2016
+  - S8161147: jvm crashes when -XX:+UseCountedLoopSafepoints is enabled
+  - S8161195: Regression: closed/javax/swing/text/FlowView/LayoutTest.java
+  - S8161993: G1 crashes if active_processor_count changes during startup
+  - S8162603: Unrecognized VM option 'UseCountedLoopSafepoints'
+  - S8162876: [TEST_BUG] sun/net/www/protocol/http/HttpInputStream.java fails intermittently
+  - S8164533: sun/security/ssl/SSLSocketImpl/CloseSocket.java failed with "Error while cleaning up threads after test"
+  - S8167179: Make XSL generated namespace prefixes local to transformation process
+  - S8169465: Deadlock in com.sun.jndi.ldap.pool.Connections
+  - S8169589: [macosx] Activating a JDialog puts to back another dialog
+  - S8170307: Stack size option -Xss is ignored
+  - S8170316: (tz) Support tzdata2016j
+  - S8170814: Reuse cache entries (part II)
+  - S8171388: Update JNDI Thread contexts
+  - S8171949: [macosx] AWT_ZoomFrame Automated tests fail with error: The bitwise mask Frame.ICONIFIED is not setwhen the frame is in ICONIFIED state
+  - S8171952: [macosx] AWT_Modality/Automated/ModalExclusion/NoExclusion/ModelessDialog test fails as DummyButton on Dialog did not gain focus when clicked.
+  - S8173931: 8u131 L10n resource file update
+  - S8174844: Incorrect GPL header causes RE script to miss swap to commercial header for licensee source bundle
+  - S8175087: [bsd] Fix build after "8024900: PPC64: Enable new build on AIX (jdk part)"
+  - S8175163: [bsd] Fix build after "8005629: javac warnings compiling java.awt.EventDispatchThread..."
+  - S8176044: (tz) Support tzdata2017a
+* Import of OpenJDK 7 u141 build 1
+  - S8043723: max_heap_for_compressed_oops() declared with size_t, but defined with uintx
+* Import of OpenJDK 7 u141 build 2
+  - S8011123: serialVersionUID of java.awt.dnd.InvalidDnDOperationException changed in JDK8-b82
+* Backports
+  - S6515172, PR3362: Runtime.availableProcessors() ignores Linux taskset command
+  - S8011621, PR3209: live_ranges_in_separate_class.patch
+  - S8022284, PR3209: Hide internal data structure in PhaseCFG
+  - S8023003, PR3209: Cleanup the public interface to PhaseCFG
+  - S8023691, PR3209: Create interface for nodes in class Block
+  - S8023988, PR3209: Move local scheduling of nodes to the CFG creation and code motion phase (PhaseCFG)
+  - S8043780, PR3369: Use open(O_CLOEXEC) instead of fcntl(FD_CLOEXEC)
+  - S8157306, PR3209: Random infrequent null pointer exceptions in javac
+  - S8173783, PR3329: IllegalArgumentException: jdk.tls.namedGroups
+  - S8173941, PR3330: SA does not work if executable is DSO
+  - S8174729, PR3361: Race Condition in java.lang.reflect.WeakCache
+* Bug fixes
+  - PR3349: Architectures unsupported by SystemTap tapsets throw a parse error
+  - PR3370: Disable ARM32 JIT by default in jdk_generic_profile.sh
+  - PR3379: Perl should be mandatory
+  - PR3390: javac.in and javah.in should use @PERL@ rather than a hardcoded path
+* CACAO
+  - PR2732: Raise javadoc memory limits for CACAO again!
+* AArch64 port
+  - S8177661, PR3367: Correct ad rule output register types from iRegX to iRegXNoSp
+
 New in release 2.6.9 (2017-02-14):
 
 * Security fixes
