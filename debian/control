@@ -47,6 +47,7 @@ Provides: java-runtime-headless, java2-runtime-headless, java5-runtime-headless,
 Replaces: openjdk-7-jre-lib (<< 7u45-2.4.3-1)
 Conflicts: ${multiarch:Conflicts}
 Breaks: ${netx:Breaks}
+Built-Using: ${rhino:Source}
 Description: OpenJDK Java runtime, using ${vm:Name} (headless)
  Minimal Java runtime - needed for executing non GUI Java programs,
  using ${vm:Name}.

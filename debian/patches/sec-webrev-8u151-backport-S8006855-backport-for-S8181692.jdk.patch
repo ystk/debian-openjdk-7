@@ -1,0 +1,31 @@
+--- openjdk/jdk/src/share/classes/sun/security/pkcs12/PKCS12KeyStore.java
++++ openjdk/jdk/src/share/classes/sun/security/pkcs12/PKCS12KeyStore.java
+@@ -747,13 +747,13 @@ public final class PKCS12KeyStore extend
+     /*
+      * Map a PBE algorithm name onto its object identifier
+      */
+-    private ObjectIdentifier mapPBEAlgorithmToOID(String algorithm) {
++    private ObjectIdentifier mapPBEAlgorithmToOID(String algorithm)
++        throws NoSuchAlgorithmException {
+         // Check for PBES2 algorithms
+         if (algorithm.toLowerCase().startsWith("pbewithhmacsha")) {
+             return pbes2_OID;
+         }
+-
+-        return null;
++        return AlgorithmId.get(algorithm).getOID();
+     }
+ 
+     /**
+--- openjdk/jdk/test/java/security/KeyStore/PBETest.java
++++ openjdk/jdk/test/java/security/KeyStore/PBETest.java
+@@ -36,7 +36,8 @@ import javax.crypto.spec.*;
+ 
+ public class PBETest {
+     private final static String DIR = System.getProperty("test.src", ".");
+-    private static final String PBE_ALGO = "PBEWithHmacSHA1AndAES_128";
++    //private static final String PBE_ALGO = "PBEWithHmacSHA1AndAES_128";
++    private static final String PBE_ALGO = "PBEWithSHA1AndDESede";
+     private static final char[] PASSWORD = "passphrase".toCharArray();
+     private static final String KEYSTORE_TYPE = "JKS";
+     private static final String KEYSTORE = DIR + "/keystore.jks";

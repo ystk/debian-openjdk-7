@@ -1,0 +1,24 @@
+
+# HG changeset patch
+# User aph
+# Date 1456412384 0
+# Node ID 54520c7add1015fe231044c9913c1c52d58755ab
+# Parent  d93a2aced128f90edb773eca33cc374deb18078d
+8150652: Remove unused code in AArch64 back end
+Reviewed-by: kvn
+
+diff -r d93a2aced128 -r 54520c7add10 src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp
+--- openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp	Wed May 11 18:17:15 2016 +0100
++++ openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp	Thu Feb 25 14:59:44 2016 +0000
+@@ -207,10 +207,6 @@
+   return (r->reg2stack() + SharedRuntime::out_preserve_stack_slots()) * VMRegImpl::stack_slot_size;
+ }
+ 
+-template <class T> static const T& min (const T& a, const T& b) {
+-  return (a > b) ? b : a;
+-}
+-
+ // ---------------------------------------------------------------------------
+ // Read the array of BasicTypes from a signature, and compute where the
+ // arguments should go.  Values in the VMRegPair regs array refer to 4-byte
+

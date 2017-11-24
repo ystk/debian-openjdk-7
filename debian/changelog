@@ -1,8 +1,66 @@
-openjdk-7 (7u151-2.6.11-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u151-2.6.11-2~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Thu, 24 Aug 2017 10:01:34 +0200
+ -- Moritz Muehlenhoff <jmm@debian.org>  Wed, 22 Nov 2017 22:54:49 +0100
+
+openjdk-7 (7u151-2.6.11-2) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * Backport of 8u151 security fixes. Closes: #881764.
+  * Security patches:
+    - CVE-2017-10274, S8169026: Handle smartcard clean up better. If a
+      CardImpl can be recovered via finalization, then separate instances
+      pointing to the same device can be created.
+    - CVE-2017-10281, S8174109: Better queuing priorities. PriorityQueue's
+      readObject allocates an array based on data in the stream which could
+      cause an OOM.
+    - CVE-2017-10285, S8174966: Unreferenced references. RMI's Unreferenced
+      thread can be used as the root of a Trusted Method Chain.
+    - CVE-2017-10295, S8176751: Better URL connections. On Ubuntu (and
+      possibly other Linux flavors) CR-NL in the host field are ignored and
+      can be used to inject headers in an HTTP request stream.
+    - CVE-2017-10388, S8178794: Correct Kerberos ticket grants. Kerberos
+      implementations can incorrectly take information from the unencrypted
+      portion of the ticket from the KDC. This can lead to an MITM attack
+      impersonating Kerberos services.
+    - CVE-2017-10346, S8180711: Better alignment of special invocations. A
+      missing load constraint for some invokespecial cases can allow invoking
+      a method from an unrelated class.
+    - CVE-2017-10350, S8181100: Better Base Exceptions. An array is allocated
+      based on data in the serial stream without a limit onthe size.
+    - CVE-2017-10347, S8181323: Better timezone processing. An array is
+      allocated based on data in the serial stream without a limit on the
+      size.
+    - CVE-2017-10349, S8181327: Better Node predications. An array is
+      allocated based on data in the serial stream without a limit onthe size.
+    - CVE-2017-10345, S8181370: Better keystore handling. A malicious
+      serialized object in a keystore can cause a DoS when using keytool.
+    - CVE-2017-10348, S8181432: Better processing of unresolved permissions.
+      An array is allocated based on data in the serial stream without a limit
+      onthe size.
+    - CVE-2017-10357, S8181597: Process Proxy presentation. A malicious
+      serialized stream could cause an OOM due to lack on checking on the
+      number of interfaces read from the stream for a Proxy.
+    - CVE-2017-10355, S8181612: More stable connection processing. If an
+      attack can cause an application to open a connection to a malicious FTP
+      server (e.g., via XML), then a thread can be tied up indefinitely in
+      accept(2).
+    - CVE-2017-10356, S8181692: Update storage implementations. JKS and JCEKS
+      keystores should be retired from common use in favor of more modern
+      keystore protections.
+    - CVE-2016-10165, S8183028: Improve CMS header processing. Missing bounds
+      check could lead to leaked memory contents.
+    - CVE-2016-9841, S8184682: Upgrade compression library. There were four
+      off by one errors found in the zlib library. Two of them are long typed
+      which could lead to RCE.
+  * debian/patches/hotspot-aarch64-S8150652-unused-template.diff: unused
+    template breaks builds with gcc-6 due to macro conflict.
+  * debian/rules: try /etc/os-release before lsb-release; allows one to check
+    if patches still apply cleanly across distros from the command line by
+    setting distrel.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 20 Nov 2017 21:24:32 +0100
 
 openjdk-7 (7u151-2.6.11-1) experimental; urgency=medium
 

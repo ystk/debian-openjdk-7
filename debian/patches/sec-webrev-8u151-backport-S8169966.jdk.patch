@@ -1,0 +1,131 @@
+--- openjdk/jdk/src/windows/native/sun/windows/CmdIDList.cpp
++++ openjdk/jdk/src/windows/native/sun/windows/CmdIDList.cpp
+@@ -61,29 +61,36 @@ INLINE void AwtCmdIDList::BuildFreeList(
+     m_first_free = first_index; // head of the free list
+ }
+ 
++
++jboolean AwtCmdIDList::isFreeIDAvailable() {
++    CriticalSection::Lock l(m_lock);
++
++    if (m_first_free == -1) {   // out of free ids
++        if (m_capacity == ARRAY_MAXIMUM_SIZE) {
++            return JNI_FALSE;
++        }
++    }
++    return JNI_TRUE;
++}
++
+ // Assign an id to the object.  Recycle the first free entry from the
+ // head of the free list or allocate more memory for a new free list.
+ UINT AwtCmdIDList::Add(AwtObject* obj)
+ {
+     CriticalSection::Lock l(m_lock);
++    if (!isFreeIDAvailable()) {
++        throw std::bad_alloc(); // fatal error
++    }
+ 
+     if (m_first_free == -1) {   // out of free ids
+-        if (m_capacity == ARRAY_MAXIMUM_SIZE) {
+-            // Really bad - out of ids.  Since we hardly can have *so*
+-            // many items simultaneously in existence, we have an id
+-            // leak somewhere.
+-            DASSERT(FALSE);
+-            return 0;
+-        }
+-        else {                  // snarf a bigger arena
+-            UINT old_capacity = m_capacity; // will be the first free entry
+-            m_capacity += ARRAY_SIZE_INCREMENT;
+-            if (m_capacity > ARRAY_MAXIMUM_SIZE)
+-                m_capacity = ARRAY_MAXIMUM_SIZE;
+-            m_array = (CmdIDEntry *)SAFE_SIZE_ARRAY_REALLOC(safe_Realloc, m_array,
+-                                        m_capacity, sizeof(CmdIDEntry*));
+-            BuildFreeList(old_capacity);
+-        }
++        // snarf a bigger arena
++        UINT old_capacity = m_capacity; // will be the first free entry
++        m_capacity += ARRAY_SIZE_INCREMENT;
++        if (m_capacity > ARRAY_MAXIMUM_SIZE)
++            m_capacity = ARRAY_MAXIMUM_SIZE;
++        m_array = (CmdIDEntry *)SAFE_SIZE_ARRAY_REALLOC(safe_Realloc, m_array,
++                                    m_capacity, sizeof(CmdIDEntry*));
++        BuildFreeList(old_capacity);
+     }
+ 
+     DASSERT(m_first_free != -1);
+--- openjdk/jdk/src/windows/native/sun/windows/CmdIDList.h
++++ openjdk/jdk/src/windows/native/sun/windows/CmdIDList.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 1999, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -38,6 +38,7 @@ public:
+     UINT Add(AwtObject* obj);
+     AwtObject* Lookup(UINT id);
+     void Remove(UINT id);
++    jboolean isFreeIDAvailable();
+ 
+     CriticalSection    m_lock;
+ 
+--- openjdk/jdk/src/windows/native/sun/windows/awt_MenuItem.cpp
++++ openjdk/jdk/src/windows/native/sun/windows/awt_MenuItem.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -211,6 +211,10 @@ AwtMenuItem* AwtMenuItem::Create(jobject
+         if (env->EnsureLocalCapacity(1) < 0) {
+             return NULL;
+         }
++        if (!AwtToolkit::GetInstance().isFreeIDAvailable()) {
++            return NULL;
++        }
++
+         JNI_CHECK_NULL_RETURN_NULL(menuPeer, "peer");
+ 
+         /* target is a java.awt.MenuItem  */
+--- openjdk/jdk/src/windows/native/sun/windows/awt_Toolkit.cpp
++++ openjdk/jdk/src/windows/native/sun/windows/awt_Toolkit.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2011, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -1584,6 +1584,11 @@ void AwtToolkit::SyncCall(void (*ftn)(vo
+     }
+ }
+ 
++jboolean AwtToolkit::isFreeIDAvailable()
++{
++    return m_cmdIDs->isFreeIDAvailable();
++}
++
+ UINT AwtToolkit::CreateCmdID(AwtObject* object)
+ {
+     return m_cmdIDs->Add(object);
+--- openjdk/jdk/src/windows/native/sun/windows/awt_Toolkit.h
++++ openjdk/jdk/src/windows/native/sun/windows/awt_Toolkit.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1996, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -311,6 +311,8 @@ public:
+     BOOL PreProcessMouseMsg(class AwtComponent* p, MSG& msg);
+     BOOL PreProcessKeyMsg(class AwtComponent* p, MSG& msg);
+ 
++    /* Checks that an free ID exists. */
++    jboolean isFreeIDAvailable();
+     /* Create an ID which maps to an AwtObject pointer, such as a menu. */
+     UINT CreateCmdID(AwtObject* object);
+ 

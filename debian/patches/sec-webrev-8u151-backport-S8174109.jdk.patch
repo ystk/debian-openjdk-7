@@ -1,0 +1,392 @@
+Index: openjdk/jdk/src/share/classes/java/io/ObjectInputStream.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/io/ObjectInputStream.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/io/ObjectInputStream.java	2017-11-16 20:33:34.000000000 +0000
+@@ -253,6 +253,12 @@
+             public ObjectInputFilter getObjectInputFilter(ObjectInputStream stream) {
+                 return stream.getInternalObjectInputFilter();
+             }
++
++            public void checkArray(ObjectInputStream stream, Class<?> arrayType, int arrayLength)
++                throws InvalidClassException
++            {
++                stream.checkArray(arrayType, arrayLength);
++            }
+         });
+     }
+ 
+@@ -1255,6 +1261,33 @@
+     }
+ 
+     /**
++     * Checks the given array type and length to ensure that creation of such
++     * an array is permitted by this ObjectInputStream. The arrayType argument
++     * must represent an actual array type.
++     *
++     * This private method is called via SharedSecrets.
++     *
++     * @param arrayType the array type
++     * @param arrayLength the array length
++     * @throws NullPointerException if arrayType is null
++     * @throws IllegalArgumentException if arrayType isn't actually an array type
++     * @throws NegativeArraySizeException if arrayLength is negative
++     * @throws InvalidClassException if the filter rejects creation
++     */
++    private void checkArray(Class<?> arrayType, int arrayLength) throws InvalidClassException {
++        Objects.requireNonNull(arrayType);
++        if (! arrayType.isArray()) {
++            throw new IllegalArgumentException("not an array type");
++        }
++
++        if (arrayLength < 0) {
++            throw new NegativeArraySizeException();
++        }
++
++        filterCheck(arrayType, arrayLength);
++    }
++
++    /**
+      * Provide access to the persistent fields read from the input stream.
+      */
+     public static abstract class GetField {
+Index: openjdk/jdk/src/share/classes/java/util/ArrayDeque.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/ArrayDeque.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/ArrayDeque.java	2017-11-16 15:46:08.237740970 +0000
+@@ -34,6 +34,7 @@
+ 
+ package java.util;
+ import java.io.*;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * Resizable-array implementation of the {@link Deque} interface.  Array
+@@ -116,12 +117,7 @@
+ 
+     // ******  Array allocation and resizing utilities ******
+ 
+-    /**
+-     * Allocate empty array to hold the given number of elements.
+-     *
+-     * @param numElements  the number of elements to hold
+-     */
+-    private void allocateElements(int numElements) {
++    private static int calculateSize(int numElements) {
+         int initialCapacity = MIN_INITIAL_CAPACITY;
+         // Find the best power of two to hold elements.
+         // Tests "<=" because arrays aren't kept full.
+@@ -137,7 +133,16 @@
+             if (initialCapacity < 0)   // Too many elements, must back off
+                 initialCapacity >>>= 1;// Good luck allocating 2 ^ 30 elements
+         }
+-        elements = (E[]) new Object[initialCapacity];
++        return initialCapacity;
++    }
++
++    /**
++     * Allocates empty array to hold the given number of elements.
++     *
++     * @param numElements  the number of elements to hold
++     */
++    private void allocateElements(int numElements) {
++        elements = (E[]) new Object[calculateSize(numElements)];
+     }
+ 
+     /**
+@@ -855,6 +860,8 @@
+ 
+         // Read in size and allocate array
+         int size = s.readInt();
++        int capacity = calculateSize(size);
++        SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, capacity);
+         allocateElements(size);
+         head = 0;
+         tail = size;
+Index: openjdk/jdk/src/share/classes/java/util/ArrayList.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/ArrayList.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/ArrayList.java	2017-11-16 15:46:08.237740970 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -24,6 +24,7 @@
+  */
+ 
+ package java.util;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * Resizable-array implementation of the <tt>List</tt> interface.  Implements
+@@ -200,12 +201,15 @@
+         }
+     }
+ 
+-    private void ensureCapacityInternal(int minCapacity) {
++    private static int calculateCapacity(Object[] elementData, int minCapacity) {
+         if (elementData == EMPTY_ELEMENTDATA) {
+-            minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
++            return Math.max(DEFAULT_CAPACITY, minCapacity);
++        }
++        return minCapacity;
+         }
+ 
+-        ensureExplicitCapacity(minCapacity);
++    private void ensureCapacityInternal(int minCapacity) {
++        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+     }
+ 
+     private void ensureExplicitCapacity(int minCapacity) {
+@@ -763,6 +767,8 @@
+ 
+         if (size > 0) {
+             // be like clone(), allocate array based upon size not capacity
++            int capacity = calculateCapacity(elementData, size);
++            SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, capacity);
+             ensureCapacityInternal(size);
+ 
+             Object[] a = elementData;
+Index: openjdk/jdk/src/share/classes/java/util/HashMap.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/HashMap.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/HashMap.java	2017-11-16 15:46:08.237740970 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,6 +25,7 @@
+ 
+ package java.util;
+ import java.io.*;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * Hash table based implementation of the <tt>Map</tt> interface.  This
+@@ -1165,6 +1166,10 @@
+                     // we have limits...
+                     HashMap.MAXIMUM_CAPACITY);
+ 
++            // Check Map.Entry[].class since it's the nearest public type to
++            // what we're actually creating.
++            SharedSecrets.getJavaOISAccess().checkArray(s, Map.Entry[].class, capacity);
++
+         // allocate the bucket array;
+         if (mappings > 0) {
+             inflateTable(capacity);
+Index: openjdk/jdk/src/share/classes/java/util/HashSet.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/HashSet.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/HashSet.java	2017-11-16 20:39:15.247701750 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -24,6 +24,7 @@
+  */
+ 
+ package java.util;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * This class implements the <tt>Set</tt> interface, backed by a hash table
+@@ -296,6 +297,18 @@
+         // Read in HashMap capacity and load factor and create backing HashMap
+         int capacity = s.readInt();
+         float loadFactor = s.readFloat();
++
++        // Constructing the backing map will lazily create an array when the first element is
++        // added, so check it before construction. Call HashMap.tableSizeFor to compute the
++        // actual allocation size. Check Map.Entry[].class since it's the nearest public type to
++        // what is actually created.
++
++        int n = capacity - 1;
++        n |= n >>> 1; n |= n >>> 2; n |= n >>> 4; n |= n >>> 8; n |= n >>> 16;
++        n = (n < 0) ? 1 : (n >= HashMap.MAXIMUM_CAPACITY) ? HashMap.MAXIMUM_CAPACITY : n + 1;
++
++        SharedSecrets.getJavaOISAccess().checkArray(s, Map.Entry[].class, n);
++
+         map = (((HashSet)this) instanceof LinkedHashSet ?
+                new LinkedHashMap<E,Object>(capacity, loadFactor) :
+                new HashMap<E,Object>(capacity, loadFactor));
+Index: openjdk/jdk/src/share/classes/java/util/Hashtable.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/Hashtable.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/Hashtable.java	2017-11-16 15:46:08.241741044 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1994, 2011, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1994, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,6 +25,7 @@
+ 
+ package java.util;
+ import java.io.*;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * This class implements a hash table, which maps keys to values. Any
+@@ -985,6 +986,10 @@
+         if (origlength > 0 && length > origlength)
+             length = origlength;
+ 
++        // Check Map.Entry[].class since it's the nearest public type to
++        // what we're actually creating.
++        SharedSecrets.getJavaOISAccess().checkArray(s, Map.Entry[].class, length);
++
+         Entry<K,V>[] newTable = new Entry[length];
+         threshold = (int) Math.min(length * loadFactor, MAX_ARRAY_SIZE + 1);
+         count = 0;
+Index: openjdk/jdk/src/share/classes/java/util/IdentityHashMap.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/IdentityHashMap.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/IdentityHashMap.java	2017-11-16 15:46:08.241741044 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2000, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,6 +25,7 @@
+ 
+ package java.util;
+ import java.io.*;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * This class implements the <tt>Map</tt> interface with a hash table, using
+@@ -1208,8 +1209,12 @@
+         // Read in size (number of Mappings)
+         int size = s.readInt();
+ 
+-        // Allow for 33% growth (i.e., capacity is >= 2* size()).
+-        init(capacity((size*4)/3));
++        if (size < 0)
++            throw new java.io.StreamCorruptedException
++                ("Illegal mappings count: " + size);
++        int cap = capacity(size);
++        SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, cap);
++        init(cap);
+ 
+         // Read the keys and values, and put the mappings in the table
+         for (int i=0; i<size; i++) {
+Index: openjdk/jdk/src/share/classes/java/util/PriorityQueue.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/PriorityQueue.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/PriorityQueue.java	2017-11-16 15:46:08.241741044 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2003, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -24,6 +24,7 @@
+  */
+ 
+ package java.util;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * An unbounded priority {@linkplain Queue queue} based on a priority heap.
+@@ -762,6 +763,7 @@
+         // Read in (and discard) array length
+         s.readInt();
+ 
++        SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, size);
+         queue = new Object[size];
+ 
+         // Read in all elements.
+Index: openjdk/jdk/src/share/classes/java/util/concurrent/CopyOnWriteArrayList.java
+===================================================================
+--- openjdk/jdk/src/share/classes/java/util/concurrent/CopyOnWriteArrayList.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/java/util/concurrent/CopyOnWriteArrayList.java	2017-11-16 15:46:08.245741117 +0000
+@@ -37,6 +37,7 @@
+ import java.util.*;
+ import java.util.concurrent.locks.*;
+ import sun.misc.Unsafe;
++import sun.misc.SharedSecrets;
+ 
+ /**
+  * A thread-safe variant of {@link java.util.ArrayList} in which all mutative
+@@ -872,6 +873,7 @@
+ 
+         // Read in array length and allocate array
+         int len = s.readInt();
++        SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, len);
+         Object[] elements = new Object[len];
+ 
+         // Read in all elements in the proper order.
+Index: openjdk/jdk/src/share/classes/sun/misc/JavaOISAccess.java
+===================================================================
+--- openjdk/jdk/src/share/classes/sun/misc/JavaOISAccess.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/src/share/classes/sun/misc/JavaOISAccess.java	2017-11-16 15:46:08.245741117 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -25,9 +25,12 @@
+ 
+ package sun.misc;
+ 
++import java.io.InvalidClassException;
+ import java.io.ObjectInputStream;
+ 
+ public interface JavaOISAccess {
+     void setObjectInputFilter(ObjectInputStream stream, ObjectInputFilter filter);
+     ObjectInputFilter getObjectInputFilter(ObjectInputStream stream);
++    void checkArray(ObjectInputStream stream, Class<?> arrayType, int arrayLength)
++        throws InvalidClassException;
+ }
+Index: openjdk/jdk/test/java/io/Serializable/serialFilter/SerialFilterTest.java
+===================================================================
+--- openjdk/jdk/test/java/io/Serializable/serialFilter/SerialFilterTest.java.orig	2017-11-16 15:46:08.249741191 +0000
++++ openjdk/jdk/test/java/io/Serializable/serialFilter/SerialFilterTest.java	2017-11-16 15:46:08.245741117 +0000
+@@ -34,9 +34,11 @@
+ import java.lang.reflect.Proxy;
+ import java.util.ArrayList;
+ import java.util.Arrays;
++import java.util.Collections;
+ import java.util.HashSet;
+ import java.util.Hashtable;
+ import java.util.List;
++import java.util.Map;
+ import java.util.Set;
+ 
+ import javax.lang.model.SourceVersion;
+@@ -142,6 +144,11 @@
+         Object[] objArray = new Object[7];
+         objArray[objArray.length - 1] = objArray;
+ 
++
++        List<Class<?>> classList = new ArrayList<>();
++        classList.add(HashSet.class);
++        classList.addAll(Collections.nCopies(21, Map.Entry[].class));
++
+         Object[][] objects = {
+                 { null, 0, -1, 0, 0, 0,
+                     new HashSet<>()},        // no callback, no values
+@@ -153,8 +160,7 @@
+                                 new HashSet<>(Arrays.asList(SerialFilterTest.class))},
+                 { new byte[14], 2, 14, 1, 1, 27,
+                                     new HashSet<>(Arrays.asList(byteArray.getClass()))},
+-                { deepHashSet(10), 48, -1, 49, 11, 619,
+-                                        new HashSet<>(Arrays.asList(HashSet.class))},
++                { deepHashSet(10), 69, 4, 50, 11, 619, new HashSet<>(classList) },
+         };
+         return objects;
+     }
