@@ -1,3 +1,183 @@
+2017-08-27  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2018-02-26  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.13.
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Bump to 171.
+	(BUILD_VERSION): Set to b02.
+	(CORBA_CHANGESET): Update to icedtea-2.6.13.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.13.
+	* hotspot.map.in: Update to icedtea-2.6.13.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new cases in
+	com.sun.corba.se.impl.ior.IORTypeCheckRegistryImpl,
+	com.sun.org.apache.xalan.internal.utils.XMLSecurityManager,
+	com.sun.org.apache.xerces.internal.utils.XMLSecurityManager and
+	java.nio.file.FileTreeWalker.
+	Drop com.sun.org.apache.xml.internal.utils.DOMHelper
+	change (class removed).
+	Update file paths due to 8156502 dropping 'Supported' from the
+	front of 'SupportedEllipticCurvesExtension.java'
+	* patches/boot/ecj-multicatch.patch:
+	Add cases in java.nio.file.FileTreeWalker,
+	jdk.xml.internal.JdkXmlUtils and
+	com.sun.jndi.dns.ResourceRecord.
+	* patches/boot/ecj-stringswitch.patch:
+	Add case in sun.security.util.KeyUtil.
+	* patches/boot/ecj-trywithresources.patch:
+	Add cases in java.nio.file.Files,
+	com.sun.jndi.dns.DnsClient and
+	com.sun.jndi.dns.DNSDatagramSocketFactory.
+	* patches/pr2124.patch:
+	Fix file paths due to 8156502 dropping 'Supported' from the
+	front of 'SupportedEllipticCurvesExtension.java'
+	* patches/rh1022017.patch: Likewise.
+
+2017-12-08  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.13.
+	* configure.ac: Bump to 2.6.13pre00.
+
+2017-12-05  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add missing reference to PR3476
+	for 8184673 entry.
+
+2017-12-05  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2017-12-05  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.12.
+	* Makefile.am,
+	(JDK_UPDATE_VERSION): Bump to 161.
+	(CORBA_CHANGESET): Update to icedtea-2.6.12.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	(install-data-local): Install policy JAR files into new
+	policy directories.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.12.
+	* hotspot.map.in: Update to icedtea-2.6.12.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new instances in
+	com.sun.corba.se.impl.io.ObjectStreamClass,
+	com.sun.xml.internal.ws.util.exception.JAXWSExceptionBase,
+	java.io.ObjectStreamClass,
+	java.security.cert.CertificateRevokedException,
+	java.security.KeyStore, java.security.UnresolvedPermission,
+	sun.security.pkcs.SignerInfo, sun.security.pkcs12.PKCS12KeyStore,
+	sun.security.provider.certpath.AdjacencyList,
+	sun.security.provider.certpath.Builder,
+	sun.security.provider.certpath.CollectionCertStore,
+	sun.security.provider.certpath.DistributionPointFetcher,
+	sun.security.provider.certpath.ForwardBuilder,
+	sun.security.provider.certpath.IndexedCollectionCertStore,
+	sun.security.provider.certpath.OCSPResponse,
+	sun.security.provider.certpath.PKIXCertPathValidator,
+	sun.security.provider.certpath.PKIX,
+	sun.security.provider.certpath.PKIXRevocationChecker,
+	sun.security.provider.certpath.PolicyChecker,
+	sun.security.provider.certpath.PolicyNodeImpl,
+	sun.security.provider.certpath.ReverseBuilder,
+	sun.security.provider.certpath.ReverseState,
+	sun.security.provider.certpath.RevocationChecker,
+	sun.security.provider.certpath.SunCertPathBuilder,
+	sun.security.provider.certpath.X509CertPath,
+	sun.security.tools.keytool.Main,
+	sun.security.util.DisabledAlgorithmConstraints and
+	sun.security.util.SignatureFileVerifier
+	* patches/boot/ecj-multicatch.patch:
+	Regenerated. Add new cases in
+	com.sun.corba.se.impl.io.ObjectStreamClass,
+	java.io.ObjectStreamClass,
+	sun.security.provider.certpath.CertStoreHelper,
+	sun.security.provider.certpath.DistributionPointFetcher,
+	sun.security.provider.certpath.OCSP,
+	sun.security.provider.certpath.OCSPResponse,
+	sun.security.provider.certpath.PKIXCertPathValidator,
+	sun.security.provider.certpath.RevocationChecker,
+	sun.security.provider.certpath.SunCertPathBuilder,
+	sun.security.provider.certpath.URICertStore and
+	sun.security.provider.KeyStoreDelegator.
+	* patches/boot/ecj-stringswitch.patch:
+	Add new cases in
+	sun.security.util.DisabledAlgorithmConstraints,
+	sun.security.provider.certpath.CertStoreHelper and
+	sun.security.provider.certpath.RevocationChecker.
+	* patches/boot/ecj-trywithresources.patch:
+	Add new cases in sun.security.krb5.KdcComm and
+	sun.security.tools.keytool.Main.
+	* patches/boot/ecj-underscored_literals.patch:
+	Add new case in sun.net.ftp.impl.FtpClient.
+	* remove-intree-libraries.sh.in:
+	Remove ZLIB_VERSION and its use in the ZIP_SRC path,
+	as the source tree path is now unversioned.
+
+2017-10-16  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3470: Hotspot object_alloc tapset uses HeapWordSize incorrectly
+	* AUTHORS: Add Severin.
+	* NEWS: Updated.
+
+2017-09-15  Severin Gehwolf  <sgehwolf@redhat.com>
+
+	PR3470: Hotspot object_alloc tapset uses HeapWordSize incorrectly
+	* tapset/hotspot.stp.in:
+	Revert HeapWordSize addition made to match
+	systemtap-alloc-size-workaround.patch, which
+	has since been removed.
+
+2017-11-18  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.12pre01.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.12pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.12pre01.
+	* hotspot.map.in: Update to icedtea-2.6.12pre01.
+
+2017-08-09  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.12.
+	* configure.ac: Bump to 2.6.12pre00.
+
 2017-08-08  Andrew John Hughes  <gnu_andrew@member.fsf.org>
 
 	* NEWS: Set release date to today.
