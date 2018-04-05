@@ -587,21 +587,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-JDK_UPDATE_VERSION = 151
-BUILD_VERSION = b01
+JDK_UPDATE_VERSION = 171
+BUILD_VERSION = b02
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
-CORBA_CHANGESET = 803456f62297
-JAXP_CHANGESET = 46f2d7395127
-JAXWS_CHANGESET = e17af60ebbd6
-JDK_CHANGESET = 082c6e8b8812
-LANGTOOLS_CHANGESET = cddb1f9f8b9c
-OPENJDK_CHANGESET = 499e7894cc44
-CORBA_SHA256SUM = ff818ceedd154fa4d55d38b50fccd6a19de242a592d9ffbed7368bc56c091b81
-JAXP_SHA256SUM = a2642f8792edf7e40169ddafcd7a3c297e75b41f7c65fac2a84787376a65977d
-JAXWS_SHA256SUM = a299f434b48e5ed1e57085be5515ea1dbfbad971d08d386f070d653d2ea878be
-JDK_SHA256SUM = ce4eca8a320c7514a7ecaa513a2a9cbb82a74e0256c8ba277fa692debe952eb5
-LANGTOOLS_SHA256SUM = 650a2d3881ba02ea10cbb6ddeef3888103fccaa904cb23517e07b3acd26d4c7f
-OPENJDK_SHA256SUM = 0d521feed6275102ba3b3ee394330fefe20463dd63caa7197c7fd93e132519fe
+CORBA_CHANGESET = 4b866e7eb48c
+JAXP_CHANGESET = df965e45dd1f
+JAXWS_CHANGESET = efd5dbb3fe96
+JDK_CHANGESET = 68b6bb380175
+LANGTOOLS_CHANGESET = e952982cfa00
+OPENJDK_CHANGESET = 61245205213a
+CORBA_SHA256SUM = df1154915cad317b93555b563fc12acad1b92e5f2870642736f186b7a4d80f14
+JAXP_SHA256SUM = 143a5b957fbb00889ff9d38a4bf391218786b6a33664235279edbb6e79a3decc
+JAXWS_SHA256SUM = d3e3d55d6e2231c4420d30d124f72c56695d45e8a398e3cc7ba21ff2a93c1284
+JDK_SHA256SUM = adbda93d1e9be89447e009733a6c9050c6e6cebda3c674a76ebbeb8986623534
+LANGTOOLS_SHA256SUM = 12036b985f8811cdadf6d5bf840f90bab25f4da1cc3e86bab9c3f6efcc10055b
+OPENJDK_SHA256SUM = 14a9f90e2fe5c0bb73dc8ffcc9ea5dc76d3ce7a74a0c901cfd0b0ae3fc8c6450
 DROP_URL = http://icedtea.classpath.org/download/drops
 CACAO_VERSION = c182f119eaad
 CACAO_SHA256SUM = eade43f6c5da8b3b5a64e6b206b624eaca88539f80101d7164d6aa426eb590b1
@@ -3586,8 +3586,11 @@ install-data-local:
 	  $(DESTDIR)${prefix}/jre/lib/security
 	$(INSTALL_DATA) $(BUILD_SDK_DIR)/jre/lib/security/blacklisted.certs \
 	  $(DESTDIR)${prefix}/jre/lib/security
-	for files in $(BUILD_SDK_DIR)/jre/lib/security/*.jar; do \
-	  $(call install_file,$${files},$(DESTDIR)${prefix}/jre/lib/security,$(INSTALL_DATA)) ; \
+	for policies in limited unlimited; do \
+	  ${mkinstalldirs} $(DESTDIR)${prefix}/jre/lib/security/policy/$${policies} ; \
+	  for files in $(BUILD_SDK_DIR)/jre/lib/security/policy/$${policies}/*.jar; do \
+	    $(call install_file,$${files},$(DESTDIR)${prefix}/jre/lib/security/policy/$${policies},$(INSTALL_DATA)); \
+	  done ; \
 	done
 	for items in $(BUILD_SDK_DIR)/jre/lib/zi/*; do \
 	  cp -RP $${items} $(DESTDIR)${prefix}/jre/lib/zi ; \

@@ -15,7 +15,7 @@ Index: openjdk/hotspot/make/linux/makefiles/gcc.make
 ===================================================================
 --- openjdk/hotspot/make/linux/makefiles/gcc.make
 +++ openjdk/hotspot/make/linux/makefiles/gcc.make
-@@ -228,6 +228,7 @@ endif
+@@ -229,6 +229,7 @@ endif
  
  # Enable linker optimization
  LFLAGS += -Xlinker -O1

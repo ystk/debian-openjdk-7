@@ -1,0 +1,272 @@
+
+# HG changeset patch
+# User aph
+# Date 1503422240 -3600
+# Node ID 46d12689c87023b51d55e45434d34c55dc1399f8
+# Parent  541e6b9eb05f01e8e792e1f338c325f44fc8da11
+8145438, PR3443, RH1482244: Guarantee failures since 8144028: Use AArch64 bit-test instructions in C2
+Summary: Implement short and long versions of bit test instructions.
+Reviewed-by: kvn
+
+diff -r 541e6b9eb05f -r 46d12689c870 src/cpu/aarch64/vm/aarch64.ad
+--- openjdk/hotspot/src/cpu/aarch64/vm/aarch64.ad	Tue Jul 04 21:23:37 2017 +0100
++++ openjdk/hotspot/src/cpu/aarch64/vm/aarch64.ad	Tue Aug 22 18:17:20 2017 +0100
+@@ -1540,10 +1540,14 @@
+   return 0;
+ }
+ 
+-bool Matcher::is_short_branch_offset(int rule, int br_size, int offset)
+-{
+-  Unimplemented();
+-  return false;
++// Is this branch offset short enough that a short branch can be used?
++//
++// NOTE: If the platform does not provide any short branch variants, then
++//       this method should return false for offset 0.
++bool Matcher::is_short_branch_offset(int rule, int br_size, int offset) {
++  // The passed offset is relative to address of the branch.
++
++  return (-32768 <= offset && offset < 32768);
+ }
+ 
+ const bool Matcher::isSimpleConstant64(jlong value) {
+@@ -11153,7 +11157,8 @@
+ 
+ // Test bit and Branch
+ 
+-instruct cmpL_branch_sign(cmpOp cmp, iRegL op1, immL0 op2, label labl, rFlagsReg cr) %{
++// Patterns for short (< 32KiB) variants
++instruct cmpL_branch_sign(cmpOp cmp, iRegL op1, immL0 op2, label labl) %{
+   match(If cmp (CmpL op1 op2));
+   predicate(n->in(1)->as_Bool()->_test._test == BoolTest::lt
+             || n->in(1)->as_Bool()->_test._test == BoolTest::ge);
+@@ -11163,16 +11168,15 @@
+   format %{ "cb$cmp   $op1, $labl # long" %}
+   ins_encode %{
+     Label* L = $labl$$label;
+-    Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
+-    if (cond == Assembler::LT)
+-      __ tbnz($op1$$Register, 63, *L);
+-    else
+-      __ tbz($op1$$Register, 63, *L);
++    Assembler::Condition cond =
++      ((Assembler::Condition)$cmp$$cmpcode == Assembler::LT) ? Assembler::NE : Assembler::EQ;
++    __ tbr(cond, $op1$$Register, 63, *L);
+   %}
+   ins_pipe(pipe_cmp_branch);
+-%}
+-
+-instruct cmpI_branch_sign(cmpOp cmp, iRegIorL2I op1, immI0 op2, label labl, rFlagsReg cr) %{
++  ins_short_branch(1);
++%}
++
++instruct cmpI_branch_sign(cmpOp cmp, iRegIorL2I op1, immI0 op2, label labl) %{
+   match(If cmp (CmpI op1 op2));
+   predicate(n->in(1)->as_Bool()->_test._test == BoolTest::lt
+             || n->in(1)->as_Bool()->_test._test == BoolTest::ge);
+@@ -11182,16 +11186,15 @@
+   format %{ "cb$cmp   $op1, $labl # int" %}
+   ins_encode %{
+     Label* L = $labl$$label;
+-    Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
+-    if (cond == Assembler::LT)
+-      __ tbnz($op1$$Register, 31, *L);
+-    else
+-      __ tbz($op1$$Register, 31, *L);
++    Assembler::Condition cond =
++      ((Assembler::Condition)$cmp$$cmpcode == Assembler::LT) ? Assembler::NE : Assembler::EQ;
++    __ tbr(cond, $op1$$Register, 31, *L);
+   %}
+   ins_pipe(pipe_cmp_branch);
+-%}
+-
+-instruct cmpL_branch_bit(cmpOp cmp, iRegL op1, immL op2, immL0 op3, label labl, rFlagsReg cr) %{
++  ins_short_branch(1);
++%}
++
++instruct cmpL_branch_bit(cmpOp cmp, iRegL op1, immL op2, immL0 op3, label labl) %{
+   match(If cmp (CmpL (AndL op1 op2) op3));
+   predicate((n->in(1)->as_Bool()->_test._test == BoolTest::ne
+             || n->in(1)->as_Bool()->_test._test == BoolTest::eq)
+@@ -11204,15 +11207,13 @@
+     Label* L = $labl$$label;
+     Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
+     int bit = exact_log2($op2$$constant);
+-    if (cond == Assembler::EQ)
+-      __ tbz($op1$$Register, bit, *L);
+-    else
+-      __ tbnz($op1$$Register, bit, *L);
++    __ tbr(cond, $op1$$Register, bit, *L);
+   %}
+   ins_pipe(pipe_cmp_branch);
+-%}
+-
+-instruct cmpI_branch_bit(cmpOp cmp, iRegIorL2I op1, immI op2, immI0 op3, label labl, rFlagsReg cr) %{
++  ins_short_branch(1);
++%}
++
++instruct cmpI_branch_bit(cmpOp cmp, iRegIorL2I op1, immI op2, immI0 op3, label labl) %{
+   match(If cmp (CmpI (AndI op1 op2) op3));
+   predicate((n->in(1)->as_Bool()->_test._test == BoolTest::ne
+             || n->in(1)->as_Bool()->_test._test == BoolTest::eq)
+@@ -11225,10 +11226,79 @@
+     Label* L = $labl$$label;
+     Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
+     int bit = exact_log2($op2$$constant);
+-    if (cond == Assembler::EQ)
+-      __ tbz($op1$$Register, bit, *L);
+-    else
+-      __ tbnz($op1$$Register, bit, *L);
++    __ tbr(cond, $op1$$Register, bit, *L);
++  %}
++  ins_pipe(pipe_cmp_branch);
++  ins_short_branch(1);
++%}
++
++// And far variants
++instruct far_cmpL_branch_sign(cmpOp cmp, iRegL op1, immL0 op2, label labl) %{
++  match(If cmp (CmpL op1 op2));
++  predicate(n->in(1)->as_Bool()->_test._test == BoolTest::lt
++            || n->in(1)->as_Bool()->_test._test == BoolTest::ge);
++  effect(USE labl);
++
++  ins_cost(BRANCH_COST);
++  format %{ "cb$cmp   $op1, $labl # long" %}
++  ins_encode %{
++    Label* L = $labl$$label;
++    Assembler::Condition cond =
++      ((Assembler::Condition)$cmp$$cmpcode == Assembler::LT) ? Assembler::NE : Assembler::EQ;
++    __ tbr(cond, $op1$$Register, 63, *L, /*far*/true);
++  %}
++  ins_pipe(pipe_cmp_branch);
++%}
++
++instruct far_cmpI_branch_sign(cmpOp cmp, iRegIorL2I op1, immI0 op2, label labl) %{
++  match(If cmp (CmpI op1 op2));
++  predicate(n->in(1)->as_Bool()->_test._test == BoolTest::lt
++            || n->in(1)->as_Bool()->_test._test == BoolTest::ge);
++  effect(USE labl);
++
++  ins_cost(BRANCH_COST);
++  format %{ "cb$cmp   $op1, $labl # int" %}
++  ins_encode %{
++    Label* L = $labl$$label;
++    Assembler::Condition cond =
++      ((Assembler::Condition)$cmp$$cmpcode == Assembler::LT) ? Assembler::NE : Assembler::EQ;
++    __ tbr(cond, $op1$$Register, 31, *L, /*far*/true);
++  %}
++  ins_pipe(pipe_cmp_branch);
++%}
++
++instruct far_cmpL_branch_bit(cmpOp cmp, iRegL op1, immL op2, immL0 op3, label labl) %{
++  match(If cmp (CmpL (AndL op1 op2) op3));
++  predicate((n->in(1)->as_Bool()->_test._test == BoolTest::ne
++            || n->in(1)->as_Bool()->_test._test == BoolTest::eq)
++            && is_power_of_2(n->in(2)->in(1)->in(2)->get_long()));
++  effect(USE labl);
++
++  ins_cost(BRANCH_COST);
++  format %{ "tb$cmp   $op1, $op2, $labl" %}
++  ins_encode %{
++    Label* L = $labl$$label;
++    Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
++    int bit = exact_log2($op2$$constant);
++    __ tbr(cond, $op1$$Register, bit, *L, /*far*/true);
++  %}
++  ins_pipe(pipe_cmp_branch);
++%}
++
++instruct far_cmpI_branch_bit(cmpOp cmp, iRegIorL2I op1, immI op2, immI0 op3, label labl) %{
++  match(If cmp (CmpI (AndI op1 op2) op3));
++  predicate((n->in(1)->as_Bool()->_test._test == BoolTest::ne
++            || n->in(1)->as_Bool()->_test._test == BoolTest::eq)
++            && is_power_of_2(n->in(2)->in(1)->in(2)->get_int()));
++  effect(USE labl);
++
++  ins_cost(BRANCH_COST);
++  format %{ "tb$cmp   $op1, $op2, $labl" %}
++  ins_encode %{
++    Label* L = $labl$$label;
++    Assembler::Condition cond = (Assembler::Condition)$cmp$$cmpcode;
++    int bit = exact_log2($op2$$constant);
++    __ tbr(cond, $op1$$Register, bit, *L, /*far*/true);
+   %}
+   ins_pipe(pipe_cmp_branch);
+ %}
+diff -r 541e6b9eb05f -r 46d12689c870 src/cpu/aarch64/vm/assembler_aarch64.hpp
+--- openjdk/hotspot/src/cpu/aarch64/vm/assembler_aarch64.hpp	Tue Jul 04 21:23:37 2017 +0100
++++ openjdk/hotspot/src/cpu/aarch64/vm/assembler_aarch64.hpp	Tue Aug 22 18:17:20 2017 +0100
+@@ -2723,6 +2723,32 @@
+ 
+   void movptr(Register r, uintptr_t imm64);
+ 
++public:
++
++  // Generalized Test Bit And Branch, including a "far" variety which
++  // spans more than 32KiB.
++  void tbr(Condition cond, Register Rt, int bitpos, Label &dest, bool far = false) {
++    assert(cond == EQ || cond == NE, "must be");
++
++    if (far)
++      cond = ~cond;
++
++    void (Assembler::* branch)(Register Rt, int bitpos, Label &L);
++    if (cond == Assembler::EQ)
++      branch = &Assembler::tbz;
++    else
++      branch = &Assembler::tbnz;
++
++    if (far) {
++      Label L;
++      (this->*branch)(Rt, bitpos, L);
++      b(dest);
++      bind(L);
++    } else {
++      (this->*branch)(Rt, bitpos, dest);
++    }
++  }
++
+   // macro instructions for accessing and updating floating point
+   // status register
+   //
+diff -r 541e6b9eb05f -r 46d12689c870 src/cpu/aarch64/vm/c1_MacroAssembler_aarch64.hpp
+--- openjdk/hotspot/src/cpu/aarch64/vm/c1_MacroAssembler_aarch64.hpp	Tue Jul 04 21:23:37 2017 +0100
++++ openjdk/hotspot/src/cpu/aarch64/vm/c1_MacroAssembler_aarch64.hpp	Tue Aug 22 18:17:20 2017 +0100
+@@ -27,6 +27,8 @@
+ #ifndef CPU_AARCH64_VM_C1_MACROASSEMBLER_AARCH64_HPP
+ #define CPU_AARCH64_VM_C1_MACROASSEMBLER_AARCH64_HPP
+ 
++using MacroAssembler::null_check;
++
+ // C1_MacroAssembler contains high-level macros for C1
+ 
+  private:
+diff -r 541e6b9eb05f -r 46d12689c870 src/cpu/aarch64/vm/interp_masm_aarch64.cpp
+--- openjdk/hotspot/src/cpu/aarch64/vm/interp_masm_aarch64.cpp	Tue Jul 04 21:23:37 2017 +0100
++++ openjdk/hotspot/src/cpu/aarch64/vm/interp_masm_aarch64.cpp	Tue Aug 22 18:17:20 2017 +0100
+@@ -1370,9 +1370,8 @@
+   // the code to check if the event should be sent.
+   if (JvmtiExport::can_post_interpreter_events()) {
+     Label L;
+-    ldr(r3, Address(rthread, JavaThread::interp_only_mode_offset()));
+-    tst(r3, ~0);
+-    br(Assembler::EQ, L);
++    ldrw(r3, Address(rthread, JavaThread::interp_only_mode_offset()));
++    cbzw(r3, L);
+     call_VM(noreg, CAST_FROM_FN_PTR(address,
+                                     InterpreterRuntime::post_method_entry));
+     bind(L);
+diff -r 541e6b9eb05f -r 46d12689c870 src/share/vm/adlc/formssel.cpp
+--- openjdk/hotspot/src/share/vm/adlc/formssel.cpp	Tue Jul 04 21:23:37 2017 +0100
++++ openjdk/hotspot/src/share/vm/adlc/formssel.cpp	Tue Aug 22 18:17:20 2017 +0100
+@@ -1249,7 +1249,8 @@
+       !is_short_branch() &&     // Don't match another short branch variant
+       reduce_result() != NULL &&
+       strcmp(reduce_result(), short_branch->reduce_result()) == 0 &&
+-      _matrule->equivalent(AD.globalNames(), short_branch->_matrule)) {
++      _matrule->equivalent(AD.globalNames(), short_branch->_matrule) &&
++      equivalent_predicates(this, short_branch)) {
+     // The instructions are equivalent.
+ 
+     // Now verify that both instructions have the same parameters and
+

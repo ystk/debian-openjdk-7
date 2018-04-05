@@ -2,7 +2,7 @@ Index: openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 ===================================================================
 --- openjdk/hotspot/src/os/linux/vm/os_linux.cpp
 +++ openjdk/hotspot/src/os/linux/vm/os_linux.cpp
-@@ -2049,7 +2049,7 @@ void * os::dll_load(const char *filename
+@@ -2044,7 +2044,7 @@ void * os::dll_load(const char *filename
  
    #if  (defined IA32)
      static  Elf32_Half running_arch_code=EM_386;

@@ -133,6 +133,19 @@ ifneq (,$(filter nobootstrap, $(DEB_BUILD_OPTIONS)))
   stage1_gcj_archs :=
 endif
 
+# Disable bootstrap on sid/buster, gcj is removed
+ifneq (,$(filter $(distrel),sid buster))
+  stage1_openjdk_archs := $(stage1_openjdk_archs) $(stage1_gcj_archs)
+  stage1_gcj_archs :=
+endif
+
+# Disable bootstrap on wheezy, it currently fails due to the last round
+# of 8u151 security patches
+ifneq (,$(filter $(distrel),wheezy))
+  stage1_openjdk_archs := $(stage1_openjdk_archs) $(stage1_gcj_archs)
+  stage1_gcj_archs :=
+endif
+
 ifneq (,$(filter $(distrel),wheezy precise))
   transitional_cacao_pkg = yes
 endif
@@ -338,6 +351,11 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/javadoc-sort-enum-and-annotation-types.patch \
 	debian/patches/jdk-getAccessibleValue.diff \
 
+ifeq ($(derivative),Debian)
+  DISTRIBUTION_PATCHES += \
+	debian/patches/hotspot-disable-exec-shield-workaround.patch
+endif
+
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \
 	debian/patches/no-pch-build.diff \
@@ -387,34 +405,6 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
     endif
   endif    
 endif
-
-# 8u151 security backports
-DISTRIBUTION_PATCHES += \
-	debian/patches/sec-webrev-8u151-backport-S8006591-backport-for-S8181692.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8006855-backport-for-S8181692.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8007934-backport-for-S8181692.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8165543.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8169026.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8169966.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8170218.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8171252.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8174109.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8174966.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8175940.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8176751.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8178794.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8180024.corba.patch \
-	debian/patches/sec-webrev-8u151-backport-S8180024.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8180711.hotspot.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181100.jaxws.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181323.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181327.jaxp.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181370.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181432.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181597.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181612.jdk.patch \
-	debian/patches/sec-webrev-8u151-backport-S8181692.jdk.patch
-
 
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 
@@ -575,6 +565,7 @@ ifneq (,$(filter $(distrel),wheezy))
   export CC = gcc-4.7
   export CXX = g++-4.7
   GCJ_SUFFIX = -4.7
+  bd_gcc = g++-4.7,
   ifneq (,$(filter $(DEB_HOST_ARCH), mips mipsel))
     export CC = gcc-4.4
     export CXX = g++-4.4
@@ -742,7 +733,6 @@ control_vars = \
 
 ifneq (,$(DEB_HOST_MULTIARCH))
   control_vars += \
-	'-Vmultiarch:Depends=multiarch-support' \
 	'-Vmultiarch:Conflicts=icedtea-netx (<< 1.1.1-2~)'
 endif
 
@@ -1381,7 +1371,7 @@ endif
 	  echo 'etc'; \
 	  echo '$(basedir)/jre/lib/jexec'; \
 	  echo '$(basedir)/jre/lib/rt.jar'; \
-	  echo '$(basedir)/jre/lib/security/*_policy.jar'; \
+	  echo '$(basedir)/jre/lib/security/policy/*/*_policy.jar'; \
 	  echo '$(basedir)/jre/man/ja'; \
 	  echo '$(basedir)/man/ja'; \
 	  echo '$(basedir)/bin/java-rmi.cgi'; \
@@ -1560,6 +1550,10 @@ endif
 ifneq (,$(DEB_HOST_MULTIARCH))
 	echo '/$(basedir) /usr/lib/jvm/$(jdirname)' >> $(d_jrehl).links
 endif
+	( \
+	  echo $(basedir)/jre/lib/security/policy/unlimited/US_export_policy.jar $(basedir)/jre/lib/security/US_export_policy.jar; \
+	  echo $(basedir)/jre/lib/security/policy/unlimited/local_policy.jar $(basedir)/jre/lib/security/local_policy.jar; \
+	) >> $(d_jrehl).links
 
 	: # create docdir symlinks for $(p_jre)
 	( \

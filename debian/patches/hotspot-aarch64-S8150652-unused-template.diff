@@ -7,10 +7,11 @@
 8150652: Remove unused code in AArch64 back end
 Reviewed-by: kvn
 
-diff -r d93a2aced128 -r 54520c7add10 src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp
---- openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp	Wed May 11 18:17:15 2016 +0100
-+++ openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp	Thu Feb 25 14:59:44 2016 +0000
-@@ -207,10 +207,6 @@
+Index: openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp
+===================================================================
+--- openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp
++++ openjdk/hotspot/src/cpu/aarch64/vm/sharedRuntime_aarch64.cpp
+@@ -194,10 +194,6 @@ static int reg2offset_out(VMReg r) {
    return (r->reg2stack() + SharedRuntime::out_preserve_stack_slots()) * VMRegImpl::stack_slot_size;
  }
  
@@ -21,4 +22,3 @@ diff -r d93a2aced128 -r 54520c7add10 src/cpu/aarch64/vm/sharedRuntime_aarch64.cp
  // ---------------------------------------------------------------------------
  // Read the array of BasicTypes from a signature, and compute where the
  // arguments should go.  Values in the VMRegPair regs array refer to 4-byte
-

@@ -8,9 +8,9 @@ Author: Damien Raude-Morvan <drazzib@debian.org>, Matthias Klose <doko@ubuntu.co
 
 Index: openjdk/hotspot/make/linux/makefiles/jsig.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/jsig.make.orig
+--- openjdk/hotspot/make/linux/makefiles/jsig.make
 +++ openjdk/hotspot/make/linux/makefiles/jsig.make
-@@ -59,7 +59,7 @@
+@@ -59,7 +59,7 @@ endif
  $(LIBJSIG): $(JSIGSRCDIR)/jsig.c $(LIBJSIG_MAPFILE)
  	@echo Making signal interposition lib...
  	$(QUIETLY) $(CC) $(SYMFLAG) $(ARCHFLAG) $(SHARED_FLAG) $(PICFLAG) \
@@ -21,9 +21,9 @@ Index: openjdk/hotspot/make/linux/makefiles/jsig.make
    ifneq ($(STRIP_POLICY),no_strip)
 Index: openjdk/hotspot/make/linux/makefiles/launcher.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/launcher.make.orig
+--- openjdk/hotspot/make/linux/makefiles/launcher.make
 +++ openjdk/hotspot/make/linux/makefiles/launcher.make
-@@ -73,16 +73,16 @@
+@@ -73,16 +73,16 @@ DEPFILES := $(patsubst %.o,%.d,$(OBJS))
  
  $(LAUNCHER_OUT)/%.o: $(LAUNCHERDIR_SHARE)/%.c
  	$(QUIETLY) [ -d $(LAUNCHER_OUT) ] || { mkdir -p $(LAUNCHER_OUT); }
@@ -45,9 +45,9 @@ Index: openjdk/hotspot/make/linux/makefiles/launcher.make
  $(LAUNCHER): $(LAUNCHER_SCRIPT)
 Index: openjdk/hotspot/make/linux/makefiles/vm.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/vm.make.orig
+--- openjdk/hotspot/make/linux/makefiles/vm.make
 +++ openjdk/hotspot/make/linux/makefiles/vm.make
-@@ -134,8 +134,8 @@
+@@ -134,8 +134,8 @@ CFLAGS += $(CFLAGS_WARN/BYFILE)
  CFLAGS += $(CFLAGS/NOEX)
  
  # Extra flags from gnumake's invocation or environment
@@ -60,10 +60,10 @@ Index: openjdk/hotspot/make/linux/makefiles/vm.make
  # the same could be done by separate execstack command
 Index: openjdk/jdk/make/common/Defs.gmk
 ===================================================================
---- openjdk/jdk/make/common/Defs.gmk.orig
+--- openjdk/jdk/make/common/Defs.gmk
 +++ openjdk/jdk/make/common/Defs.gmk
-@@ -562,11 +562,11 @@
- # EXTRA_CFLAGS are used to define cross-compilation options
+@@ -556,11 +556,11 @@ CXXFLAGS_$(VARIANT)/BYFILE  = $(CXXFLAGS
+ # EXTRA_CFLAGS and EXTRA_LDFLAGS are used for command-line additions
  #
  ASFLAGS         = $(ASFLAGS_$(VARIANT)) $(ASFLAGS_COMMON) $(OTHER_ASFLAGS)
 -CFLAGS          = $(CFLAGS_$(VARIANT)/BYFILE)   $(CFLAGS_COMMON) $(OTHER_CFLAGS) $(EXTRA_CFLAGS)
@@ -72,7 +72,7 @@ Index: openjdk/jdk/make/common/Defs.gmk
 +CXXFLAGS        = $(CXXFLAGS_$(VARIANT)/BYFILE) $(CXXFLAGS_COMMON) $(OTHER_CXXFLAGS) $(EXTRA_CXXFLAGS_JDK)
  CPPFLAGS        = $(CPPFLAGS_$(VARIANT)) $(CPPFLAGS_COMMON) $(OTHER_CPPFLAGS) \
 -		  $(DEFINES) $(OPTIONS:%=-D%)
--LDFLAGS         = $(LDFLAGS_$(VARIANT)) $(LDFLAGS_COMMON) $(OTHER_LDFLAGS)
+-LDFLAGS         = $(LDFLAGS_$(VARIANT)) $(LDFLAGS_COMMON) $(OTHER_LDFLAGS) $(EXTRA_LDFLAGS)
 +		  $(DEFINES) $(OPTIONS:%=-D%) $(EXTRA_CPPFLAGS_JDK)
 +LDFLAGS         = $(LDFLAGS_$(VARIANT)) $(LDFLAGS_COMMON) $(OTHER_LDFLAGS) $(EXTRA_LDFLAGS_JDK)
  LDLIBS          = $(OTHER_LDLIBS) $(LDLIBS_$(VARIANT)) $(LDLIBS_COMMON)
@@ -80,9 +80,9 @@ Index: openjdk/jdk/make/common/Defs.gmk
  		  $(OTHER_LINTFLAGS)
 Index: openjdk/hotspot/make/linux/makefiles/saproc.make
 ===================================================================
---- openjdk/hotspot/make/linux/makefiles/saproc.make.orig
+--- openjdk/hotspot/make/linux/makefiles/saproc.make
 +++ openjdk/hotspot/make/linux/makefiles/saproc.make
-@@ -77,7 +77,7 @@
+@@ -77,7 +77,7 @@ ALT_SAINCDIR=-I$(ALT_SASRCDIR)
  else
  ALT_SAINCDIR=
  endif

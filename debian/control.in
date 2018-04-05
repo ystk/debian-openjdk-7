@@ -2,7 +2,7 @@ Source: @basename@
 Section: java
 Priority: optional
 Maintainer: OpenJDK Team <openjdk@lists.launchpad.net>
-Uploaders: Matthias Klose <doko@ubuntu.com>, Damien Raude-Morvan <drazzib@debian.org>
+Uploaders: Matthias Klose <doko@ubuntu.com>
 Build-Depends: debhelper (>= 9),
   m4, lsb-release, wget, zip, unzip, sharutils,
   gawk, cpio, pkg-config, procps, time, wdiff,
@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 9),
   @bd_zero@ @bd_shark@
   @bd_syslibs@
   @bd_nss@ @bd_systemtap@
-Standards-Version: 3.9.8
+Standards-Version: 4.1.3
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7
@@ -39,7 +39,7 @@ Description: OpenJDK Development Kit (JDK)
 Package: @basename@-jre-headless
 Architecture: @any_archs@
 Multi-Arch: same
-Pre-Depends: ${dpkg:Depends}, ${multiarch:Depends}
+Pre-Depends: ${dpkg:Depends}
 Depends: ${jredefault:Depends}, ${cacert:Depends}, ${tzdata:Depends}, ${jcommon:Depends}, ${dlopenhl:Depends}, ${mountpoint:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Recommends: ${dlopenhl:Recommends}, ${jamvm:Recommends}
 Suggests: ${jamvm:Suggests}, libnss-mdns, sun-java6-fonts, @core_fonts@, @cjk_fonts@

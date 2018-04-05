@@ -1,8 +1,83 @@
-openjdk-7 (7u151-2.6.11-2~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u171-2.6.13-1~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Wed, 22 Nov 2017 22:54:49 +0100
+ -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 03 Apr 2018 09:00:06 +0200
+
+openjdk-7 (7u171-2.6.13-1) experimental; urgency=high
+
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.13 (based on 7u171). Closes: #891330.
+  * Security fixes:
+    - S8160104: CORBA communication improvements
+    - S8172525, CVE-2018-2579: Improve key keying case
+    - S8174756: Extra validation for public keys
+    - S8175932: Improve host instance supports
+    - S8176458: Revise default document styling
+    - S8178449, CVE-2018-2588: Improve LDAP logins
+    - S8178458: Better use of certificates in LDAP
+    - S8178466: Better RSA parameters
+    - S8179536: Cleaner print job handling
+    - S8179990: Cleaner palette entry handling
+    - S8180011: Cleaner native graphics device handling
+    - S8180015: Cleaner AWT robot handling
+    - S8180020: Improve SymbolHashMap entry handling
+    - S8180433: Cleaner CLR invocation handling
+    - S8180877: More deeply colored ICC spaces
+    - S8181664: Improve JVM UTF String handling
+    - S8181670: Improve implementation of keystores
+    - S8182125, CVE-2018-2599: Improve reliability of DNS lookups
+    - S8182387, CVE-2018-2603: Improve PKCS usage
+    - S8182601, CVE-2018-2602: Improve usage messages
+    - S8185292, CVE-2018-2618: Stricter key generation
+    - S8185325, CVE-2018-2641: Improve GTK initialization
+    - S8186080: Transform XML interfaces
+    - S8186212, CVE-2018-2629: Improve GSS handling
+    - S8186600, CVE-2018-2634: Improve property negotiations
+    - S8186606, CVE-2018-2633: Improve LDAP lookup robustness
+    - S8186867: Improve native glyph layouts
+    - S8186998, CVE-2018-2637: Improve JMX supportive features
+    - S8189284, CVE-2018-2663: More refactoring for deserialization cases
+    - S8190289, CVE-2018-2677: More refactoring for client deserialization cases
+    - S8191142, CVE-2018-2678: More refactoring for naming deserialization cases
+  * Remove multiarch-support pre-dependency. Closes: #887858.
+
+  [ Matthias Klose ]
+  * Bump standards version.
+  * Disable bootstrap on sid/buster, gcj is removed.
+  * Remove Damien Raude-Morvan as uploader. Closes: #889378.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 02 Apr 2018 10:36:32 +0200
+
+openjdk-7 (7u161-2.6.12-1) experimental; urgency=medium
+
+  * IcedTea release 2.6.12 (based on 7u161).
+  * Disable Hotspot workaround for Exec Shield (Debian only).
+    Addresses: #876051.
+  * Build-depend on g++-4.7 on wheezy. This is the default on some
+    architectures such as amd64 or i386, but not on armhf or armel,
+    which default to 4.6. There the build was working before because
+    the bootstrap build pulled gcj-jdk, which depends on gcj-4.7-jdk
+    and that in turn depends on g++-4.7. However since we have
+    disabled the bootstrap build now, g++-4.7 is no longer installed
+    on arm* builds, causing the build failure which couldn't be seen
+    on amd64 (Emilio Pozuelo Monfort).
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 07 Dec 2017 09:12:51 +0100
+
+openjdk-7 (7u151-2.6.11-3) experimental; urgency=medium
+
+  [ Matthias Klose ]
+  * Disable bootstrap on wheezy, it currently fails due to the last round
+    of 8u151 security patches (Emilio Pozuelo Monfort).
+
+  [ Tiago Stürmer Daitx ]
+  * debian/patches/hotspot-aarch64-S8145438-fix-field-too-big-for-insn.patch:
+    the S8144028 fix was incomplete and followed up by S8145438; without it
+    aarch64 JVM can fail with "Internal Error, failed: Field too big for
+    insn".
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 23 Nov 2017 16:37:21 +0100
 
 openjdk-7 (7u151-2.6.11-2) experimental; urgency=medium
 

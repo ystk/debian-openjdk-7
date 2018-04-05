@@ -12,11 +12,12 @@ Index: openjdk/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp
 ===================================================================
 --- openjdk/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp
 +++ openjdk/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp
-@@ -290,11 +290,12 @@ void os::Linux::init_thread_fpu_state(vo
+@@ -290,12 +290,12 @@ void os::Linux::init_thread_fpu_state(vo
  }
  
  int os::Linux::get_fpu_control_word() {
 -  ShouldNotCallThis();
+-  return -1; // silence compile warnings
 +  // Nothing to do
 +  return 0;
  }

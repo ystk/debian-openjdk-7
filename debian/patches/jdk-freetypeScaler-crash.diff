@@ -24,6 +24,8 @@ Summary: NewGlobalRef/DeleteGlobalRef as needed.
 Reviewed-by:
 Contributed-by: yamauchi@google.com
 
+Index: openjdk/jdk/make/sun/font/mapfile-vers.openjdk
+===================================================================
 --- openjdk/jdk/make/sun/font/mapfile-vers.openjdk
 +++ openjdk/jdk/make/sun/font/mapfile-vers.openjdk
 @@ -29,6 +29,7 @@
@@ -34,10 +36,12 @@ Contributed-by: yamauchi@google.com
                  getSunFontIDs;
                  newLayoutTableCache; 
                  freeLayoutTableCache;
+Index: openjdk/jdk/src/share/native/sun/font/freetypeScaler.c
+===================================================================
 --- openjdk/jdk/src/share/native/sun/font/freetypeScaler.c
 +++ openjdk/jdk/src/share/native/sun/font/freetypeScaler.c
 @@ -52,16 +52,6 @@
- #define  ROUND(x) ((int) (x+0.5))
+ #define  ROUND26Dot6(x) ((x + 63) & -64)
  
  typedef struct {
 -    /* Important note:
