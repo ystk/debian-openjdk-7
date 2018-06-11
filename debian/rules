@@ -363,7 +363,6 @@ ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
 	debian/patches/hotspot-sparc-arch.diff \
 	debian/patches/hotspot-no-march-i586.diff \
 	debian/patches/zero-opt.diff \
-	debian/patches/hotspot-powerpcspe.diff \
 	debian/patches/hotspot-mips-align.diff \
 	debian/patches/zero-x32.diff \
 	debian/patches/zero-sparc.diff

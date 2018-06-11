@@ -1,8 +1,40 @@
-openjdk-7 (7u171-2.6.13-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u181-2.6.14-1~deb8u1) jessie-security; urgency=medium
 
-  * Rebuild for jessie-security
+  * Rebuild for jessie-security.
 
- -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 03 Apr 2018 09:00:06 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Fri, 08 Jun 2018 12:54:06 +0200
+
+openjdk-7 (7u181-2.6.14-1) experimental; urgency=medium
+
+  * IcedTea release 2.6.14 (based on 7u181). Closes: #898976.
+  * Security fixes:
+    - S8162488: JDK should be updated to use LittleCMS 2.8
+    - S8180881: Better packaging of deserialization
+    - S8182362: Update CipherOutputStream Usage
+    - S8183032: Upgrade to LittleCMS 2.9
+    - S8189123: More consistent classloading
+    - S8189969, CVE-2018-2790: Manifest better manifest entries
+    - S8189977, CVE-2018-2795: Improve permission portability
+    - S8189981, CVE-2018-2796: Improve queuing portability
+    - S8189985, CVE-2018-2797: Improve tabular data portability
+    - S8189989, CVE-2018-2798: Improve container portability
+    - S8189993, CVE-2018-2799: Improve document portability
+    - S8189997, CVE-2018-2794: Enhance keystore mechanisms
+    - S8190478: Improved interface method selection
+    - S8190877: Better handling of abstract classes
+    - S8191696: Better mouse positioning
+    - S8192025, CVE-2018-2814: Less referential references
+    - S8192030: Better MTSchema support
+    - S8192757, CVE-2018-2815: Improve stub classes implementation
+    - S8193409: Improve AES supporting classes
+    - S8193414: Improvements in MethodType lookups
+    - S8193833, CVE-2018-2800: Better RMI connection support
+  * debian/patches/it-patch-updates.diff:
+    - Refreshed.
+  * debian/patches/hotspot-powerpcspe.diff:
+    - Removed, fixed upstream.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Fri, 08 Jun 2018 12:23:38 +0200
 
 openjdk-7 (7u171-2.6.13-1) experimental; urgency=high
 

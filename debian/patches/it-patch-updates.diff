@@ -1,38 +1,9 @@
 Description: IcedTea patch updates (regenerate patches)
 Author: Matthias Klose <doko@ubuntu.com>
-Last-Update: 2014-07-06
+Last-Update: 2018-06-08
 
 --- a/patches/boot/bootstrap-tools.patch
 +++ b/patches/boot/bootstrap-tools.patch
-@@ -1,7 +1,8 @@
--diff -Nru openjdk-boot.orig/corba/make/common/shared/Defs-java.gmk openjdk-boot/corba/make/common/shared/Defs-java.gmk
----- openjdk-boot.orig/corba/make/common/shared/Defs-java.gmk	2012-06-29 15:19:55.000000000 +0100
--+++ openjdk-boot/corba/make/common/shared/Defs-java.gmk	2012-06-29 18:52:40.584723407 +0100
--@@ -131,26 +131,14 @@
-+Index: openjdk-boot/corba/make/common/shared/Defs-java.gmk
-+===================================================================
-+--- openjdk-boot/corba/make/common/shared/Defs-java.gmk.orig
-++++ openjdk-boot/corba/make/common/shared/Defs-java.gmk
-+@@ -137,26 +137,14 @@ TARGET_CLASS_VERSION = 7
-  CLASS_VERSION = -target $(TARGET_CLASS_VERSION)
-  JAVACFLAGS  += $(CLASS_VERSION)
-  JAVACFLAGS  += -encoding ascii
-@@ -33,10 +34,11 @@
-  
-  # Override of what javac to use (see deploy workspace)
-  ifdef JAVAC
--diff -Nru openjdk-boot.orig/jdk/make/common/shared/Defs-java.gmk openjdk-boot/jdk/make/common/shared/Defs-java.gmk
----- openjdk-boot.orig/jdk/make/common/shared/Defs-java.gmk	2012-06-29 15:21:00.000000000 +0100
--+++ openjdk-boot/jdk/make/common/shared/Defs-java.gmk	2012-06-29 18:53:43.337711469 +0100
--@@ -168,27 +168,15 @@
-+Index: openjdk-boot/jdk/make/common/shared/Defs-java.gmk
-+===================================================================
-+--- openjdk-boot/jdk/make/common/shared/Defs-java.gmk.orig
-++++ openjdk-boot/jdk/make/common/shared/Defs-java.gmk
-+@@ -173,27 +173,15 @@ NO_PROPRIETARY_API_WARNINGS = -XDignore.
-  
-  # Langtools
-  ifdef LANGTOOLS_DIST
 @@ -60,7 +62,7 @@
     JAVAH_CMD     = $(JAVA_TOOLS_DIR)/javah \
   		  $(JAVAHFLAGS)
