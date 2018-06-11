@@ -1,4 +1,4 @@
-AC_INIT([icedtea], [2.6.13], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [2.6.14], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.9 tar-pax foreign])
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_FILES([Makefile])
@@ -155,6 +155,9 @@ IT_CHECK_FOR_CLASS([COM_SUN_MIRROR_TYPE_TYPEMIRROR], [com.sun.mirror.type.TypeMi
 
 dnl Check whether the HTTP server API is present in the bootstrap JDK, required by JAXWS
 IT_CHECK_FOR_CLASS([COM_SUN_NET_HTTPSERVER_HEADERS], [com.sun.net.httpserver.Headers])
+
+dnl Check whether the OpenJDK tooling is present in the bootstrap JDK, required by CORBA
+IT_CHECK_FOR_CLASS([SUN_TOOLS_JAVA_CLASSDEFINITION], [sun.tools.java.ClassDefinition])
 
 dnl Check whether the JDK can parse the dates used in the currency file
 IT_PR64174_CHECK

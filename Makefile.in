@@ -161,77 +161,80 @@ host_triplet = @host@
 @LACKS_COM_SUN_NET_HTTPSERVER_HEADERS_TRUE@am__append_17 = \
 @LACKS_COM_SUN_NET_HTTPSERVER_HEADERS_TRUE@	patches/boot/jaxws-jdk-dependency.patch
 
-@VM_SUPPORTS_XBOOTCLASSPATH_FALSE@am__append_18 = \
+@LACKS_SUN_TOOLS_JAVA_CLASSDEFINITION_TRUE@am__append_18 = \
+@LACKS_SUN_TOOLS_JAVA_CLASSDEFINITION_TRUE@	patches/boot/corba-dependencies.patch
+
+@VM_SUPPORTS_XBOOTCLASSPATH_FALSE@am__append_19 = \
 @VM_SUPPORTS_XBOOTCLASSPATH_FALSE@	patches/boot/xbootclasspath.patch
 
-@CP39408_JAVAH_TRUE@am__append_19 = patches/boot/pr39408.patch
-@CP40188_JAVAH_TRUE@am__append_20 = patches/boot/pr40188.patch \
+@CP39408_JAVAH_TRUE@am__append_20 = patches/boot/pr39408.patch
+@CP40188_JAVAH_TRUE@am__append_21 = patches/boot/pr40188.patch \
 @CP40188_JAVAH_TRUE@	patches/boot/javah.patch
 
-@CP45526_JAVAH_TRUE@am__append_21 = patches/boot/explicit-inner-class-headers.patch
-@CP40616_TRUE@am__append_22 = patches/boot/pr40616.patch
-@LACKS_JAVA_UTIL_SCANNER_TRUE@am__append_23 = $(SCANNER_PATCHES)
-@CP40630_TRUE@@LACKS_JAVA_UTIL_SCANNER_FALSE@am__append_24 = $(SCANNER_PATCHES)
-@JAVAC_LACKS_DIAMOND_TRUE@am__append_25 = patches/boot/ecj-diamond.patch
-@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_TRUE@am__append_26 = patches/boot/compile-for-7-cacao-mem.patch
-@BUILD_CACAO_TRUE@@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_FALSE@am__append_27 = patches/boot/compile-for-7-cacao-mem.patch
-@BUILD_CACAO_FALSE@@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_FALSE@am__append_28 = patches/boot/compile-for-7.patch
-@JAVAC_LACKS_UNDERSCORED_LITERALS_TRUE@am__append_29 = patches/boot/ecj-underscored_literals.patch
-@DTDTYPE_QNAME_TRUE@am__append_30 = patches/boot/jaxws-getdtdtype.patch
-@NO_BYTECODE7_TRUE@am__append_31 = patches/boot/use_target_6_for_bootstrap_classes.patch 
+@CP45526_JAVAH_TRUE@am__append_22 = patches/boot/explicit-inner-class-headers.patch
+@CP40616_TRUE@am__append_23 = patches/boot/pr40616.patch
+@LACKS_JAVA_UTIL_SCANNER_TRUE@am__append_24 = $(SCANNER_PATCHES)
+@CP40630_TRUE@@LACKS_JAVA_UTIL_SCANNER_FALSE@am__append_25 = $(SCANNER_PATCHES)
+@JAVAC_LACKS_DIAMOND_TRUE@am__append_26 = patches/boot/ecj-diamond.patch
+@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_TRUE@am__append_27 = patches/boot/compile-for-7-cacao-mem.patch
+@BUILD_CACAO_TRUE@@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_FALSE@am__append_28 = patches/boot/compile-for-7-cacao-mem.patch
+@BUILD_CACAO_FALSE@@JAVAC_LACKS_DIAMOND_FALSE@@USING_CACAO_FALSE@am__append_29 = patches/boot/compile-for-7.patch
+@JAVAC_LACKS_UNDERSCORED_LITERALS_TRUE@am__append_30 = patches/boot/ecj-underscored_literals.patch
+@DTDTYPE_QNAME_TRUE@am__append_31 = patches/boot/jaxws-getdtdtype.patch
+@NO_BYTECODE7_TRUE@am__append_32 = patches/boot/use_target_6_for_bootstrap_classes.patch 
 
 # If date parsing bug is present, move Lithuania EUR transition date
 # two hours forward into 1st of January, 2015 and drop Latvia transition
 # date as it's already in the past.
-@CP64174_TRUE@am__append_32 = patches/boot/pr64174.patch
-@ENABLE_CACAO_TRUE@am__append_33 = \
+@CP64174_TRUE@am__append_33 = patches/boot/pr64174.patch
+@ENABLE_CACAO_TRUE@am__append_34 = \
 @ENABLE_CACAO_TRUE@	ALT_HOTSPOT_IMPORT_PATH="$(CACAO_IMPORT_PATH)"
 
-@ENABLE_JAMVM_TRUE@am__append_34 = \
+@ENABLE_JAMVM_TRUE@am__append_35 = \
 @ENABLE_JAMVM_TRUE@	ALT_HOTSPOT_IMPORT_PATH="$(JAMVM_IMPORT_PATH)"
 
-@DISABLE_OPTIMIZATIONS_TRUE@am__append_35 = \
+@DISABLE_OPTIMIZATIONS_TRUE@am__append_36 = \
 @DISABLE_OPTIMIZATIONS_TRUE@	NO_OPTIMIZATIONS="true" \
 @DISABLE_OPTIMIZATIONS_TRUE@	CC_NO_OPT="-O0 -g"
 
-@ENABLE_DOCS_FALSE@am__append_36 = \
+@ENABLE_DOCS_FALSE@am__append_37 = \
 @ENABLE_DOCS_FALSE@	NO_DOCS="true"
 
-@USE_ALT_JAR_TRUE@am__append_37 = \
+@USE_ALT_JAR_TRUE@am__append_38 = \
 @USE_ALT_JAR_TRUE@	ALT_JAR_CMD="$(ALT_JAR_CMD)"
 
-@HAS_HOTSPOT_REVISION_TRUE@am__append_38 = \
+@HAS_HOTSPOT_REVISION_TRUE@am__append_39 = \
 @HAS_HOTSPOT_REVISION_TRUE@	HOTSPOT_BUILD_VERSION="$(HOTSPOT_REVISION)"
 
-@WITH_RHINO_TRUE@am__append_39 = \
+@WITH_RHINO_TRUE@am__append_40 = \
 @WITH_RHINO_TRUE@	RHINO_JAR="$(abs_top_builddir)/rhino/rhino.jar"
 
-@WITH_PAX_TRUE@am__append_40 = \
+@WITH_PAX_TRUE@am__append_41 = \
 @WITH_PAX_TRUE@	PAX_COMMAND="${PAX_COMMAND}"
 
-@ENABLE_SUNEC_TRUE@am__append_41 = \
+@ENABLE_SUNEC_TRUE@am__append_42 = \
 @ENABLE_SUNEC_TRUE@	SYSTEM_NSS="true" \
 @ENABLE_SUNEC_TRUE@	NSS_LIBS="${SUNEC_LIBS}" \
 @ENABLE_SUNEC_TRUE@	NSS_CFLAGS="${SUNEC_CFLAGS}" \
 @ENABLE_SUNEC_TRUE@	ECC_JUST_SUITE_B="true"
 
-@ENABLE_SUNEC_FALSE@am__append_42 = \
+@ENABLE_SUNEC_FALSE@am__append_43 = \
 @ENABLE_SUNEC_FALSE@	SYSTEM_NSS="false" \
 @ENABLE_SUNEC_FALSE@	DISABLE_INTREE_EC="true"
 
-@ENABLE_NATIVE_DEBUGINFO_TRUE@am__append_43 = \
+@ENABLE_NATIVE_DEBUGINFO_TRUE@am__append_44 = \
 @ENABLE_NATIVE_DEBUGINFO_TRUE@	DEBUG_BINARIES="true"
 
-@ENABLE_JAVA_DEBUGINFO_TRUE@am__append_44 = \
+@ENABLE_JAVA_DEBUGINFO_TRUE@am__append_45 = \
 @ENABLE_JAVA_DEBUGINFO_TRUE@	DEBUG_CLASSFILES="true"
 
-@ENABLE_IMPROVED_FONT_RENDERING_TRUE@am__append_45 = \
+@ENABLE_IMPROVED_FONT_RENDERING_TRUE@am__append_46 = \
 @ENABLE_IMPROVED_FONT_RENDERING_TRUE@	IMPROVED_FONT_RENDERING="true"
 
-@USE_ALT_CACERTS_FILE_TRUE@am__append_46 = \
+@USE_ALT_CACERTS_FILE_TRUE@am__append_47 = \
 @USE_ALT_CACERTS_FILE_TRUE@	ALT_CACERTS_FILE="${CACERTS_FILE}"
 
-@ADD_SHARK_BUILD_TRUE@am__append_47 = \
+@ADD_SHARK_BUILD_TRUE@am__append_48 = \
 @ADD_SHARK_BUILD_TRUE@	--enable-shark
 
 subdir = .
@@ -587,21 +590,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-JDK_UPDATE_VERSION = 171
-BUILD_VERSION = b02
+JDK_UPDATE_VERSION = 181
+BUILD_VERSION = b01
 COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
-CORBA_CHANGESET = 4b866e7eb48c
-JAXP_CHANGESET = df965e45dd1f
-JAXWS_CHANGESET = efd5dbb3fe96
-JDK_CHANGESET = 68b6bb380175
-LANGTOOLS_CHANGESET = e952982cfa00
-OPENJDK_CHANGESET = 61245205213a
-CORBA_SHA256SUM = df1154915cad317b93555b563fc12acad1b92e5f2870642736f186b7a4d80f14
-JAXP_SHA256SUM = 143a5b957fbb00889ff9d38a4bf391218786b6a33664235279edbb6e79a3decc
-JAXWS_SHA256SUM = d3e3d55d6e2231c4420d30d124f72c56695d45e8a398e3cc7ba21ff2a93c1284
-JDK_SHA256SUM = adbda93d1e9be89447e009733a6c9050c6e6cebda3c674a76ebbeb8986623534
-LANGTOOLS_SHA256SUM = 12036b985f8811cdadf6d5bf840f90bab25f4da1cc3e86bab9c3f6efcc10055b
-OPENJDK_SHA256SUM = 14a9f90e2fe5c0bb73dc8ffcc9ea5dc76d3ce7a74a0c901cfd0b0ae3fc8c6450
+CORBA_CHANGESET = 8931f7345917
+JAXP_CHANGESET = 71fb2bb2ccdf
+JAXWS_CHANGESET = 46e5171dd4ab
+JDK_CHANGESET = 581773232054
+LANGTOOLS_CHANGESET = 3633e24edab7
+OPENJDK_CHANGESET = 474d8c372eca
+CORBA_SHA256SUM = 666c1d42bad6d9465c0684673d3a82f9a3bdf2590291784133200ae8c2a8ce98
+JAXP_SHA256SUM = 3b5a9922584b88b9ab1add1254b60fc1adbe0bc77a96792c70ea0897d4cae7f2
+JAXWS_SHA256SUM = 10e3faee46767afe035f38e43b52de36bd21b12e85193204dcd5151b4bdf58f1
+JDK_SHA256SUM = 0bf1abcbc3e24f79ada234c10421e05bdc5e1fb1662a114db2437e1f6967e68e
+LANGTOOLS_SHA256SUM = 4892a4c0beab6b9758e907ec92f49057711bf1152da99e04ef3318e809dc295b
+OPENJDK_SHA256SUM = c20078bf70f84e0c84948e7c2d813f6e415151ac42c16663cb93b84e2b8b018d
 DROP_URL = http://icedtea.classpath.org/download/drops
 CACAO_VERSION = c182f119eaad
 CACAO_SHA256SUM = eade43f6c5da8b3b5a64e6b206b624eaca88539f80101d7164d6aa426eb590b1
@@ -808,7 +811,6 @@ ICEDTEA_BOOT_PATCHES = patches/boot/javafiles.patch \
 	patches/boot/ecj-stringswitch.patch \
 	patches/boot/langtools-force-old-jdk.patch \
 	patches/boot/dependencies.patch \
-	patches/boot/corba-dependencies.patch \
 	patches/boot/hotspot-jdk-dependency.patch \
 	patches/boot/ecj-multicatch.patch \
 	patches/boot/ecj-trywithresources.patch \
@@ -819,7 +821,7 @@ ICEDTEA_BOOT_PATCHES = patches/boot/javafiles.patch \
 	$(am__append_23) $(am__append_24) $(am__append_25) \
 	$(am__append_26) $(am__append_27) $(am__append_28) \
 	$(am__append_29) $(am__append_30) $(am__append_31) \
-	$(am__append_32) $(DISTRIBUTION_BOOT_PATCHES)
+	$(am__append_32) $(am__append_33) $(DISTRIBUTION_BOOT_PATCHES)
 
 # Patches for when java.util.Scanner is missing
 # or has the bug #40630 (all these classes rely
@@ -905,12 +907,12 @@ ICEDTEA_ENV = ALT_JDK_IMPORT_PATH="$(BOOT_DIR)" ANT="$(ANT)" \
 	SCTP_CFLAGS="${SCTP_CFLAGS}" \
 	COMPRESS_JARS="${ENABLE_JAR_COMPRESSION}" \
 	ARM32JIT="${ARM32JIT_STATUS}" INSTALL_LOCATION="${prefix}" \
-	TEST_IN_BUILD="${TEST_IN_BUILD}" $(am__append_33) \
-	$(am__append_34) $(am__append_35) $(am__append_36) \
-	$(am__append_37) $(am__append_38) $(am__append_39) \
-	$(am__append_40) $(am__append_41) $(am__append_42) \
-	$(am__append_43) $(am__append_44) $(am__append_45) \
-	$(am__append_46)
+	TEST_IN_BUILD="${TEST_IN_BUILD}" $(am__append_34) \
+	$(am__append_35) $(am__append_36) $(am__append_37) \
+	$(am__append_38) $(am__append_39) $(am__append_40) \
+	$(am__append_41) $(am__append_42) $(am__append_43) \
+	$(am__append_44) $(am__append_45) $(am__append_46) \
+	$(am__append_47)
 @DISABLE_SYSTEMTAP_TESTS_FALSE@SYSTEMTAP_TEST_SUITE = check-tapset
 
 # OpenJDK boot build environment.
@@ -1092,7 +1094,7 @@ EXTRA_DIST = $(GENERATED_FILES) $(top_srcdir)/patches/*.patch \
 	$(MIME_TYPE_CHECK_SRCS)
 
 ADD_ZERO_CONFIGURE_ARGS = --with-jdk-home=$(BUILD_SDK_DIR) \
-	--disable-bootstrap --enable-zero $(am__append_47) \
+	--disable-bootstrap --enable-zero $(am__append_48) \
 	--disable-docs $(filter-out '--with-jdk-home=% '--with-ecj=% \
 	'--with-java=% '--with-javah=% '--with-javac=% '--with-javac=% \
 	'--with-rmic=% '--with-additional-vms=% '--disable-bootstrap% \
