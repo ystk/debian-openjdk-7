@@ -1,8 +1,38 @@
-openjdk-7 (7u181-2.6.14-1~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u181-2.6.14-2~deb8u1) jessie-security; urgency=medium
 
   * Rebuild for jessie-security.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Fri, 08 Jun 2018 12:54:06 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 20 Nov 2018 17:55:11 +0100
+
+openjdk-7 (7u181-2.6.14-2) experimental; urgency=medium
+
+  * Apply 7u191-b01 and 7u201-b00 security patches.
+  * Security fixes:
+    - CVE-2018-3136, S8194534: Manifest better support.
+    - CVE-2018-3139, S8196902: Better HTTP redirection support.
+    - CVE-2018-3149, S8199177: Enhance JNDI lookups.
+    - CVE-2018-3169, S8199226: Improve field accesses.
+    - CVE-2018-3180, S8202613: Improve TLS connections stability.
+    - CVE-2018-2938, S8197871: Support Derby connections.
+    - CVE-2018-2952, S8199547: Exception to Pattern Syntax.
+    - S8191239: Improve desktop file usage.
+    - S8193419: Better Internet address support.
+    - S8197925: Better stack walking.
+    - S8200666: Improve LDAP support.
+  * debian/patches/hotspot-disable-exec-shield-workaround.patch: removed,
+    upstream fixed i386 stack guard support in S8197429 (hotspot's mercurial
+    commit 6636:d673ec579604).
+  * debian/patches/jdk-freetypeScaler-crash.diff: removed, it caused
+    a memory leak and has been fixed upstream already, albeit in a
+    different way. Closes: #910672.
+  * debian/patches/jdk-8132985-backport-double-free.patch,
+    debian/patches/jdk-8139803-backport-warning.patch: fix crash in
+    freetypescaler due to double free, thanks to Heikki Aitakangas for
+    the report and patches. (Closes: #911847)
+  * debian/rules: run only the hotspot testsuite for jamvm and zero
+    alternative vms to make build faster.
+
+ -- Tiago Stürmer Daitx <tiago.daitx@ubuntu.com>  Thu, 11 Oct 2018 01:47:12 +0000
 
 openjdk-7 (7u181-2.6.14-1) experimental; urgency=medium
 

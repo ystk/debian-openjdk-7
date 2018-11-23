@@ -312,13 +312,13 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/ld-symbolic-functions-$(hotspot_version).diff \
 	debian/patches/shebang.diff \
 	debian/patches/jexec.diff \
-	debian/patches/jdk-freetypeScaler-crash.diff \
 	debian/patches/icedtea-pretend-memory.diff \
 	debian/patches/default-jvm-cfg-$(hotspot_version).diff \
 	debian/patches/nonreparenting-wm.diff \
 	debian/patches/accessible-toolkit.patch \
 	debian/patches/fix_extra_flags-$(hotspot_version).diff \
 	debian/patches/hotspot-aarch64-S8150652-unused-template.diff \
+	debian/patches/hotspot-S8207151-fix-bad-klassoop.patch \
 
 ifeq ($(with_bridge),atk)
     DISTRIBUTION_PATCHES += \
@@ -350,11 +350,8 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/jdk-bold-swing-fonts.patch \
 	debian/patches/javadoc-sort-enum-and-annotation-types.patch \
 	debian/patches/jdk-getAccessibleValue.diff \
-
-ifeq ($(derivative),Debian)
-  DISTRIBUTION_PATCHES += \
-	debian/patches/hotspot-disable-exec-shield-workaround.patch
-endif
+	debian/patches/jdk-8132985-backport-double-free.patch \
+	debian/patches/jdk-8139803-backport-warning.patch \
 
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \
@@ -404,6 +401,17 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
     endif
   endif    
 endif
+
+# openjdk 7u191-b01 security update
+DISTRIBUTION_PATCHES += \
+	debian/patches/openjdk-jdk7u191-b01-jaxp.patch \
+	debian/patches/openjdk-jdk7u191-b01-jdk.patch
+
+# openjdk 7u201-b00 security update
+DISTRIBUTION_PATCHES += \
+	debian/patches/openjdk-jdk7u201-b00-hotspot.patch \
+	debian/patches/openjdk-jdk7u201-b00-jaxp.patch \
+	debian/patches/openjdk-jdk7u201-b00-jdk.patch
 
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 
@@ -1121,9 +1129,8 @@ stamps/jtreg-check-default: stamps/build
 	touch $@
 
 stamps/jtreg-check-jamvm: stamps/build
-	#FIXME: always run hotspot testsuite, on hotspot supported systems include langtools
 	$(MAKE) -f debian/rules jtreg-run-check VMNAME=jamvm VMARGS='-vmoption:-jamvm' \
-		$(if $(filter $(default_vm),hotspot),TEST_SUITES='hotspot langtools',TEST_SUITES='hotspot')
+		TEST_SUITES='hotspot'
 	touch $@
 
 stamps/jtreg-check-shark: stamps/build
@@ -1132,9 +1139,8 @@ stamps/jtreg-check-shark: stamps/build
 	touch $@
 
 stamps/jtreg-check-zero: stamps/build
-	#FIXME: run full testsuite for zero only on fast build systems, otherwise run the hotspot suite only
 	$(MAKE) -f debian/rules jtreg-run-check VMNAME=zero VMARGS='-vmoption:-zero' \
-		$(if $(filter $(DEB_HOST_ARCH), ppc64el),TEST_SUITES='hotspot langtools jdk',TEST_SUITES='hotspot')
+		TEST_SUITES='hotspot'
 	touch $@
 
 jtreg-run-check:

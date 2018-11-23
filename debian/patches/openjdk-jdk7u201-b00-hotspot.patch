@@ -1,0 +1,238 @@
+# HG changeset patch
+# User mbalao
+# Date 1539568060 -3600
+#      Mon Oct 15 02:47:40 2018 +0100
+# Node ID 3e3da27b653d5eed2303d87f2898bd3ca03a5e29
+# Parent  ef476a2e3cc71b450610d7c6a8e1aec84d7b7ee0
+8199226: Improve field accesses
+Reviewed-by: andrew
+
+diff --git openjdk/hotspot/src/share/vm/interpreter/linkResolver.cpp openjdk/hotspot/src/share/vm/interpreter/linkResolver.cpp
+--- openjdk/hotspot/src/share/vm/interpreter/linkResolver.cpp
++++ openjdk/hotspot/src/share/vm/interpreter/linkResolver.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2014, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -582,6 +582,37 @@
+   }
+ }
+ 
++void LinkResolver::check_field_loader_constraints(KlassHandle ref_klass,
++                                                  KlassHandle sel_klass,
++                                                  Symbol* name,
++                                                  Symbol* sig, TRAPS) {
++  HandleMark hm(THREAD);
++  Handle ref_loader (THREAD, instanceKlass::cast(ref_klass())->class_loader());
++  Handle sel_loader (THREAD, instanceKlass::cast(sel_klass())->class_loader());
++  {
++    ResourceMark rm(THREAD);
++    char* failed_type_name =
++      SystemDictionary::check_signature_loaders(sig, ref_loader, sel_loader,
++                                                false, CHECK);
++    if (failed_type_name != NULL) {
++      const char* msg = "loader constraint violation: when resolving field"
++        " \"%s\" the class loader (instance of %s) of the referring class, "
++        "%s, and the class loader (instance of %s) for the field's resolved "
++        "type, %s, have different Class objects for that type";
++      char* field_name = name->as_C_string();
++      const char* loader1 = SystemDictionary::loader_name(ref_loader());
++      char* sel = instanceKlass::cast(sel_klass())->name()->as_C_string();
++      const char* loader2 = SystemDictionary::loader_name(sel_loader());
++      size_t buflen = strlen(msg) + strlen(field_name) + strlen(loader1) +
++        strlen(sel) + strlen(loader2) + strlen(failed_type_name);
++      char* buf = NEW_RESOURCE_ARRAY_IN_THREAD(THREAD, char, buflen);
++      jio_snprintf(buf, buflen, msg, field_name, loader1, sel, loader2,
++                   failed_type_name);
++      THROW_MSG(vmSymbols::java_lang_LinkageError(), buf);
++    }
++  }
++}
++
+ void LinkResolver::resolve_field(FieldAccessInfo& result, constantPoolHandle pool, int index, Bytecodes::Code byte, bool check_only, TRAPS) {
+   resolve_field(result, pool, index, byte, check_only, true, CHECK);
+ }
+@@ -644,37 +675,7 @@
+   if (is_static && !check_only) {
+     sel_klass->initialize(CHECK);
+   }
+-
+-  {
+-    HandleMark hm(THREAD);
+-    Handle ref_loader (THREAD, instanceKlass::cast(ref_klass())->class_loader());
+-    Handle sel_loader (THREAD, instanceKlass::cast(sel_klass())->class_loader());
+-    Symbol*  signature_ref  = pool->signature_ref_at(index);
+-    {
+-      ResourceMark rm(THREAD);
+-      char* failed_type_name =
+-        SystemDictionary::check_signature_loaders(signature_ref,
+-                                                  ref_loader, sel_loader,
+-                                                  false,
+-                                                  CHECK);
+-      if (failed_type_name != NULL) {
+-        const char* msg = "loader constraint violation: when resolving field"
+-          " \"%s\" the class loader (instance of %s) of the referring class, "
+-          "%s, and the class loader (instance of %s) for the field's resolved "
+-          "type, %s, have different Class objects for that type";
+-        char* field_name = field->as_C_string();
+-        const char* loader1 = SystemDictionary::loader_name(ref_loader());
+-        char* sel = instanceKlass::cast(sel_klass())->name()->as_C_string();
+-        const char* loader2 = SystemDictionary::loader_name(sel_loader());
+-        size_t buflen = strlen(msg) + strlen(field_name) + strlen(loader1) +
+-          strlen(sel) + strlen(loader2) + strlen(failed_type_name);
+-        char* buf = NEW_RESOURCE_ARRAY_IN_THREAD(THREAD, char, buflen);
+-        jio_snprintf(buf, buflen, msg, field_name, loader1, sel, loader2,
+-                     failed_type_name);
+-        THROW_MSG(vmSymbols::java_lang_LinkageError(), buf);
+-      }
+-    }
+-  }
++  LinkResolver::check_field_loader_constraints(ref_klass, sel_klass, field, sig, CHECK);
+ 
+   // return information. note that the klass is set to the actual klass containing the
+   // field, otherwise access of static fields in superclasses will not work.
+diff --git openjdk/hotspot/src/share/vm/interpreter/linkResolver.hpp openjdk/hotspot/src/share/vm/interpreter/linkResolver.hpp
+--- openjdk/hotspot/src/share/vm/interpreter/linkResolver.hpp
++++ openjdk/hotspot/src/share/vm/interpreter/linkResolver.hpp
+@@ -188,6 +188,7 @@
+   static void resolve_invokehandle   (CallInfo& result,              constantPoolHandle pool, int index, TRAPS);
+ 
+   static void resolve_invoke         (CallInfo& result, Handle recv, constantPoolHandle pool, int index, Bytecodes::Code byte, TRAPS);
++  static void check_field_loader_constraints(KlassHandle ref_klass, KlassHandle sel_klass, Symbol* name, Symbol* sig, TRAPS);
+ };
+ 
+ #endif // SHARE_VM_INTERPRETER_LINKRESOLVER_HPP
+diff --git openjdk/hotspot/src/share/vm/prims/methodHandles.cpp openjdk/hotspot/src/share/vm/prims/methodHandles.cpp
+--- openjdk/hotspot/src/share/vm/prims/methodHandles.cpp
++++ openjdk/hotspot/src/share/vm/prims/methodHandles.cpp
+@@ -767,6 +767,12 @@
+       KlassHandle sel_klass(THREAD, instanceKlass::cast(defc())->find_field(name, type, &fd));
+       // check if field exists; i.e., if a klass containing the field def has been selected
+       if (sel_klass.is_null())  return empty;  // should not happen
++      if (sel_klass() != caller() && caller.not_null()) {
++          LinkResolver::check_field_loader_constraints(caller, sel_klass, name, type, THREAD);
++          if (HAS_PENDING_EXCEPTION) {
++            return empty;
++          }
++      }
+       oop type = field_signature_type_or_null(fd.signature());
+       oop name = field_name_or_null(fd.name());
+       bool is_setter = (ref_kind_is_valid(ref_kind) && ref_kind_is_setter(ref_kind));
+# HG changeset patch
+# User shshahma
+# Date 1540182152 -3600
+#      Mon Oct 22 05:22:32 2018 +0100
+# Node ID a04d398041938b47a3eed225c71f298a3e9410f9
+# Parent  3e3da27b653d5eed2303d87f2898bd3ca03a5e29
+8164480: Crash with assert(handler_address == SharedRuntime::compute_compiled_exc_handler(..) failed: Must be the same
+Summary: Exception checking code needs to handle pre-allocated exceptions.
+Reviewed-by: thartmann, kvn
+
+diff --git openjdk/hotspot/src/share/vm/c1/c1_Runtime1.cpp openjdk/hotspot/src/share/vm/c1/c1_Runtime1.cpp
+--- openjdk/hotspot/src/share/vm/c1/c1_Runtime1.cpp
++++ openjdk/hotspot/src/share/vm/c1/c1_Runtime1.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1999, 2014, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1999, 2018, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -544,13 +544,14 @@
+     thread->set_exception_oop(NULL);
+     thread->set_exception_pc(NULL);
+ 
+-    continuation = SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, false, false);
++    bool recursive_exception = false;
++    continuation = SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, false, false, recursive_exception);
+     // If an exception was thrown during exception dispatch, the exception oop may have changed
+     thread->set_exception_oop(exception());
+     thread->set_exception_pc(pc);
+ 
+     // the exception cache is used only by non-implicit exceptions
+-    if (continuation != NULL) {
++    if (continuation != NULL && !recursive_exception) {
+       nm->add_handler_for_exception_and_pc(exception, pc, continuation);
+     }
+   }
+diff --git openjdk/hotspot/src/share/vm/opto/runtime.cpp openjdk/hotspot/src/share/vm/opto/runtime.cpp
+--- openjdk/hotspot/src/share/vm/opto/runtime.cpp
++++ openjdk/hotspot/src/share/vm/opto/runtime.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1998, 2012, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1998, 2018, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -1042,17 +1042,23 @@
+         force_unwind ? NULL : nm->handler_for_exception_and_pc(exception, pc);
+ 
+       if (handler_address == NULL) {
+-        Handle original_exception(thread, exception());
+-        handler_address = SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, force_unwind, true);
++        bool recursive_exception = false;
++        handler_address = SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, force_unwind, true, recursive_exception);
+         assert (handler_address != NULL, "must have compiled handler");
+         // Update the exception cache only when the unwind was not forced
+         // and there didn't happen another exception during the computation of the
+-        // compiled exception handler.
+-        if (!force_unwind && original_exception() == exception()) {
++        // compiled exception handler. Checking for exception oop equality is not
++        // sufficient because some exceptions are pre-allocated and reused.
++        if (!force_unwind && !recursive_exception) {
+           nm->add_handler_for_exception_and_pc(exception,pc,handler_address);
+         }
+       } else {
+-        assert(handler_address == SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, force_unwind, true), "Must be the same");
++#ifdef ASSERT
++        bool recursive_exception = false;
++        address computed_address = SharedRuntime::compute_compiled_exc_handler(nm, pc, exception, force_unwind, true, recursive_exception);
++        assert(recursive_exception || (handler_address == computed_address), err_msg("Handler address inconsistency: " PTR_FORMAT " != " PTR_FORMAT,
++                 p2i(handler_address), p2i(computed_address)));
++#endif
+       }
+     }
+ 
+diff --git openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp
+--- openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp
++++ openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp
+@@ -625,7 +625,7 @@
+ // ret_pc points into caller; we are returning caller's exception handler
+ // for given exception
+ address SharedRuntime::compute_compiled_exc_handler(nmethod* nm, address ret_pc, Handle& exception,
+-                                                    bool force_unwind, bool top_frame_only) {
++                                                    bool force_unwind, bool top_frame_only, bool& recursive_exception_occurred) {
+   assert(nm != NULL, "must exist");
+   ResourceMark rm;
+ 
+@@ -652,6 +652,7 @@
+         // BCI of the exception handler which caused the exception to be
+         // thrown (bugs 4307310 and 4546590). Set "exception" reference
+         // argument to ensure that the correct exception is thrown (4870175).
++        recursive_exception_occurred = true;
+         exception = Handle(THREAD, PENDING_EXCEPTION);
+         CLEAR_PENDING_EXCEPTION;
+         if (handler_bci >= 0) {
+diff --git openjdk/hotspot/src/share/vm/runtime/sharedRuntime.hpp openjdk/hotspot/src/share/vm/runtime/sharedRuntime.hpp
+--- openjdk/hotspot/src/share/vm/runtime/sharedRuntime.hpp
++++ openjdk/hotspot/src/share/vm/runtime/sharedRuntime.hpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 1997, 2012, Oracle and/or its affiliates. All rights reserved.
++ * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
+  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  *
+  * This code is free software; you can redistribute it and/or modify it
+@@ -176,7 +176,7 @@
+ 
+   // exception handling and implicit exceptions
+   static address compute_compiled_exc_handler(nmethod* nm, address ret_pc, Handle& exception,
+-                                              bool force_unwind, bool top_frame_only);
++                                              bool force_unwind, bool top_frame_only, bool& recursive_exception_occurred);
+   enum ImplicitExceptionKind {
+     IMPLICIT_NULL,
+     IMPLICIT_DIVIDE_BY_ZERO,
