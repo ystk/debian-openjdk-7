@@ -152,7 +152,7 @@ Index: openjdk/hotspot/src/share/vm/c1/c1_LIRAssembler.cpp
            st.print("bad oop %s at %d", r->as_Register()->name(), _masm->offset());
 -#ifdef SPARC
 +#if defined(SPARC) && !defined(ZERO)
-           _masm->_verify_oop(r->as_Register(), strdup(st.as_string()), __FILE__, __LINE__);
+           _masm->_verify_oop(r->as_Register(), os::strdup(st.as_string(), mtCompiler), __FILE__, __LINE__);
  #else
            _masm->verify_oop(r->as_Register());
 Index: openjdk/hotspot/src/share/vm/c1/c1_LinearScan.cpp

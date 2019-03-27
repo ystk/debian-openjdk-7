@@ -1,22 +1,18 @@
 # Dependencies
 
-JDK_UPDATE_VERSION = 181
-BUILD_VERSION = b01
-COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(BUILD_VERSION)
+CORBA_CHANGESET = 46169649285d
+JAXP_CHANGESET = c05c97839122
+JAXWS_CHANGESET = 238368449487
+JDK_CHANGESET = 6093d128c588
+LANGTOOLS_CHANGESET = 6cdbf382f3e2
+OPENJDK_CHANGESET = 6a588725b8a2
 
-CORBA_CHANGESET = 8931f7345917
-JAXP_CHANGESET = 71fb2bb2ccdf
-JAXWS_CHANGESET = 46e5171dd4ab
-JDK_CHANGESET = 581773232054
-LANGTOOLS_CHANGESET = 3633e24edab7
-OPENJDK_CHANGESET = 474d8c372eca
-
-CORBA_SHA256SUM = 666c1d42bad6d9465c0684673d3a82f9a3bdf2590291784133200ae8c2a8ce98
-JAXP_SHA256SUM = 3b5a9922584b88b9ab1add1254b60fc1adbe0bc77a96792c70ea0897d4cae7f2
-JAXWS_SHA256SUM = 10e3faee46767afe035f38e43b52de36bd21b12e85193204dcd5151b4bdf58f1
-JDK_SHA256SUM = 0bf1abcbc3e24f79ada234c10421e05bdc5e1fb1662a114db2437e1f6967e68e
-LANGTOOLS_SHA256SUM = 4892a4c0beab6b9758e907ec92f49057711bf1152da99e04ef3318e809dc295b
-OPENJDK_SHA256SUM = c20078bf70f84e0c84948e7c2d813f6e415151ac42c16663cb93b84e2b8b018d
+CORBA_SHA256SUM = 808e6120513aa15e6b219899c1189e2d591c3984454d7db4b239556d437cf764
+JAXP_SHA256SUM = 4aa64f80dd103ebece1aaaa6d126f751eafabb2f677537dbb25c0e0c350ad3fb
+JAXWS_SHA256SUM = 0703a48a420932fb62288c211ccb27596db4e3f1cfd0701321abcca259c93e97
+JDK_SHA256SUM = 236180ad395eb5036cc8577aad7c4cdc2a96dc79da717fe37673a43ba26e08ee
+LANGTOOLS_SHA256SUM = b3c9130e6e813d12376cf685f1726988bad04b256390b00a5ef403a5619e6698
+OPENJDK_SHA256SUM = 7627e8483566b1eec4dd52c5f5052a46139529d68335c10d8ac8b0ff11215455
 
 DROP_URL = http://icedtea.classpath.org/download/drops
 
@@ -287,15 +283,16 @@ if WITH_HGREV
 REV_ARG = -r $(HGREV)
 endif
 
-# This should not depend on bootstrapping
-# but on whether MEMORY_LIMIT is accepted
-# as an argument to javac
-if BOOTSTRAPPING
-  MEMORY_LIMIT =
-  PREFER_SOURCE = 
-else
-  MEMORY_LIMIT = -J-Xmx1024m
+if COMPILER_SUPPORTS_XPREFERSOURCE
   PREFER_SOURCE = -Xprefer:source
+else
+  PREFER_SOURCE =
+endif
+
+if COMPILER_SUPPORTS_MAX_HEAP_SIZE
+  MEMORY_LIMIT = -J-Xmx1024m
+else
+  MEMORY_LIMIT =
 endif
 
 if ENABLE_CACAO
@@ -590,9 +587,9 @@ ICEDTEA_UNSET = \
 ICEDTEA_ENV = \
 	ALT_JDK_IMPORT_PATH="$(BOOT_DIR)" \
 	ANT="$(ANT)" \
-        BUILD_NUMBER="$(BUILD_VERSION)" \
-	JDK_UPDATE_VERSION="$(JDK_UPDATE_VERSION)" \
-        JRE_RELEASE_VERSION="@JAVA_VER@_$(COMBINED_VERSION)" \
+        BUILD_NUMBER="@BUILD_VERSION@" \
+	JDK_UPDATE_VERSION="@JDK_UPDATE_VERSION@" \
+        JRE_RELEASE_VERSION="@JAVA_VER@_@COMBINED_VERSION@" \
 	MILESTONE="fcs" \
 	LANG="C" \
 	PATH="$(BOOT_DIR)/bin:$(OS_PATH):$$PATH" \
@@ -920,10 +917,7 @@ EXTRA_DIST = $(GENERATED_FILES) $(top_srcdir)/patches/*.patch \
 	$(top_srcdir)/patches/jamvm/*.patch \
 	tools-copy contrib overlays \
 	$(JTREG_SRCS) HACKING autogen.sh \
-	tapset/hotspot.stp.in \
-	tapset/hotspot_jni.stp.in \
-	tapset/jstack.stp.in \
-	tapset/hotspot_gc.stp.in \
+	tz.properties.in \
 	scripts/jni_create_stap.c \
 	scripts/jni_desc \
 	agpl-3.0.txt \
@@ -959,7 +953,7 @@ clean-local: clean-tests \
  clean-add-cacao clean-add-cacao-debug clean-rt clean-rewrite-rhino clean-rewriter \
  clean-add-systemtap clean-add-systemtap-debug clean-add-nss clean-add-tzdata-support \
  clean-add-tzdata-support-debug clean-cryptocheck clean-policytool-@JAVA_VER@.desktop \
- clean-jconsole-@JAVA_VER@.desktop clean-ecccheck clean-mimetypecheck
+ clean-jconsole-@JAVA_VER@.desktop clean-ecccheck clean-mimetypecheck clean-tz.properties
 	if [ -e bootstrap ]; then \
 	  rmdir bootstrap ; \
 	fi
@@ -999,7 +993,7 @@ distclean-local: clean-local clean-download
 	clean-extract-langtools clean-split-debuginfo clean-split-debuginfo-debug \
 	clean-split-debuginfo-boot clean-policytool-@JAVA_VER@.desktop clean-jconsole-@JAVA_VER@.desktop \
 	clean-fonts clean-add-mime-types-file clean-add-mime-types-file-debug clean-add-mime-types-file-boot \
-	clean-tests clean-tapset-report clean-ecccheck clean-check-ecc \
+	clean-tests clean-tapset-report clean-ecccheck clean-check-ecc clean-tz.properties \
 	check-jdk check-hotspot check-langtools jtregcheck check-tapset check-tapset-probes \
 	check-tapset-jstack clean-check-java-debug
 
@@ -1018,15 +1012,15 @@ snapshot: dist
 # Creates archive of openjdk.
 dist-openjdk: stamps/extract-cacao.stamp
 	find openjdk/ -name \\.hg* | xargs rm -rf	
-	$(ZIP) -r openjdk-$(COMBINED_VERSION) openjdk/
+	$(ZIP) -r openjdk-@COMBINED_VERSION@ openjdk/
 
 # Creates archive of openjdk that is compliant with Free Software guidelines.
 dist-openjdk-fsg: stamps/patch-fsg.stamp
-	$(ZIP) -r openjdk-fsg-$(COMBINED_VERSION) openjdk/
+	$(ZIP) -r openjdk-fsg-@COMBINED_VERSION@ openjdk/
 
 dist-openjdk-fsg-xz: stamps/patch-fsg.stamp
 	tardir=openjdk/ && $(am__tar) | XZ_OPT=$${XZ_OPT--e} xz -c \
-	  >openjdk-fsg-$(COMBINED_VERSION).tar.xz
+	  >openjdk-fsg-@COMBINED_VERSION@.tar.xz
 
 # OpenJDK Source Preparation Targets
 # ==================================
@@ -2107,7 +2101,7 @@ clean-add-nss:
 	rm -f openjdk/jdk/src/share/lib/security/nss.cfg
 	rm -f stamps/add-nss.stamp
 
-stamps/add-tzdata-support.stamp: stamps/icedtea.stamp
+stamps/add-tzdata-support.stamp: stamps/icedtea.stamp tz.properties
 if WITH_TZDATA_DIR
 	if [ -e $(BUILD_SDK_DIR)/jre/lib ] ; then \
 	  cp -v $(abs_top_builddir)/tz.properties \
@@ -2255,7 +2249,7 @@ clean-add-systemtap-debug:
 	rm -rf $(BUILD_DEBUG_SDK_DIR)/tapset
 	rm -f stamps/add-systemtap-debug.stamp
 
-stamps/add-tzdata-support-debug.stamp: stamps/icedtea-debug.stamp
+stamps/add-tzdata-support-debug.stamp: stamps/icedtea-debug.stamp tz.properties
 if WITH_TZDATA_DIR
 	if [ -e $(BUILD_DEBUG_SDK_DIR)/jre/lib ] ; then \
 	  cp -v $(abs_top_builddir)/tz.properties \
@@ -2413,7 +2407,7 @@ clean-add-systemtap-boot:
 	rm -rf $(BUILD_BOOT_SDK_DIR)/tapset
 	rm -f stamps/add-systemtap-boot.stamp
 
-stamps/add-tzdata-support-boot.stamp: stamps/icedtea-boot.stamp
+stamps/add-tzdata-support-boot.stamp: stamps/icedtea-boot.stamp tz.properties
 if WITH_TZDATA_DIR
 	if [ -e $(BUILD_BOOT_SDK_DIR)/jre/lib ] ; then \
 	  cp -v $(abs_top_builddir)/tz.properties \
@@ -3116,6 +3110,12 @@ jconsole-@JAVA_VER@.desktop: jconsole.desktop
 clean-jconsole-@JAVA_VER@.desktop:
 	rm -f jconsole-@JAVA_VER@.desktop
 
+tz.properties: $(top_srcdir)/tz.properties.in
+	cat $< | $(SED) "s#_TZDATA_DIR_#$(TZDATA_DIR)#" > $@
+
+clean-tz.properties:
+	rm -f tz.properties
+
 # ECC Availability Check
 
 stamps/ecccheck.stamp: $(INITIAL_BOOTSTRAP_LINK_STAMP)
@@ -3260,9 +3260,18 @@ endif
 	for files in $(BUILD_SDK_DIR)/jre/lib/ext/*.jar; do \
 	  $(call install_file,$${files},$(DESTDIR)${prefix}/jre/lib/ext,$(INSTALL_DATA));\
 	done
+if ENABLE_SYSTEMTAP
+if WITH_TAPSET_DIR
+	stapdest="$(DESTDIR)$(TAPSET_DIR)/$(SYSTEMTAP_ARCH_DIR)" ; \
 	for files in $(BUILD_SDK_DIR)/tapset/*.stp; do \
 	  $(call install_file,$${files},$(DESTDIR)${prefix}/tapset,$(INSTALL_DATA));\
+	  ${mkinstalldirs} $${stapdest} ; \
+	  tapname=$$(basename $${files}); \
+	  destname=$${tapname/./-@JAVA_VER@.} ; \
+	  ln -s ${prefix}/tapset/$${tapname} $${stapdest}/$${destname} ; \
 	done
+endif
+endif
 	$(abs_top_builddir)/pax-mark-vm $(DESTDIR)${prefix} false
 
 install-data-local:
@@ -3363,7 +3372,7 @@ endif
 	for sizes in 16 24 32 48 ; do \
 	  ${mkinstalldirs} $(DESTDIR)$(datadir)/icons/hicolor/$${sizes}x$${sizes}/apps ; \
 	  ${INSTALL_DATA} openjdk/jdk/src/solaris/classes/sun/awt/X11/java-icon$${sizes}.png \
-	    $(DESTDIR)$(datadir)/icons/hicolor/$${sizes}x$${sizes}/apps/java-@JAVA_VER@.png ; \
+	    $(DESTDIR)$(datadir)/icons/hicolor/$${sizes}x$${sizes}/apps/java-@JAVA_VER@-@JAVA_VENDOR@.png ; \
 	done
 	for files in $(DESKTOP_FILES) ; do \
 	  ${INSTALL_DATA} $(builddir)/$${files} $(DESTDIR)$(datadir)/applications ; \

@@ -10,7 +10,193 @@ LPX - https://bugs.launchpad.net/bugs/X
 JSRX - http://jcp.org/en/jsr/detail?id=X
 JEPX - http://openjdk.java.net/jeps/X
 
-CVE-XXXX-YYYY: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
+CVE-XXXX-YYYY: http://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
+
+New in release 2.6.17 (2019-03-16):
+
+* Security fixes
+  - S8199156: Better route routing
+  - S8199161: Better interface enumeration
+  - S8199166: Better interface lists
+  - S8199552: Update to build scripts
+  - S8200659: Improve BigDecimal support
+  - S8203955: Improve robot support
+  - S8204895: Better icon support
+  - S8205356: Choose printer defaults
+  - S8205709: Proper allocation handling
+  - S8205714: Initial class initialization
+  - S8206290, CVE-2019-2422: Better FileChannel transfer performance
+  - S8206295: More reliable p11 transactions
+  - S8206301: Improve NIO stability
+  - S8208585: Make crypto code more robust
+  - S8209094, CVE_2019-2426: Improve web server connections
+  - S8210094: Better loading of classloader classes
+  - S8210606: Improved data set handling
+  - S8210610: Improved LSA authentication
+  - S8210866, CVE-2018-11212: Improve JPEG processing
+  - S8210870: Libsunmscapi improved interactions
+* Import of OpenJDK 7 u211 build 0
+  - S6383200: PBE: need new algorithm support in password based encryption
+  - S6483657: MSCAPI provider does not create unique alias names
+  - S8000203: File descriptor leak in src/solaris/native/java/net/net_util_md.c
+  - S8008321: compile.cpp verify_graph_edges uses bool as int
+  - S8013069: javax.crypto tests fail with new PBE algorithm names
+  - S8027781: New jarsigner timestamp warning is grammatically incorrect
+  - S8029018: (bf) Check src/share/native/java/nio/Bits.c for JNI pending exceptions
+  - S8029661: Support TLS v1.2 algorithm in SunPKCS11 provider
+  - S8098854: Do cleanup in a proper order in sunmscapi code
+  - S8133070: Hot lock on BulkCipher.isAvailable
+  - S8138589: Correct limits on unlimited cryptography
+  - S8143913: MSCAPI keystore should accept Certificate[] in setEntry()
+  - S8159805: sun/security/tools/jarsigner/warnings/NoTimestampTest.java fails after JDK-8027781
+  - S8162362: Introduce system property to control enabled ciphersuites
+  - S8165463: Native implementation of sunmscapi should use operator new (nothrow) for allocations
+  - S8191438: jarsigner should print when a timestamp will expire
+  - S8205330: InitialDirContext ctor sometimes throws NPE if the server has sent a disconnection
+  - S8207775: Better management of CipherCore buffers
+  - S8208583: Better management of internal KeyStore buffers
+  - S8209129: Further improvements to cipher buffer management
+  - S8209862: CipherCore performance improvement
+  - S8210695: Create test to cover JDK-8205330 InitialDirContext ctor sometimes throws NPE if the server has sent a disconnection
+  - S8210951: Test sun/security/ssl/SSLContextImpl/CustomizedCipherSuites.java fails
+  - S8211883: Disable anon and NULL cipher suites
+  - S8213085: (tz) Upgrade time-zone data to tzdata2018g
+  - S8213368: JDK 8u201 l10n resource file update
+  - S8213949: OpenJDK 8 CCharToGlyphMapper.m missing the Classpath exception license text
+  - S8214357: JDK 8u201 l10n resource file update md20
+  - S8218798: slowdebug build broken by JDK-8205714
+* Import of OpenJDK 7 u211 build 1
+  - S8213154: Update copyright headers of files in src tree that are missing Classpath exception
+* Import of OpenJDK 7 u211 build 2
+  - S8219570: JDK-6383200 wrongly extends PBEParameterSpec API
+* Backports
+  - S6424123, PR3702: JVM crashes on failed 'strdup' call
+  - S8005921, PR3702: Memory leaks in vmStructs.cpp
+  - S8011661, PR3702: Insufficient memory message says "malloc" when sometimes it should say "mmap"
+  - S8014138, PR3702: Add VM option to facilitate the writing of CDS tests
+  - S8055286, PR3702: Extend CompileCommand=option to handle numeric parameters
+  - S8056964, PR3702: JDK-8055286 changes are incomplete.
+  - S8057129, PR3702: Fix AIX build after the Extend CompileCommand=option change 8055286
+  - S8059847, PR3702: complement JDK-8055286 and JDK-8056964 changes
+  - S8076475, PR3702: Misuses of strncpy/strncat
+  - S8145096, PR3700: Undefined behaviour in HotSpot
+  - S8214059, PR3701: Undefined behaviour in ADLC
+  - S8217753, PR3686: Enable HotSpot builds on 5.x Linux kernels
+* Bug fixes
+  - PR3647: Backed out changeset 4e3ea67d3b69 (JDK-4890063/PR2305/RH1214835)
+  - PR3676: Update CVE URL
+* SystemTap
+  - PR3698: jstack.stp should support ppc64[le,be]
+* AArch64 port
+  - S8207838, PR3669: AArch64: Float registers incorrectly restored in JNI call
+  - S8209414, PR3669: AArch64: method handle invocation does not respect JVMTI interp_only mode
+  - S8209415, PR3669: Fix JVMTI test failure HS202
+  - S8211064, PR3669: [AArch64] Interpreter and c1 don't correctly handle jboolean results in native calls
+  - S8215951, PR3669: AArch64: jtreg test vmTestbase/nsk/jvmti/PopFrame/popframe005 segfaults
+  - S8218185, PR3669: aarch64: missing LoadStore barrier in TemplateTable::putfield_or_static
+
+New in release 2.6.16 (2019-01-01):
+
+* Security fixes
+  - S8194534, CVE-2018-3136: Manifest better support
+  - S8194546: Choosier FileManagers
+  - S8195868: Address Internet Addresses
+  - S8195874: Improve jar specification adherence
+  - S8196897: Improve PRNG support
+  - S8196902, CVE-2018-3139: Better HTTP redirection support
+  - S8199177, CVE-2018-3149: Enhance JNDI lookups
+  - S8199226, CVE-2018-3169: Improve field accesses
+  - S8201756: Improve cipher inputs
+  - S8202613, CVE-2018-3180: Improve TLS connections stability
+  - S8203654: Improve cypher state updates
+  - S8204497: Better formatting of decimals
+  - S8205361, CVE-2018-3214: Better RIFF reading support
+  - S8208353, CVE-2018-13785: Upgrade JDK 8u to libpng 1.6.35
+  - PR3640, CVE-2018-16435: lcms2: heap-based buffer overflow in SetData function in cmsIT8LoadFromFile
+* Import of OpenJDK 7 u201 build 0
+  - S7058700: Unexpected exceptions and timeouts in SF2 parser code
+  - S7098755: test/sun/misc/JarIndex/metaInfFilenames/Basic.java should use supported compiler interface
+  - S7104650: rawtype warnings in several net, nio and security source files
+  - S7116722: Miscellaneous warnings sun.misc ( and related classes )
+  - S7117249: fix warnings in java.util.jar, .logging, .prefs, .zip
+  - S7142888: sun/security/tools/jarsigner/ec.sh fail on sparc
+  - S8044860: Vectors and fixed length fields should be verified for allowed sizes.
+  - S8049834: Two security tools tests do not run with only JRE
+  - S8054431: Some of the input validation in the javasound is too strict
+  - S8074462: Handshake messages can be strictly ordered
+  - S8130132: jarsigner should emit warning if weak algorithms or keysizes are used
+  - S8142927: Feed some text to STDIN in ProcessTools.executeProcess()
+  - S8146377: test/sun/security/tools/jarsigner/concise_jarsigner.sh failing
+  - S8158887: sun/security/tools/jarsigner/concise_jarsigner.sh timed out
+  - S8164480: Crash with assert(handler_address == SharedRuntime::compute_compiled_exc_handler(..) failed: Must be the same
+  - S8168405: Pending exceptions in java.base/windows/native
+  - S8172529: Use PKIXValidator in jarsigner
+  - S8180289: jarsigner treats timestamped signed jar invalid after the signer cert expires
+  - S8190674: sun/security/tools/jarsigner/TimestampCheck.java failed with java.nio.file.NoSuchFileException: ts2.cert
+  - S8193892: Impact of noncloneable MessageDigest implementation
+  - S8204667: Resources not freed on exception
+  - S8207336: Build failure in JDK8u on Windows after fix 8207260
+  - S8208350: Disable all DES cipher suites
+  - S8208660: JDK 8u191 l10n resource file update
+  - S8208754: The fix for JDK-8194534 needs updates
+  - S8211107: LDAPS communication failure with jdk 1.8.0_181
+  - S8211731: Reconsider default option for ClassPathURLCheck change done in JDK-8195874
+
+New in release 2.6.15 (2018-12-31):
+
+* Security fixes
+  - S8191239: Improve desktop file usage
+  - S8193419: Better Internet address support
+  - S8197871, CVE-2018-2938: Support Derby connections
+  - S8197925, CVE-2018-2940: Better stack walking
+  - S8199547, CVE-2018-2952: Exception to Pattern Syntax
+  - S8200666, CVE-2018-2973: Improve LDAP support
+  - PR3608, CVE-2018-3639: hw: cpu: speculative store bypass mitigation
+* New features
+  - PR3629: Install symlinks to tapsets in SystemTap directory
+  - PR3657: Sync desktop files with Fedora/RHEL versions again
+  - PR3659: Support RHEL multilib installations which use the /usr/lib/jvm/java-1.x.0-openjdk.${arch} naming
+* Import of OpenJDK 7 u191 build 0
+  - S8005661: [parfait] Possible buffer overrun in jdk/src/solaris/native/sun/awt/awt_GraphicsEnv.c
+  - S8005695: [parfait] Format string argument mismatch in jdk/src/solaris/native/sun/xawt/XToolkit.c
+  - S8005752: [parfait] False positive function call mismatch at jdk/src/solaris/native/sun/xawt/XWindow.c
+  - S8034856: gcc warnings compiling src/solaris/native/sun/security/pkcs11
+  - S8034857: gcc warnings compiling src/solaris/native/sun/management
+  - S8035054: JarFacade.c should not include ctype.h
+  - S8035287: gcc warnings compiling various libraries files
+  - S8203182: Release session if initialization of SunPKCS11 Signature fails
+  - S8205491: adjust reflective access checks
+  - S8205587, PR3606: Implicit function declaration in jni_util.c
+* Import of OpenJDK 7 u191 build 1
+  - S8051972: sun/security/pkcs11/ec/ReadCertificates.java fails intermittently
+  - S8076117: EndEntityChecker should not process custom extensions after PKIX validation
+  - S8157898: SupportedDSAParamGen.java failed with timeout
+  - S8170035: When determining the ciphersuite lists, there is no debug output for disabled suites.
+  - S8176183: sun/security/mscapi/SignedObjectChain.java fails on Windows
+  - S8187635: On Windows Swing changes keyboard layout on a window activation
+  - S8196224: Even better Internet address support
+  - S8196854: TestFlushableGZIPOutputStream failing with IndexOutOfBoundsException
+  - S8197943: Unable to use JDWP API in JDK 8 to debug JDK 9 VM
+  - S8200359: (tz) Upgrade time-zone data to tzdata2018d
+  - S8201433: Fix potential crash in BufImg_SetupICM
+  - S8202585: JDK 8u181 l10n resource file update
+  - S8202996: Remove debug print statements from RMI fix
+  - S8203233: (tz) Upgrade time-zone data to tzdata2018e
+  - S8203368: ObjectInputStream filterCheck method throws NullPointerException
+* Import of OpenJDK 7 u191 build 2
+  - S8207151, PR3604: Frequent JVM Crash SIGSEGV same stacktrace location during tomcat start with hibernate init on 7u181-2.6.14-0ubuntu0.1
+* Backports
+  - S8075942, PR3605: ArrayIndexOutOfBoundsException in sun.java2d.pisces.Dasher.goTo
+* Bug fixes
+  - PR3616: Don't include timestamps in generated documentation
+  - PR3631: Use ${datadir} when specifying default tz.properties location
+  - PR3652: Detect whether -Xprefer:source and -J-Xmx<limit> can be used, rather than assuming
+  - PR3663: IcedTea installing symlinks to SystemTap directory rather than individual tapsets
+* SystemTap
+  - PR3633: arc_priority representation creates an implicit limit on character sequence within regexp
+* AArch64 port
+  - S8207345, PR3614: Trampoline generation code reads from uninitialized memory
+  - PR3615: Fix whitespace in hotspot/src/cpu/aarch64
 
 New in release 2.6.14 (2018-05-23):
 

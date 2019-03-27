@@ -1,8 +1,48 @@
-openjdk-7 (7u181-2.6.14-2~deb8u1) jessie-security; urgency=medium
+openjdk-7 (7u211-2.6.17-1~deb8u1) jessie-security; urgency=medium
 
-  * Rebuild for jessie-security.
+  * Backport to jessie-security.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 20 Nov 2018 17:55:11 +0100
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 26 Mar 2019 20:17:57 +0100
+
+openjdk-7 (7u211-2.6.17-1) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * IcedTea release 2.6.17 (based on 7u211).
+  * Security fixes:
+    - S8206290, CVE-2019-2422: Better FileChannel transfer performance.
+    - S8209094, CVE_2019-2426: Improve web server connections.
+    - S8210866, CVE-2018-11212: Improve JPEG processing.
+    - S8199156: Better route routing.
+    - S8199161: Better interface enumeration.
+    - S8199166: Better interface lists.
+    - S8199552: Update to build scripts.
+    - S8200659: Improve BigDecimal support.
+    - S8203955: Improve robot support.
+    - S8204895: Better icon support.
+    - S8205356: Choose printer defaults.
+    - S8205709: Proper allocation handling.
+    - S8205714: Initial class initialization.
+    - S8206295: More reliable p11 transactions.
+    - S8206301: Improve NIO stability.
+    - S8208585: Make crypto code more robust.
+    - S8210094: Better loading of classloader classes.
+    - S8210606: Improved data set handling.
+    - S8210610: Improved LSA authentication.
+    - S8210870: Libsunmscapi improved interactions.
+  * debian/patches/hotspot-S8207151-fix-bad-klassoop.patch,
+    debian/patches/openjdk-jdk7u191-b01-jaxp.patch
+    debian/patches/openjdk-jdk7u191-b01-jdk.patch
+    debian/patches/openjdk-jdk7u201-b00-hotspot.patch
+    debian/patches/openjdk-jdk7u201-b00-jaxp.patch
+    debian/patches/openjdk-jdk7u201-b00-jdk.patch: removed, applied upstream.
+  * debian/patches/zero-sparc.diff: updated to fix merge failure in
+    file hotspot/src/share/vm/c1/c1_LIRAssembler.cpp.
+
+  [ Matthias Klose ]
+  * Bump standards version.
+  * Fix lintian warnings.
+
+ -- Matthias Klose <doko@ubuntu.com>  Tue, 26 Mar 2019 19:25:17 +0100
 
 openjdk-7 (7u181-2.6.14-2) experimental; urgency=medium
 

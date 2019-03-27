@@ -253,14 +253,18 @@ else ifneq (,$(filter $(distrel),jessie))
   export CC = gcc-4.9
   export CXX = g++-4.9
   GCJ_SUFFIX = -4.9
-else ifneq (,$(filter $(distrel),stretch xenial))
+else ifneq (,$(filter $(distrel),xenial))
   export CC = gcc-5
   export CXX = g++-5
   GCJ_SUFFIX = -5
-else
+else ifneq (,$(filter $(distrel),stretch))
   export CC = gcc-6
   export CXX = g++-6
   GCJ_SUFFIX = -6
+else
+  export CC = gcc-8
+  export CXX = g++-8
+  GCJ_SUFFIX = -8
 endif
 
 ifneq (,$(filter $(DEB_HOST_ARCH), armel armhf))
@@ -318,7 +322,6 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/accessible-toolkit.patch \
 	debian/patches/fix_extra_flags-$(hotspot_version).diff \
 	debian/patches/hotspot-aarch64-S8150652-unused-template.diff \
-	debian/patches/hotspot-S8207151-fix-bad-klassoop.patch \
 
 ifeq ($(with_bridge),atk)
     DISTRIBUTION_PATCHES += \
@@ -401,17 +404,6 @@ ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
     endif
   endif    
 endif
-
-# openjdk 7u191-b01 security update
-DISTRIBUTION_PATCHES += \
-	debian/patches/openjdk-jdk7u191-b01-jaxp.patch \
-	debian/patches/openjdk-jdk7u191-b01-jdk.patch
-
-# openjdk 7u201-b00 security update
-DISTRIBUTION_PATCHES += \
-	debian/patches/openjdk-jdk7u201-b00-hotspot.patch \
-	debian/patches/openjdk-jdk7u201-b00-jaxp.patch \
-	debian/patches/openjdk-jdk7u201-b00-jdk.patch
 
 export DISTRIBUTION_PATCHES DISTRIBUTION_BOOT_PATCHES
 
@@ -584,10 +576,12 @@ else ifneq (,$(filter $(distrel),trusty))
   bd_gcc = g++-4.8,
 else ifneq (,$(filter $(distrel), jessie))
   bd_gcc = g++-4.9,
-else ifneq (,$(filter $(distrel), stretch xenial))
+else ifneq (,$(filter $(distrel), xenial))
   bd_gcc = g++-5,
-else
+else ifneq (,$(filter $(distrel), stretch))
   bd_gcc = g++-6,
+else
+  bd_gcc = g++-8,
 endif
 bd_syslibs = \
 	zlib1g-dev, libattr1-dev, libpng-dev, libjpeg-dev, libgif-dev,

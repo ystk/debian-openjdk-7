@@ -47,8 +47,8 @@ old_orig_file_name="$(basename ${old_orig_file})"
 deb_orig_path="$(dirname "${old_orig_file}")"
 
 # get JDK update version
-printf "Get JDK update version from Makefile.am in upstream source ‘${old_orig_file}’:\n"
-source <(tar -O -x -f "${old_orig_file}" --wildcards "*/Makefile.am" | grep "^JDK_UPDATE_VERSION = " | tr -d ' ')
+printf "Get JDK update version from acinclude.m4 in upstream source ‘${old_orig_file}’:\n"
+source <(tar -O -x -f "${old_orig_file}" --wildcards "*/acinclude.m4" | grep "JDK_UPDATE_VERSION=" | tr -d ' \t')
 
 # new debian version
 pkg_version=7u${JDK_UPDATE_VERSION}-${icedtea_version}

@@ -2,7 +2,7 @@
 Package: @basename@-tests
 Architecture: @any_archs@
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Suggests: jtreg
 Description: OpenJDK Development Kit (JDK) documentation

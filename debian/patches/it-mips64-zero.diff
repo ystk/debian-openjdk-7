@@ -1,23 +1,22 @@
 Description: Build zero on 64bit MIPS targets
 Forwarded: no
-Last-Update: 2014-07-06
+Last-Update: 2019-02-18
 
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -43,12 +43,38 @@
-       BUILD_ARCH_DIR=mips
+@@ -43,13 +43,39 @@
        INSTALL_ARCH_DIR=mips
        JRE_ARCH_DIR=mips
--       ;;
+       SYSTEMTAP_ARCH_DIR=mips
 +      ARCHFLAG="-mabi=32"
-+      ;;
+        ;;
      mipsel)
        BUILD_ARCH_DIR=mipsel
        INSTALL_ARCH_DIR=mipsel
        JRE_ARCH_DIR=mipsel
--       ;;
+       SYSTEMTAP_ARCH_DIR=mips
 +      ARCHFLAG="-mabi=32"
-+      ;;
+        ;;
 +    mipsn32)
 +      BUILD_ARCH_DIR=mipsn32
 +      INSTALL_ARCH_DIR=mipsn32

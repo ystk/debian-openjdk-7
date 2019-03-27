@@ -1,19 +1,21 @@
 Description: Build zero on x32
 Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: http://mail.openjdk.java.net/pipermail/zero-dev/2014-January/000524.html
-Last-Update: 2014-07-06
+Last-Update: 2019-02-18
 
 Index: b/acinclude.m4
 ===================================================================
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -2,10 +2,18 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
+@@ -2,12 +2,18 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
  [
    case "${host_cpu}" in
      x86_64)
 -      BUILD_ARCH_DIR=amd64
 -      INSTALL_ARCH_DIR=amd64
 -      JRE_ARCH_DIR=amd64
+-      RPM_ARCH=x86_64
+-      SYSTEMTAP_ARCH_DIR=x86_64
 -      ARCHFLAG="-m64"
 +      case "${host}" in
 +        *x32)

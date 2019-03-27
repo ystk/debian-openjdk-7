@@ -2,7 +2,7 @@
 Package: icedtea-7-jre-cacao
 Architecture: alpha amd64 armel armhf i386 lpia powerpc powerpcspe m68k mips mipsel s390
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: @basename@-jre-headless (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Transitional package for obsolete Cacao JVM for OpenJDK

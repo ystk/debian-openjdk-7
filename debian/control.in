@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 9),
   @bd_zero@ @bd_shark@
   @bd_syslibs@
   @bd_nss@ @bd_systemtap@
-Standards-Version: 4.1.3
+Standards-Version: 4.3.0
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7
@@ -76,7 +76,7 @@ Package: @basename@-jre-lib
 Architecture: @lib_arch@
 Multi-Arch: foreign
 Section: oldlibs
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: ${misc:Depends}
 Breaks: @basename@-jre-headless (<< 7u45-2.4.3-1)
@@ -90,7 +90,7 @@ Description: OpenJDK Java runtime (architecture independent libraries)
 
 Package: @basename@-demo
 Architecture: @any_archs@
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: @basename@-jre (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Java runtime based on OpenJDK (demos and examples)
@@ -101,7 +101,7 @@ Description: Java runtime based on OpenJDK (demos and examples)
 
 Package: @basename@-source
 Architecture: all
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: @basename@-jre (>= ${source:Version}), @basename@-jdk (>= ${binary:Version}), ${misc:Depends}
 Replaces: openjdk-7-jdk (<< 7u65-2.5.1-4)
@@ -119,7 +119,7 @@ Package: @basename@-doc
 Section: doc
 Pre-Depends: ${dpkg:Depends}
 Architecture: all
-Priority: extra
+Priority: optional
 Depends: ${misc:Depends}
 Suggests: @basename@-jdk
 Description: OpenJDK Development Kit (JDK) documentation
@@ -134,7 +134,7 @@ Description: OpenJDK Development Kit (JDK) documentation
 Package: @basename@-dbg
 Architecture: @any_archs@
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Section: debug
 Pre-Depends: ${dpkg:Depends}
 Depends: @basename@-jre-headless (= ${binary:Version}), ${misc:Depends}

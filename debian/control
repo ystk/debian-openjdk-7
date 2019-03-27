@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 9),
   libffi-dev, 
   zlib1g-dev, libattr1-dev, libpng-dev, libjpeg-dev, libgif-dev, libsctp-dev [linux-any],
   libnss3-dev (>= 2:3.17.1), systemtap-sdt-dev,
-Standards-Version: 4.1.3
+Standards-Version: 4.3.0
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7
 Vcs-Browser: https://code.launchpad.net/~openjdk/openjdk/openjdk7
@@ -75,7 +75,7 @@ Package: openjdk-7-jre-lib
 Architecture: all
 Multi-Arch: foreign
 Section: oldlibs
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: ${misc:Depends}
 Breaks: openjdk-7-jre-headless (<< 7u45-2.4.3-1)
@@ -89,7 +89,7 @@ Description: OpenJDK Java runtime (architecture independent libraries)
 
 Package: openjdk-7-demo
 Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Java runtime based on OpenJDK (demos and examples)
@@ -100,7 +100,7 @@ Description: Java runtime based on OpenJDK (demos and examples)
 
 Package: openjdk-7-source
 Architecture: all
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre (>= ${source:Version}), openjdk-7-jdk (>= ${binary:Version}), ${misc:Depends}
 Replaces: openjdk-7-jdk (<< 7u65-2.5.1-4)
@@ -118,7 +118,7 @@ Package: openjdk-7-doc
 Section: doc
 Pre-Depends: ${dpkg:Depends}
 Architecture: all
-Priority: extra
+Priority: optional
 Depends: ${misc:Depends}
 Suggests: openjdk-7-jdk
 Description: OpenJDK Development Kit (JDK) documentation
@@ -133,7 +133,7 @@ Description: OpenJDK Development Kit (JDK) documentation
 Package: openjdk-7-dbg
 Architecture: alpha amd64 armel armhf arm64 i386 ia64 mips mipsel mips64 mips64el powerpc powerpcspe ppc64 ppc64el m68k sh4 sparc sparc64 s390x x32 kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Section: debug
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre-headless (= ${binary:Version}), ${misc:Depends}
@@ -151,7 +151,7 @@ Description: Java runtime based on OpenJDK (debugging symbols)
 Package: icedtea-7-jre-jamvm
 Architecture: amd64 armel armhf i386 powerpc kfreebsd-i386 kfreebsd-amd64
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre-headless (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Alternative JVM for OpenJDK, using JamVM
@@ -164,7 +164,7 @@ Description: Alternative JVM for OpenJDK, using JamVM
 Package: openjdk-7-jre-zero
 Architecture: amd64 i386 ppc64 ppc64el kfreebsd-amd64 kfreebsd-i386 
 Multi-Arch: same
-Priority: extra
+Priority: optional
 Pre-Depends: ${dpkg:Depends}
 Depends: openjdk-7-jre-headless (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Provides: ${zerovm:Provides}

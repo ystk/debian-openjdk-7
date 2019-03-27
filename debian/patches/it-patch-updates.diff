@@ -1,6 +1,6 @@
 Description: IcedTea patch updates (regenerate patches)
 Author: Matthias Klose <doko@ubuntu.com>
-Last-Update: 2018-06-08
+Last-Update: 2018-06-04
 
 --- a/patches/boot/bootstrap-tools.patch
 +++ b/patches/boot/bootstrap-tools.patch
