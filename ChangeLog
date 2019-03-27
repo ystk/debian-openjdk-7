@@ -1,3 +1,319 @@
+2019-03-16  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2019-03-14  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.17.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.17.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.17.
+	* hotspot.map.in: Update to icedtea-2.6.17.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new cases in
+	sun.security.tools.jarsigner.Main and
+	sun.security.ssl.SSLContextImpl.
+	* patches/boot/ecj-stringswitch.patch:
+	Add new cases in com.sun.crypto.provider.PBES2Core,
+	com.sun.crypto.provider.PBES2parameters and
+	com.sun.crypto.provider.PBMAC1Core.
+	* patches/boot/ecj-trywithresources.patch:
+	Regenerated.
+
+2019-02-21  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.17pre01.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.17pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.17pre01.
+	* hotspot.map.in: Update to icedtea-2.6.17pre01.
+
+2019-02-10  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3698: jstack.stp should support ppc64[le,be]
+	* NEWS: Updated.
+
+2019-01-28  Mark Wielaard  <mjw@redhat.com>
+
+	PR3698: jstack.stp should support ppc64[le,be]
+	* tapset/jstack.stp.in: Add ppc64 support.
+
+2019-01-02  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3676: Update CVE URL
+	* NEWS: Update CVE URL.
+
+2019-01-06  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Start 2.6.17 release cycle.
+	* NEWS: Add section for 2.6.17. Add
+	missing colon in 2.6.15 release notes.
+	* configure.ac: Bump to 2.6.17pre00.
+
+2019-01-01  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2018-12-31  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.16.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.16.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated. Split previous u191 NEWS items
+	into individual builds (0, 1 and 2)
+	* acinclude.m4:
+	(JDK_UPDATE_VERSION): Bump to 201.
+	(BUILD_VERSION): Set to b00.
+	* configure.ac: Bump to 2.6.16.
+	* hotspot.map.in: Update to icedtea-2.6.16.
+	* patches/boot/ecj-diamond.patch:
+	Regenerated. Add new cases in
+	java.util.jar.JarVerifier,
+	java.util.jar.Manifest,
+	java.util.prefs.XmlSupport,
+	sun.misc.ExtensionDependency,
+	sun.misc.JarIndex,
+	sun.misc.ProxyGenerator,
+	sun.misc.Service,
+	sun.misc.Signal and
+	sun.security.ssl.HandshakeStateManager.
+	* patches/boot/ecj-multicatch.patch:
+	Add new case in sun.misc.URLClasspath.
+	* patches/boot/ecj-trywithresources.patch:
+	Add new case in sun.security.tools.jarsigner.Main.
+
+2018-12-31  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Start 2.6.16 release cycle.
+	* NEWS: Add section for 2.6.16.
+	* configure.ac: Bump to 2.6.16pre00.
+
+2018-12-31  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Set release date to today.
+
+2018-09-24  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3631: Use ${datadir} when specifying default
+	tz.properties location
+	* Makefile.am:
+	(EXTRA_DIST): Remove stp.in files which are already
+	handled by configure. Add tz.properties.in which no
+	longer is.
+	(clean-local): Add clean-tz.properties.
+	(.PHONY): Likewise.
+	(add-tzdata-support): Depend on tz.properties.
+	(add-tzdata-support-debug): Likewise.
+	(add-tzdata-support-boot): Likewise.
+	(tz.properties): Generate tz.properties from
+	tz.properties.in by substituting the value of
+	TZDATA_DIR determined by configure.
+	(clean-tz.properties): Remove generated
+	tz.properties.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_WITH_TZDATA_DIR): Use ${datadir}/javazi
+	as default. Sync macro with improvements in
+	similiar IT_WITH_TAPSET_DIR.
+	* tz.properties.in: Use _TZDATA_DIR_ instead
+	of @TZDATA_DIR@ to distinguish it from
+	configure-based substitution.
+
+2018-11-20  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3633: arc_priority representation creates an
+	implicit limit on character sequence within regexp
+	* NEWS: Updated.
+
+2018-09-12  Severin Gehwolf  <sgehwolf@redhat.com>
+
+	PR3633: arc_priority representation creates an
+	implicit limit on character sequence within regexp
+	* tapset/jstack.stp.in: Workaround limit on regexp
+	length with SystemTap >= 3.2.
+
+2018-09-13  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3657: Sync desktop files with Fedora/RHEL
+	versions again
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Moved to acinclude.m4.
+	(BUILD_VERSION): Likewise.
+	(COMBINED_VERSION): Likewise.
+	(ICEDTEA_ENV): Use substitution for
+	JRE_RELEASE_VERSION, JDK_UPDATE_VERSION
+	and BUILD_VERSION.
+	(dist-openjdk): Use substitution for
+	COMBINED_VERSION.
+	(dist-openjdk-fsg): Likewise.
+	(dist-openjdk-fsg-xz): Likewise.
+	(install-data-local): Include JAVA_VENDOR
+	in icon name.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_DETERMINE_VERSION): Define JAVA_VENDOR,
+	JDK_UPDATE_VERSION, BUILD_VERSION, COMBINED_VERSION
+	and OPENJDK_VER here. Include OPENJDK_VER in output.
+	* jconsole.desktop.in:
+	Add full version and target architecture to name
+	to distinguish between multiple installations for the
+	same major Java version.  Add JAVA_VENDOR ('openjdk')
+	to the icon name.
+	* policytool.desktop.in: Likewise.
+
+2013-12-26  Andrew John Hughes  <gnu.andrew@redhat.com>
+
+	PR3657: Sync desktop files with Fedora/RHEL
+	versions again
+	* configure.ac:
+	Add AC_CANONICAL_TARGET after AC_CANONICAL_HOST
+	and move earlier in file, before Automake
+	initialisation.
+
+2018-12-28  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.15.
+	* Makefile.am:
+	(JDK_UPDATE_VERSION): Bump to 191.
+	(BUILD_VERSION): Set to b02.
+	(CORBA_CHANGESET): Update to icedtea-2.6.15.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.15.
+	* hotspot.map.in: Update to icedtea-2.6.15.
+
+2018-09-27  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3663: IcedTea installing symlinks to SystemTap
+	directory rather than individual tapsets
+	* Makefile.am:
+	(install-exec-local): Add missing '$' so that
+	${tapname} is correctly expanded.
+	* NEWS: Updated.
+
+2018-09-23  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3629: Install symlinks to tapsets in SystemTap directory
+	* INSTALL: Updated and synced with IcedTea 3.x.
+	* Makefile.am:
+	(install-exec-local):
+	Add symlinks to tapsets in system tapset directory.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_SET_ARCH_SETTINGS): Set SYSTEMTAP_ARCH_DIR
+	appropriately for each architecture. Move aarch64/arm64
+	before arm* as in IcedTea 3.x.
+	(IT_WITH_TAPSET_DIR): Add option --with-tapset-dir
+	to allow SystemTap tapset directory to be
+	specified (defaults to ${datadir}/systemtap/tapset)
+	* configure.ac:
+	Invoke IT_WITH_TAPSET_DIR.
+
+2017-01-25  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3659: Support RHEL multilib installations which
+	use the /usr/lib/jvm/java-1.x.0-openjdk.${arch} naming
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_SET_ARCH_SETTINGS): Set RPM_ARCH where the
+	RPM architecture name is known (Fedora/RHEL build
+	platforms). Remove unused CROSS_TARGET_ARCH from
+	sparc, s390x and sh.
+	(IT_CHECK_FOR_JDK): Depend on IT_SET_ARCH_SETTINGS.
+	Use ${RPM_ARCH} instead of explicit 'x86_64'.
+
+2018-11-28  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	Bump to 2.6.15pre01.
+	* Makefile.am:
+	(CORBA_CHANGESET): Update to icedtea-2.6.15pre01.
+	(JAXP_CHANGESET): Likewise.
+	(JAXWS_CHANGESET): Likewise.
+	(JDK_CHANGESET): Likewise.
+	(LANGTOOLS_CHANGESET): Likewise.
+	(OPENJDK_CHANGESET): Likewise.
+	(CORBA_SHA256SUM): Likewise.
+	(JAXP_SHA256SUM): Likewise.
+	(JAXWS_SHA256SUM): Likewise.
+	(JDK_SHA256SUM): Likewise.
+	(LANGTOOLS_SHA256SUM): Likewise.
+	(OPENJDK_SHA256SUM): Likewise.
+	* NEWS: Updated.
+	* configure.ac: Bump to 2.6.15pre01.
+	* hotspot.map.in: Update to icedtea-2.6.15pre01.
+
+2018-11-23  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	PR3652: Detect whether -Xprefer:source
+	and -J-Xmx<limit> can be used, rather than assuming
+	* Makefile.am:
+	(PREFER_SOURCE): Define if
+	COMPILER_SUPPORTS_XPREFERSOURCE is set
+	by configure.
+	(MEMORY_LIMIT): Define if
+	COMPILER_SUPPORTS_MAX_HEAP_SIZE is set
+	by configure.
+	* NEWS: Updated.
+	* acinclude.m4:
+	(IT_DIAMOND_CHECK): Use 'the Java compiler'
+	rather than 'javac' to avoid confusion with
+	the OpenJDK command.
+	(IT_UNDERSCORE_CHECK): Likewise.
+	(IT_JAVAC_OPTIONS_CHECK): Check whether the
+	selected Java compiler supports -Xprefer:source
+	and -J-Xmx.
+	* configure.ac: Invoke IT_JAVAC_OPTIONS_CHECK.
+
+2018-11-23  Andrew John Hughes  <gnu_andrew@member.fsf.org>
+
+	* NEWS: Add section for 2.6.15.
+	* configure.ac: Bump to 2.6.15pre00.
+
 2018-04-12  Andrew John Hughes  <gnu_andrew@member.fsf.org>
 
 	PR3551: Additional category used in jconsole.desktop.in is incorrect
