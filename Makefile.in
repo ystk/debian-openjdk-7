@@ -601,19 +601,19 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-CORBA_CHANGESET = 46169649285d
-JAXP_CHANGESET = c05c97839122
-JAXWS_CHANGESET = 238368449487
-JDK_CHANGESET = 6093d128c588
-LANGTOOLS_CHANGESET = 6cdbf382f3e2
-OPENJDK_CHANGESET = 6a588725b8a2
-CORBA_SHA256SUM = 808e6120513aa15e6b219899c1189e2d591c3984454d7db4b239556d437cf764
-JAXP_SHA256SUM = 4aa64f80dd103ebece1aaaa6d126f751eafabb2f677537dbb25c0e0c350ad3fb
-JAXWS_SHA256SUM = 0703a48a420932fb62288c211ccb27596db4e3f1cfd0701321abcca259c93e97
-JDK_SHA256SUM = 236180ad395eb5036cc8577aad7c4cdc2a96dc79da717fe37673a43ba26e08ee
-LANGTOOLS_SHA256SUM = b3c9130e6e813d12376cf685f1726988bad04b256390b00a5ef403a5619e6698
-OPENJDK_SHA256SUM = 7627e8483566b1eec4dd52c5f5052a46139529d68335c10d8ac8b0ff11215455
-DROP_URL = http://icedtea.classpath.org/download/drops
+CORBA_CHANGESET = ffed1dd63843
+JAXP_CHANGESET = bbd9f724d9af
+JAXWS_CHANGESET = 7d942bc39965
+JDK_CHANGESET = f294f336b24d
+LANGTOOLS_CHANGESET = 9f0890e75bcb
+OPENJDK_CHANGESET = ed550afe3dd7
+CORBA_SHA256SUM = c115dfa1027c58b1b6444908e26b613c428661fb210e891c30e6a65e77208776
+JAXP_SHA256SUM = 632aa746ebfd8238c64226bf949d20cc2f1d1423eaabfd19897199b13b434e3c
+JAXWS_SHA256SUM = 94fbcc00f3d89b9f3b940af5e7b469d1b945ca99e84b51a7abdadcde33a7be14
+JDK_SHA256SUM = 57b5741ab0807fbc71f15efce11546d943baffeb5f5cf55ec16fed69634abc36
+LANGTOOLS_SHA256SUM = 915f492188b7b214e280532df061adc6c999f0d190ea5f1325bc70b77a2af4f0
+OPENJDK_SHA256SUM = da5fc1846ec80409ad5af870dbeb03d077b4add3ba54c0dde00414bea0376392
+DROP_URL = https://icedtea.classpath.org/download/drops
 CACAO_VERSION = c182f119eaad
 CACAO_SHA256SUM = eade43f6c5da8b3b5a64e6b206b624eaca88539f80101d7164d6aa426eb590b1
 CACAO_BASE_URL = $(DROP_URL)/cacao
@@ -626,7 +626,7 @@ JAMVM_URL = $(JAMVM_BASE_URL)/jamvm-$(JAMVM_VERSION).tar.gz
 JAMVM_SRC_ZIP = jamvm-$(JAMVM_VERSION).tar.gz
 ICEDTEA_MAJOR = icedtea7
 ICEDTEA_PREFIX = $(ICEDTEA_MAJOR)-forest-$(ICEDTEA_BRANCH)
-ICEDTEA_HG_URL = http://icedtea.classpath.org/hg/release/$(ICEDTEA_PREFIX)
+ICEDTEA_HG_URL = https://icedtea.classpath.org/hg/release/$(ICEDTEA_PREFIX)
 ICEDTEA_URL = $(DROP_URL)/$(ICEDTEA_MAJOR)/$(ICEDTEA_RELEASE)
 HS_TYPE = "`$(AWK) 'version==$$1 {print $$2}' version=$(HSBUILD) $(abs_top_builddir)/hotspot.map`"
 HS_URL = "`$(AWK) 'version==$$1 {print $$3}' version=$(HSBUILD) $(abs_top_builddir)/hotspot.map`"
@@ -1499,11 +1499,6 @@ check-local: jtregcheck $(SYSTEMTAP_TEST_SUITE) check-ecc check-mimetype \
 clean-tests: clean-jtreg clean-tapset-report clean-jtreg-reports \
  clean-check-ecc clean-check-mimetype clean-check-java-debug \
  clean-check-java-src
-	if [ $(abs_top_srcdir) != $(abs_top_builddir) ] ; then \
-	  if [ -e test ] ; then \
-	    rmdir test ; \
-	  fi \
-	fi
 
 clean-local: clean-tests \
  clean-icedtea clean-icedtea-boot clean-clone clean-clone-boot \
@@ -3380,13 +3375,13 @@ clean-check-java-src:
 # File substitution
 
 policytool-@JAVA_VER@.desktop: policytool.desktop
-	cat $< | $(SED) "s#_BINDIR_#$(bindir)#" > $@
+	cat $< | $(SED) "s#_JREBINDIR_#$(prefix)/jre/bin#" > $@
 
 clean-policytool-@JAVA_VER@.desktop:
 	rm -f policytool-@JAVA_VER@.desktop
 
 jconsole-@JAVA_VER@.desktop: jconsole.desktop
-	cat $< | $(SED) "s#_BINDIR_#$(bindir)#" > $@
+	cat $< | $(SED) "s#_SDKBINDIR_#$(bindir)#" > $@
 
 clean-jconsole-@JAVA_VER@.desktop:
 	rm -f jconsole-@JAVA_VER@.desktop
