@@ -2948,9 +2948,14 @@ AC_DEFUN_ONCE([IT_DETERMINE_VERSION],
   AC_MSG_CHECKING([which branch and release of IcedTea is being built])
   JAVA_VER=1.7.0
   JAVA_VENDOR=openjdk
-  JDK_UPDATE_VERSION=221
-  BUILD_VERSION=b02
-  COMBINED_VERSION=${JDK_UPDATE_VERSION}-${BUILD_VERSION}
+  JDK_UPDATE_VERSION=231
+  BUILD_VERSION=b01
+  MILESTONE=fcs
+  if test "x${MILESTONE}" = "xfcs"; then
+    COMBINED_VERSION=${JDK_UPDATE_VERSION}-${BUILD_VERSION}
+  else
+    COMBINED_VERSION=${JDK_UPDATE_VERSION}-${MILESTONE}-${BUILD_VERSION}
+  fi
   OPENJDK_VER=${JAVA_VER}_${COMBINED_VERSION}
   ICEDTEA_RELEASE=$(echo ${PACKAGE_VERSION} | sed 's#pre.*##')
   ICEDTEA_BRANCH=$(echo ${ICEDTEA_RELEASE}|sed 's|\.[[0-9]]$||')
@@ -2959,6 +2964,7 @@ AC_DEFUN_ONCE([IT_DETERMINE_VERSION],
   AC_SUBST([JAVA_VENDOR])
   AC_SUBST([JDK_UPDATE_VERSION])
   AC_SUBST([BUILD_VERSION])
+  AC_SUBST([MILESTONE])
   AC_SUBST([COMBINED_VERSION])
   AC_SUBST([OPENJDK_VER])
   AC_SUBST([ICEDTEA_RELEASE])
@@ -2986,52 +2992,6 @@ AC_DEFUN_ONCE([IT_ENABLE_QUEENS_TEST],
   ])
   AC_MSG_RESULT([$enable_queens])
   AM_CONDITIONAL([ENABLE_QUEENS], test x"${enable_queens}" = "xyes")
-])
-
-AC_DEFUN_ONCE([IT_PR64174_CHECK],[
-AC_REQUIRE([IT_CHECK_JAVA_AND_JAVAC_WORK])
-AC_CACHE_CHECK([if java.text.SimpleDateFormat exhibits Classpath bug 64174], it_cv_cp64174, [
-  CLASS=Test.java
-  BYTECODE=$(echo $CLASS|sed 's#\.java##')
-  mkdir tmp.$$
-  cd tmp.$$
-  cat << \EOF > $CLASS
-[/* [#]line __oline__ "configure" */
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
-
-public class Test
-{
-  public static void main(String[] args)
-    throws ParseException
-  {
-    SimpleDateFormat format;
-
-    format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
-    format.setLenient(false);
-    System.out.println(format.parse("2014-12-31-22-00-00"));
-  }
-}]
-EOF
-  if $JAVAC -cp . $JAVACFLAGS -source 5 -target 5 $CLASS >&AS_MESSAGE_LOG_FD 2>&1; then
-    if $JAVA -classpath . $BYTECODE >&AS_MESSAGE_LOG_FD 2>&1; then
-      it_cv_cp64174=no;
-    else
-      it_cv_cp64174=yes;
-    fi
-  else
-    it_cv_cp64174=yes;
-  fi
-  rm -f $CLASS *.class
-  cd ..
-  rmdir tmp.$$
-  ])
-AM_CONDITIONAL([CP64174], test x"${it_cv_cp64174}" = "xyes")
-AC_PROVIDE([$0])dnl
 ])
 
 AC_DEFUN([IT_UNDERSCORE_CHECK],[

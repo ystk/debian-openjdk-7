@@ -3,20 +3,20 @@
 # all directories are relative to the current dir
 
 tarballs="corba.tar.bz2 hotspot.tar.bz2 jaxp.tar.bz2 jaxws.tar.bz2 jdk.tar.bz2 langtools.tar.bz2 openjdk.tar.bz2"
-tarballs="$tarballs icedtea-sound-1.0.1.tar.gz"
+tarballs="$tarballs icedtea-sound-1.0.1.tar.xz"
 jamvmtb=jamvm-2.0.0.tar.gz
 
 # tarballs location
-tarballdir=7u161
+tarballdir=7u231
 
 # icedtea upstream location (as extracted from icedtea's tarball)
-icedtea_checkout=icedtea-2.6.12
+icedtea_checkout=icedtea-2.6.19
 
 # openjdk's debian location (usually fetched from bzr or the latest openjdk)
 debian_checkout=openjdk7
 
 base=openjdk-7
-version=7u161-2.6.12
+version=7u231-2.6.19
 
 # output directory
 pkgdir=$base-$version

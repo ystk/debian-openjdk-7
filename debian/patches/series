@@ -12,3 +12,4 @@ it-patch-updates.diff
 it-nss-softokn-config.diff
 it-jamvm-2.0.diff
 it-remove-samevm.patch
+ecj-diamond.patch

@@ -1,3 +1,28 @@
+openjdk-7 (7u231-2.6.19-1~deb8u1) jessie-security; urgency=high
+
+  [ Markus Koschany ]
+  * IcedTea release 2.6.19 (based on 7u231).
+  * Security fixes:
+      - S8191073: JpegImageReader throws IndexOutOfBoundsException when trying
+        to read image data from tables-only image
+      - S8208698, CVE-2019-2745: Improved ECC Implementation
+      - S8212328, CVE-2019-2745: Exceptional throw cases
+      - S8213431, CVE-2019-2766: Improve file protocol handling
+      - S8213432, CVE-2019-2769: Better copies of CopiesList
+      - S8216381, CVE-2019-2786: More limited privilege usage
+      - S8217563: Improve realm maintenance
+      - S8218873: Improve JSSE endpoint checking
+      - S8218876, CVE-2019-2745: Improve PNG support options
+      - S8219018: Adjust positions of glyphs
+      - S8219020: Table alternate substitutions
+      - S8219775: Certificate validation improvements
+      - S8220192: Better outlook for SecureRandom
+      - S8220517: Enhanced GIF support
+      - S8221518, CVE-2019-2816: Normalize normalization
+      - S8223511, CVE-2019-2842: Extended AES support
+
+ -- Markus Koschany <apo@debian.org>  Mon, 12 Aug 2019 19:58:42 +0200
+
 openjdk-7 (7u221-2.6.18-1~deb8u1) jessie-security; urgency=medium
 
   * IcedTea release 2.6.18 (based on 7u221).
