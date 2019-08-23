@@ -293,7 +293,7 @@ endif
 # * Enable the SunEC security provider on distributions with NSS 3.16 and
 #   shipping the blapi.h header. Addresses: #750400.
 ifeq (,$(filter $(distrel),squeeze wheezy sid lucid precise quantal raring saucy trusty))
-#  with_sunec = yes
+  with_sunec = yes
 endif
 
 ifneq (,$(filter $(distrel),squeeze wheezy jessie lucid precise trusty vivid wily))

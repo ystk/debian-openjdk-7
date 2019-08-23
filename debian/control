@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 9),
   libxtst-dev, libxi-dev, libxt-dev, libxaw7-dev, libxrender-dev, libasound2-dev, libfreetype6-dev (>= 2.2.1), libgtk2.0-dev, liblcms2-dev, libxinerama-dev, libkrb5-dev, xsltproc, libcups2-dev, libpcsclite-dev, librhino-java (>= 1.7R3~), fonts-ipafont-mincho,
   libffi-dev, 
   zlib1g-dev, libattr1-dev, libpng-dev, libjpeg-dev, libgif-dev, libsctp-dev [linux-any],
-  libnss3-dev (>= 2:3.17.1), systemtap-sdt-dev,
+  libnss3-dev (>= 2:3.26-1+debu8u6), systemtap-sdt-dev,
 Standards-Version: 4.3.0
 Homepage: http://openjdk.java.net/
 Vcs-Bzr: http://bazaar.launchpad.net/~openjdk/openjdk/openjdk7

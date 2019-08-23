@@ -14,7 +14,7 @@ Index: b/acinclude.m4
 +      nsslibdir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/nss"
        SUNEC_CFLAGS=$NSS_SOFTOKN_CFLAGS;
 -      SUNEC_LIBS="$NSS_LIBS -lfreebl";
-+      SUNEC_LIBS="$NSS_LIBS -L$nsslibdir -Xlinker -rpath=$nsslibdir -lfreebl3";
++      SUNEC_LIBS="$NSS_LIBS -L$nsslibdir -Xlinker -rpath=$nsslibdir -lfreebl";
      elif test "x${NSS_JAVA_FOUND}" = "xyes"; then
        SUNEC_CFLAGS="$NSS_JAVA_CFLAGS -DLEGACY_NSS";
        SUNEC_LIBS=$NSS_JAVA_LIBS;
