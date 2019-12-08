@@ -4,7 +4,7 @@ Last-Update: 2019-02-18
 
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -43,13 +43,39 @@
+@@ -51,13 +51,39 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
        INSTALL_ARCH_DIR=mips
        JRE_ARCH_DIR=mips
        SYSTEMTAP_ARCH_DIR=mips

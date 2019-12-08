@@ -3,11 +3,9 @@ Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: not accepted
 Last-Update: 2014-07-06
 
-Index: b/Makefile.am
-===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -1665,132 +1665,37 @@ clean-fonts:
+@@ -1647,132 +1647,37 @@ clean-fonts:
  	rm -f stamps/fonts.stamp
  
  stamps/patch-fsg.stamp: stamps/extract.stamp stamps/fonts.stamp
@@ -162,7 +160,7 @@ Index: b/Makefile.am
  	fi
  
  stamps/versioning.stamp: stamps/patch.stamp
-@@ -1860,54 +1765,20 @@ clean-clone-boot:
+@@ -1842,54 +1747,20 @@ clean-clone-boot:
  	rm -f stamps/clone-boot.stamp
  
  stamps/patch-boot.stamp: stamps/clone-boot.stamp

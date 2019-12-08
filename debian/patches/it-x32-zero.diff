@@ -3,8 +3,6 @@ Author: Matthias Klose <doko@ubuntu.com>
 Forwarded: http://mail.openjdk.java.net/pipermail/zero-dev/2014-January/000524.html
 Last-Update: 2019-02-18
 
-Index: b/acinclude.m4
-===================================================================
 --- a/acinclude.m4
 +++ b/acinclude.m4
 @@ -2,12 +2,18 @@ AC_DEFUN([IT_SET_ARCH_SETTINGS],
@@ -32,7 +30,7 @@ Index: b/acinclude.m4
        ;;
      i?86)
        BUILD_ARCH_DIR=i586
-@@ -753,7 +761,7 @@ AC_DEFUN_ONCE([IT_ENABLE_ZERO_BUILD],
+@@ -776,7 +782,7 @@ AC_DEFUN_ONCE([IT_ENABLE_ZERO_BUILD],
    ZERO_LIBARCH="${INSTALL_ARCH_DIR}"
    dnl can't use AC_CHECK_SIZEOF on multilib
    case "${ZERO_LIBARCH}" in

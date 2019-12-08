@@ -1,8 +1,6 @@
-Index: b/Makefile.am
-===================================================================
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -26,8 +26,8 @@ CACAO_BASE_URL = $(DROP_URL)/cacao
+@@ -22,8 +22,8 @@ CACAO_BASE_URL = $(DROP_URL)/cacao
  CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
  CACAO_URL = $(CACAO_BASE_URL)/$(CACAO_SRC_ZIP)
  
@@ -13,7 +11,7 @@ Index: b/Makefile.am
  JAMVM_BASE_URL = $(DROP_URL)/jamvm
  JAMVM_URL = $(JAMVM_BASE_URL)/jamvm-$(JAMVM_VERSION).tar.gz
  JAMVM_SRC_ZIP = jamvm-$(JAMVM_VERSION).tar.gz
-@@ -404,8 +404,6 @@ endif
+@@ -401,8 +401,6 @@ endif
  
  if BUILD_JAMVM
  ICEDTEA_PATCHES += \
@@ -22,8 +20,8 @@ Index: b/Makefile.am
  	patches/jamvm/noexecstack.patch \
  	patches/jamvm/pr2665.patch \
  	patches/jamvm/pr3134-unsafe_methods.patch
-@@ -419,6 +417,11 @@ if !USE_NON_NSS_CURVES
- ICEDTEA_PATCHES += patches/rh1022017.patch
+@@ -412,6 +410,11 @@ if ENABLE_NSS
+ ICEDTEA_PATCHES += patches/nss-config.patch
  endif
  
 +if BUILD_JAMVM
@@ -34,7 +32,7 @@ Index: b/Makefile.am
  ICEDTEA_PATCHES += $(DISTRIBUTION_PATCHES)
  
  # Bootstrapping patches
-@@ -2456,7 +2459,7 @@ clean-rewrite-rhino:
+@@ -2438,7 +2441,7 @@ clean-rewrite-rhino:
  stamps/jamvm.stamp: $(OPENJDK_TREE) stamps/rt.stamp
  if BUILD_JAMVM
  	cd jamvm/jamvm && \
@@ -43,8 +41,6 @@ Index: b/Makefile.am
  	  --prefix=$(abs_top_builddir)/jamvm/install \
  	  CFLAGS='$(EXTRA_CFLAGS_JAMVM)' LDFLAGS='$(EXTRA_LDFLAGS_JAMVM)' CPPFLAGS='$(EXTRA_CPPFLAGS_JAMVM)' CXXFLAGS='$(EXTRA_CXXFLAGS_JAMVM)'; \
  	$(MAKE) ; \
-Index: b/patches/jamvm-2.5.3-fix.diff
-===================================================================
 --- /dev/null
 +++ b/patches/jamvm-2.5.3-fix.diff
 @@ -0,0 +1,76 @@
