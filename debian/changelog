@@ -1,3 +1,29 @@
+openjdk-7 (7u251-2.6.21-1~deb8u1) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the LTS team.
+  * IcedTea release 2.6.21 (based on 7u251).
+  * Security fixes:
+    - S8224909, CVE-2020-2583: Unlink Set of LinkedHashSets
+    - S8225261: Better method resolutions
+    - S8225279: Better XRender interpolation
+    - S8226352, CVE-2020-2590: Improve Kerberos interop capabilities
+    - S8227758: More valid PKIX processing
+    - S8227816: More Colorful ICC profiles
+    - S8228548, CVE-2020-2593: Normalize normalization for all
+    - S8229951, CVE-2020-2601: Better Ticket Granting Services
+    - S8230279: Improve Pack200 file reading
+    - S8230318: Better trust store usage
+    - S8230967: Improve Registry support of clients
+    - S8231129: More glyph images
+    - S8231139: Improved keystore support
+    - S8231422, CVE-2020-2604: Better serial filter handling
+    - S8231795, CVE-2020-2659: Enhance datagram socket support
+    - S8232419: Improve Registry registration
+    - S8234037, CVE-2020-2654: Improve Object Identifier Processing
+  * Add autopkgtest integration from Roberto C. Sanchez.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 27 Feb 2020 09:41:03 +0100
+
 openjdk-7 (7u241-2.6.20-1~deb8u1) jessie-security; urgency=high
 
   * Non-maintainer upload by the LTS team.

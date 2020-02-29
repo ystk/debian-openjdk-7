@@ -1,0 +1,221 @@
+#!/bin/bash
+set -o errexit
+set -o errtrace
+set -o pipefail
+set -o nounset
+
+[ -d jdk/test/ ] || tar jxf jdk.tar.bz2 --transform='s|^jdk-[0-9a-f]\+/|jdk/|' --wildcards --no-wildcards-match-slash 'jdk-*/test/'
+
+cleanup() {
+  pid="$(jobs -p)"
+  [ -n "$pid" ] && pkill -P ${pid}
+  pkill -9 -P $$
+}
+
+for sig in INT QUIT HUP TERM; do trap "cleanup; trap - $sig EXIT; kill -s $sig "'"$$"' "$sig"; done
+trap cleanup EXIT
+
+export HOME="$(pwd)/jdk/test/"
+export XAUTHORITY="${HOME}/.Xauthority"
+export DISPLAY=:10
+
+host_arch="${DEB_HOST_ARCH:-$(dpkg --print-architecture)}"
+
+if ! grep -q -w "${host_arch}" debian/tests/hotspot-archs; then
+  echo "Warning: architecture not listed in debian/tests/hotspot-archs. The jdk testsuite might timeout."
+  if [ -z "${FORCE_JDK_TEST+x}" ]; then
+    echo "Skipping test. Set environment variable FORCE_JDK_TEST to override this check."
+    exit 77
+  fi
+fi
+
+debian/tests/start-xvfb.sh 10 &
+sleep 3
+
+debian/tests/jtreg-autopkgtest.sh jdk \
+	-dir:jdk/test \
+	-exclude:ProblemList.txt \
+        java/beans/ \
+        com/oracle/net/ \
+        com/sun/corba/ \
+        com/sun/crypto/ \
+        com/sun/jndi/ \
+        com/sun/net/ \
+        com/sun/org/apache/xml/internal/security/ \
+        com/sun/security/auth/ \
+        com/sun/security/jgss/ \
+        com/sun/security/sasl/ \
+        com/sun/tools/extcheck/ \
+        demo/zipfs/ \
+        java/io/ \
+        java/lang/Appendable/ \
+        java/lang/AssertionError/ \
+        java/lang/Boolean/ \
+        java/lang/Byte/ \
+        java/lang/Character/ \
+        java/lang/Class/ \
+        java/lang/ClassLoader/ \
+        java/lang/Compare.java \
+        java/lang/Double/ \
+        java/lang/Enum/ \
+        java/lang/Float/ \
+        java/lang/HashCode.java \
+        java/lang/InheritableThreadLocal/ \
+        java/lang/Integer/ \
+        java/lang/Long/ \
+        java/lang/Math/ \
+        java/lang/ProcessBuilder/ \
+        java/lang/Runtime/ \
+        java/lang/RuntimePermission/ \
+        java/lang/SecurityManager/ \
+        java/lang/Short/ \
+        java/lang/StackTraceElement/ \
+        java/lang/StrictMath/ \
+        java/lang/String/ \
+        java/lang/StringBuffer/ \
+        java/lang/StringBuilder/ \
+        java/lang/StringCoding/ \
+        java/lang/System/ \
+        java/lang/Thread/ \
+        java/lang/ThreadGroup/ \
+        java/lang/ThreadLocal/ \
+        java/lang/Throwable/ \
+        java/lang/ToString.java \
+        java/lang/annotation/ \
+        java/lang/invoke/ \
+        java/lang/ref/ \
+        java/lang/reflect/ \
+        java/math/ \
+        java/net/ \
+        java/nio/ \
+        java/rmi/ \
+        java/security/ \
+        java/text/ \
+        java/util/AbstractCollection/ \
+        java/util/AbstractList/ \
+        java/util/AbstractMap/ \
+        java/util/AbstractSequentialList/ \
+        java/util/ArrayList/ \
+        java/util/Arrays/ \
+        java/util/BitSet/ \
+        java/util/Calendar/ \
+        java/util/Collection/ \
+        java/util/Collections/ \
+        java/util/Currency/ \
+        java/util/Date/ \
+        java/util/Deque/ \
+        java/util/EnumMap/ \
+        java/util/EnumSet/ \
+        java/util/Formattable/ \
+        java/util/Formatter/ \
+        java/util/HashMap/ \
+        java/util/HashSet/ \
+        java/util/Hashtable/ \
+        java/util/IdentityHashMap/ \
+        java/util/IllegalFormatException/ \
+        java/util/LinkedHashMap/ \
+        java/util/LinkedHashSet/ \
+        java/util/LinkedList/ \
+        java/util/List/ \
+        java/util/Locale/ \
+        java/util/Map/ \
+        java/util/NavigableMap/ \
+        java/util/Objects/ \
+        java/util/Observable/ \
+        java/util/PluggableLocale/ \
+        java/util/PriorityQueue/ \
+        java/util/Random/ \
+        java/util/ResourceBundle/ \
+        java/util/Scanner/ \
+        java/util/ServiceLoader/ \
+        java/util/StringTokenizer/ \
+        java/util/TimSort/ \
+        java/util/TimeZone/ \
+        java/util/Timer/ \
+        java/util/TreeMap/ \
+        java/util/UUID/ \
+        java/util/Vector/ \
+        java/util/WeakHashMap/ \
+        java/util/concurrent/ \
+        java/util/jar/ \
+        java/util/logging/ \
+        java/util/prefs/ \
+        java/util/regex/ \
+        java/util/zip/ \
+        javax/crypto/ \
+        javax/naming/ \
+        javax/net/ \
+        javax/rmi/ \
+        javax/script/ \
+        javax/security/auth/PrivateCredentialPermission/ \
+        javax/security/auth/Subject/ \
+        javax/security/auth/SubjectDomainCombiner/ \
+        javax/security/auth/kerberos/ \
+        javax/security/auth/login/ \
+        javax/security/auth/x500/ \
+        javax/security/sasl/ \
+        javax/smartcardio/ \
+        javax/xml/bind/ \
+        javax/xml/crypto/ \
+        javax/xml/jaxp/ \
+        javax/xml/ws/ \
+        jdk/net/ \
+        lib/security/ \
+        lib/testlibrary/ \
+        sample/ \
+        sun/invoke/ \
+        sun/misc/ \
+        sun/net/ \
+        sun/nio/ \
+        sun/reflect/ \
+        sun/rmi/ \
+        sun/security/acl/ \
+        sun/security/action/ \
+        sun/security/ec/ \
+        sun/security/jgss/ \
+        sun/security/krb5/ \
+        sun/security/mscapi/ \
+        sun/security/pkcs/ \
+        sun/security/pkcs11/ \
+        sun/security/pkcs12/ \
+        sun/security/provider/ \
+        sun/security/rsa/ \
+        sun/security/smartcardio/ \
+        sun/security/ssl/ \
+        sun/security/tools/ \
+        sun/security/util/ \
+        sun/security/validator/ \
+        sun/security/x509/ \
+        sun/text/ \
+        sun/tools/jrunscript/ \
+        sun/tools/native2ascii/ \
+        sun/util/ \
+        tools/ \
+        vm/ \
+        javax/imageio/ \
+        com/sun/nio/sctp/ \
+        javax/sound/ \
+        com/sun/jdi/ \
+        com/sun/jmx/ \
+        com/sun/management/ \
+        com/sun/tools/attach/ \
+        com/sun/tracing/ \
+        demo/jvmti/ \
+        java/lang/instrument/ \
+        java/lang/management/ \
+        javax/management/ \
+        sun/jvmstat/ \
+        sun/management/ \
+        sun/tools/common/ \
+        sun/tools/jcmd/ \
+        sun/tools/jconsole/ \
+        sun/tools/jhat/ \
+        sun/tools/jinfo/ \
+        sun/tools/jmap/ \
+        sun/tools/jps/ \
+        sun/tools/jstack/ \
+        sun/tools/jstat/ \
+        sun/tools/jstatd/
+	javax/accessibility com/sun/java/swing javax/print sun/pisces com/sun/awt || true
+
+debian/tests/jtdiff-autopkgtest.sh jdk

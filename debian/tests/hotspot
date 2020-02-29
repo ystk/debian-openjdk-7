@@ -1,0 +1,10 @@
+#!/bin/bash 
+set -o errexit
+set -o errtrace
+set -o pipefail
+set -o nounset
+
+[ -d hotspot/test ] || tar jxf hotspot.tar.bz2 --transform='s|^hotspot-[0-9a-f]\+/|hotspot/|' --wildcards --no-wildcards-match-slash 'hotspot-*/test/'
+
+debian/tests/jtreg-autopkgtest.sh hotspot -dir:hotspot/test compiler gc runtime sanity serviceability || true
+debian/tests/jtdiff-autopkgtest.sh hotspot

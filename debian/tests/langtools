@@ -1,0 +1,10 @@
+#!/bin/bash
+set -o errexit
+set -o errtrace
+set -o pipefail
+set -o nounset
+
+[ -d langtools/test ] || tar jxf langtools.tar.bz2 --transform='s|^langtools-[0-9a-f]\+/|langtools/|' --wildcards --no-wildcards-match-slash 'langtools-*/test/'
+
+debian/tests/jtreg-autopkgtest.sh langtools -dir:langtools/test com tools lib || true
+debian/tests/jtdiff-autopkgtest.sh langtools

@@ -1176,6 +1176,7 @@ ifneq (,$(filter $(VMNAME), $(with_jtreg_check)))
 	  done; \
 	done > build/test/failed_tests-$(VMNAME).list; \
 	XZ_DEFAULTS=-9v tar -C build -c -J -f build/test/failed_tests-$(VMNAME).tar.xz -T build/test/failed_tests-$(VMNAME).list
+	XZ_DEFAULTS=-9v tar -C . -c -J -f build/test/jtreport-$(VMNAME).tar.xz $$(find build/test -name JTreport)
 
 	@echo "BEGIN jtreg-summary-$(VMNAME)"
 	-cat build/test/jtreg-$(VMNAME)/jtreg-summary.log
@@ -1756,6 +1757,10 @@ define install_minimal_test_results
 	fi
 	if [ -f build/test/failed_tests-$(1).tar.xz ]; then \
 	  cp -p build/test/failed_tests-$(1).tar.xz \
+	    $(d_tst)/usr/share/doc/$(p_jrehl)/test-$(DEB_HOST_ARCH)/.; \
+	fi
+	if [ -f build/test/jtreport-$(1).tar.xz ]; then \
+	  cp -p build/test/jtreport-$(1).tar.xz \
 	    $(d_tst)/usr/share/doc/$(p_jrehl)/test-$(DEB_HOST_ARCH)/.; \
 	fi
 endef
