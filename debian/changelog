@@ -1,3 +1,26 @@
+openjdk-7 (7u261-2.6.22-1~deb8u1) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the LTS team.
+  * IcedTea release 2.6.22 (based on 7u261).
+  * Security fixes:
+    - S8224541, CVE-2020-2756: Better mapping of serial ENUMs
+    - S8224549, CVE-2020-2757: Less Blocking Array Queues
+    - S8225603: Enhancement for big integers
+    - S8227542: Manifest improved jar headers
+    - S8231415, CVE-2020-2773: Better signatures in XML
+    - S8233250: Better X11 rendering
+    - S8233410: Better Build Scripting
+    - S8234027: Better JCEKS key support
+    - S8234408, CVE-2020-2781: Improve TLS session handling
+    - S8234825, CVE-2020-2800: Better Headings for HTTP Servers
+    - S8234841, CVE-2020-2803: Enhance buffering of byte buffers
+    - S8235274, CVE-2020-2805: Enhance typing of methods
+    - S8236201, CVE-2020-2830: Better Scanner conversions
+    - S8238960: linux-i586 builds are inconsistent as the newly build jdk is
+      not able to reserve enough space for object heap
+
+ -- Roberto C. Sánchez <roberto@debian.org>  Thu, 23 Apr 2020 21:59:07 -0400
+
 openjdk-7 (7u251-2.6.21-1~deb8u1) jessie-security; urgency=medium
 
   * Non-maintainer upload by the LTS team.

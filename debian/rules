@@ -354,6 +354,7 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/jdk-getAccessibleValue.diff \
 	debian/patches/jdk-8132985-backport-double-free.patch \
 	debian/patches/jdk-8139803-backport-warning.patch \
+	debian/patches/jdk-fix-fPIE-flag.diff \
 
 ifeq (,$(filter $(DEB_HOST_ARCH),arm64))
   DISTRIBUTION_PATCHES += \

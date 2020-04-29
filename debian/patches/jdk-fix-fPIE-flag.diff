@@ -1,0 +1,47 @@
+Author: Roberto C. Sánchez <roberto@debian.org>
+Description: The way that upstream uses $(subst ) to transform -fPIC to -fPIE is problematic.  It causes other compiler flags to be remove or to never be assigned.  Notable, the -DPRODUCT flag is absent after the -fPIC -> -fPIE transformation, which causes src/share/native/com/sun/java/util/jar/pack/utils.cpp to fail to compile.  The source of the failure is the fprintf() at line 84 of the same file.  If PRODUCT is defined, as it should be when building the pack/unpack utilities, then that line should not be seen by the compiler.  However, with the -DPRODUCT flag missing, the fprintf() statment triggers a compiler warning about the format string not being a literal.  Since dpkg-buildflags default flags include -Werror=formatc-security, this results in a compilation failure.  Since gcc/g++ will take later flags as overriding earlier flags, changing from the approach of $(subst ) to a simple += assignment results in the correct compiler flag configuration.  This can be confirmed by inspecting the output of the hardening-check utility on the bin/unpack200 artifact of the build.
+--- openjdk/jdk/make/common/Program.gmk.orig	2020-04-26 21:38:01.246734204 -0400
++++ openjdk/jdk/make/common/Program.gmk	2020-04-26 21:39:32.646860877 -0400
+@@ -141,8 +141,10 @@
+ ifeq ($(CC_VERSION), gcc)
+   ifneq ($(ARCH_DATA_MODEL), 32)
+     LDFLAGS += -pie
+-    CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
+-    CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++    #CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
++    CFLAGS += -fPIE
++    #CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++    CXXFLAGS += -fPIE
+   endif # ARCH_DATA_MODEL != 32
+ endif # CC_VERSION gcc
+ 
+--- openjdk/jdk/make/java/jexec/Makefile.orig	2020-04-26 21:38:06.186740715 -0400
++++ openjdk/jdk/make/java/jexec/Makefile	2020-04-26 21:39:53.050889901 -0400
+@@ -65,8 +65,10 @@
+ ifeq ($(CC_VERSION), gcc)
+   ifneq ($(ARCH_DATA_MODEL), 32)
+     LDFLAGS += -pie
+-    CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
+-    CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++    #CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
++    CFLAGS += -fPIE
++    #CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++    CXXFLAGS += -fPIE
+   endif # ARCH_DATA_MODEL != 32
+ endif # CC_VERSION gcc
+ 
+--- openjdk/jdk/make/com/sun/java/pack/Makefile.orig	2020-04-26 21:38:11.366747551 -0400
++++ openjdk/jdk/make/com/sun/java/pack/Makefile	2020-04-26 21:40:15.882922292 -0400
+@@ -83,8 +83,10 @@
+  ifeq ($(CC_VERSION), gcc)
+    ifneq ($(ARCH_DATA_MODEL), 32)
+      LDDFLAGS += -pie
+-     CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
+-     CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++     #CFLAGS := $(subst -fPIC,-fPIE,$(CFLAGS))
++     CFLAGS += -fPIE
++     #CXXFLAGS := $(subst -fPIC,-fPIE,$(CXXFLAGS))
++     CXXFLAGS += -fPIE
+    endif # ARCH_DATA_MODEL != 32
+  endif # CC_VERSION gcc
+ else
