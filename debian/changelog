@@ -1,3 +1,63 @@
+openjdk-7 (7u281-2.6.24-0+deb8u1) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the ELTS team.
+  * IcedTea release 2.6.24 (based on 7u281).
+  * Security fixes:
+    - JDK-8233624: Enhance JNI linkage
+    - JDK-8236862: Enhance support of Proxy class
+    - JDK-8237990: Enhanced LDAP contexts
+    - JDK-8237995: Enhance certificate processing
+    - JDK-8240124: Better VM Interning
+    - JDK-8241114: Better range handling
+    - JDK-8242680: Improved URI Support
+    - JDK-8242685: Better Path Validation
+    - JDK-8242695: Enhanced buffer support
+    - JDK-8243302: Advanced class supports
+    - JDK-8244136: Improved Buffer supports
+    - JDK-8244479: Further constrain certificates
+    - JDK-8244955: Additional Fix for JDK-8240124
+    - JDK-8245407: Enhance zoning of times
+    - JDK-8245412: Better class definitions
+    - JDK-8245417: Improve certificate chain handling
+    - JDK-8248574: Improve jpeg processing
+    - JDK-8249927: Specify limits of jdk.serialProxyInterfaceLimit
+    - JDK-8253019: Enhanced JPEG decoding
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 11 Nov 2020 12:55:36 +0100
+
+openjdk-7 (7u271-2.6.23-1~deb8u1) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the ELTS team.
+  * IcedTea release 2.6.23 (based on 7u271).
+  * Security fixes
+    - JDK-8028431, CVE-2020-14579: NullPointerException in
+      DerValue.equals(DerValue)
+    - JDK-8028591, CVE-2020-14578: NegativeArraySizeException in
+      sun.security.util.DerInputStream.getUnalignedBitString()
+    - JDK-8230613: Better ASCII conversions
+    - JDK-8231800: Better listing of arrays
+    - JDK-8232014: Expand DTD support
+    - JDK-8233255: Better Swing Buttons
+    - JDK-8234032: Improve basic calendar services
+    - JDK-8234042: Better factory production of certificates
+    - JDK-8234418: Better parsing with CertificateFactory
+    - JDK-8234836: Improve serialization handling
+    - JDK-8236191: Enhance OID processing
+    - JDK-8237592, CVE-2020-14577: Enhance certificate verification
+    - JDK-8238002, CVE-2020-14581: Better matrix operations
+    - JDK-8238804: Enhance key handling process
+    - JDK-8238842: AIOOBE in GIFImageReader.initializeStringTable
+    - JDK-8238843: Enhanced font handing
+    - JDK-8238920, CVE-2020-14583: Better Buffer support
+    - JDK-8238925: Enhance WAV file playback
+    - JDK-8240119, CVE-2020-14593: Less Affine Transformations
+    - JDK-8240482: Improved WAV file playback
+    - JDK-8241379: Update JCEKS support
+    - JDK-8241522: Manifest improved jar headers redux
+    - JDK-8242136, CVE-2020-14621: Better XML namespace handling
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 27 Sep 2020 18:22:04 +0200
+
 openjdk-7 (7u261-2.6.22-1~deb8u1) jessie-security; urgency=medium
 
   * Non-maintainer upload by the LTS team.

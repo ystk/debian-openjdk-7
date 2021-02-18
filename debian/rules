@@ -320,7 +320,7 @@ DISTRIBUTION_PATCHES += \
 	debian/patches/nonreparenting-wm.diff \
 	debian/patches/accessible-toolkit.patch \
 	debian/patches/fix_extra_flags-$(hotspot_version).diff \
-	debian/patches/hotspot-aarch64-S8150652-unused-template.diff \
+	#debian/patches/hotspot-aarch64-S8150652-unused-template.diff \
 
 ifeq ($(with_bridge),atk)
     DISTRIBUTION_PATCHES += \
