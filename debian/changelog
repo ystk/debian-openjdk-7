@@ -1,3 +1,16 @@
+openjdk-7 (7u301-2.6.26-0+deb8u1) jessie-security; urgency=medium
+
+  * New upstream release.
+  * IcedTea release 2.6.26 (based on 7u301).
+  * Security fixes:
+    - JDK-8244473: Contextualize registration for JNDI
+    - JDK-8244543: Enhanced handling of abstract classes
+    - JDK-8249906, CVE-2021-2163: Enhance opening JARs
+    - JDK-8250568, CVE-2021-2161: Less ambiguous processing
+    - JDK-8253799: Make lists of normal filenames
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 19 Jul 2021 17:46:31 +0200
+
 openjdk-7 (7u281-2.6.24-0+deb8u1) jessie-security; urgency=medium
 
   * Non-maintainer upload by the ELTS team.

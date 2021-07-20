@@ -696,7 +696,7 @@ sub detect_probes {
     my @probes_detected = ();
     my ($probe_name, $probe_printargs, $probe_output, $stap_pre, $stap_command,
             @sysargs);
-    $stap_pre = "$ignore_system_tapset  " . join(' ', @tapset_dirs);
+    $stap_pre = "$ignore_system_tapset /usr/bin/stap " . join(' ', @tapset_dirs);
     foreach my $probe_index (0..$#_) {
         $probe_name = $_[$probe_index][0];
         $probe_printargs = $_[$probe_index][1];
@@ -725,7 +725,7 @@ sub detect_probes {
 # test, but not the test_probes() test.
 sub can_run_probes {
     log_and_print("Check whether we have enough privs to run systemtap script...");
-    my $stap_command = " -e 'probe begin { log(\"Hello World\"); exit(); }'";
+    my $stap_command = "/usr/bin/stap -e 'probe begin { log(\"Hello World\"); exit(); }'";
     just_log($stap_command);
     my $result = `$stap_command 2>&1`;
     if ($? != 0) {
@@ -753,7 +753,7 @@ sub test_probes {
     log_and_print("Testing if detected probes work as expected.  This may take a while...");
     my ($probe_name, $probe_suffix, $probe_printargs, $probe_output,
             $stap_pre, $stap_command, $jvm_xxarg);
-    $stap_pre = " " . join(' ', @tapset_dirs);
+    $stap_pre = "/usr/bin/stap " . join(' ', @tapset_dirs);
     foreach my $probe_index (0..$#_) {
         $jvm_xxarg = "";
         $probe_name = $_[$probe_index][0];
@@ -826,7 +826,7 @@ sub test_jstack {
 
     # Run staptest.SystemtapTester compiled_method_unload which does a lot
     # and can generate a somewhat "deep" stack.
-    $stap_pre = " " . join(' ', @tapset_dirs) . " -e '";
+    $stap_pre = "/usr/bin/stap " . join(' ', @tapset_dirs) . " -e '";
     $stap_post = "' -c '$java_exec $jargs staptest.SystemtapTester compiled_method_unload'";
 
     # Simple test jstack() should at least show our main method.
