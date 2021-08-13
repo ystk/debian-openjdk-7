@@ -312,6 +312,7 @@ ifneq (,$(filter $(DEB_HOST_ARCH), arm64 sparc64))
 endif
 
 DISTRIBUTION_PATCHES += \
+	debian/patches/remove-disabled-curves.diff \
 	debian/patches/ld-symbolic-functions-$(hotspot_version).diff \
 	debian/patches/shebang.diff \
 	debian/patches/jexec.diff \

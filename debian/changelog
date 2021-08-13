@@ -1,3 +1,9 @@
+openjdk-7 (7u311-2.6.27-0+deb8u2) jessie-security; urgency=medium
+
+  * Don't attempt to disable removed elliptic curves in java.security.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Fri, 13 Aug 2021 13:37:09 +0200
+
 openjdk-7 (7u311-2.6.27-0+deb8u1) jessie-security; urgency=medium
 
   * New upstream release.
