@@ -2754,27 +2754,27 @@ AC_DEFUN([IT_ENABLE_ARM32JIT],
   AM_CONDITIONAL([ENABLE_ARM32JIT], test x"${enable_arm32jit}" = "xyes")
 ])
 
-AC_DEFUN_ONCE([IT_ENABLE_SUNEC],
+AC_DEFUN_ONCE([IT_ENABLE_NSS_SUNEC],
 [
   AC_REQUIRE([IT_LOCATE_NSS])
-  AC_MSG_CHECKING([whether to enable the Sun elliptic curve crypto provider])
-  AC_ARG_ENABLE([sunec],
-                [AS_HELP_STRING(--enable-sunec,build the Sun elliptic curve crypto provider [[default=no]])],
+  AC_MSG_CHECKING([whether to build the Sun elliptic curve crypto provider against system NSS])
+  AC_ARG_ENABLE([nss-sunec],
+                [AS_HELP_STRING(--enable-nss-sunec,build the Sun elliptic curve crypto provider against system NSS [[default=no]])],
   [
     case "${enableval}" in
       yes)
-        ENABLE_SUNEC=yes
+        ENABLE_NSS_SUNEC=yes
         ;;
       *)
-        ENABLE_SUNEC=no
+        ENABLE_NSS_SUNEC=no
         ;;
     esac
   ],
   [
-    ENABLE_SUNEC=no
+    ENABLE_NSS_SUNEC=no
   ])
-  AC_MSG_RESULT([$ENABLE_SUNEC])
-  if test x"${ENABLE_SUNEC}" = "xyes"; then
+  AC_MSG_RESULT([$ENABLE_NSS_SUNEC])
+  if test x"${ENABLE_NSS_SUNEC}" = "xyes"; then
     PKG_CHECK_MODULES(NSS_SOFTOKN, nss-softokn >= 3.16.1, [NSS_SOFTOKN_FOUND=yes], [NSS_SOFTOKN_FOUND=no])
     PKG_CHECK_MODULES(NSS_JAVA, nss-java, [NSS_JAVA_FOUND=yes], [NSS_JAVA_FOUND=no])
     if test "x${NSS_SOFTOKN_FOUND}" = "xyes"; then
@@ -2789,8 +2789,8 @@ AC_DEFUN_ONCE([IT_ENABLE_SUNEC],
     AC_SUBST(SUNEC_CFLAGS)
     AC_SUBST(SUNEC_LIBS)
   fi
-  AM_CONDITIONAL([ENABLE_SUNEC], test x"${ENABLE_SUNEC}" = "xyes")
-  AC_SUBST(ENABLE_SUNEC)
+  AM_CONDITIONAL([ENABLE_NSS_SUNEC], test x"${ENABLE_NSS_SUNEC}" = "xyes")
+  AC_SUBST(ENABLE_NSS_SUNEC)
 ])
 
 AC_DEFUN_ONCE([IT_CHECK_TOOLS_JAR_EXISTS],
@@ -2948,7 +2948,7 @@ AC_DEFUN_ONCE([IT_DETERMINE_VERSION],
   AC_MSG_CHECKING([which branch and release of IcedTea is being built])
   JAVA_VER=1.7.0
   JAVA_VENDOR=openjdk
-  JDK_UPDATE_VERSION=311
+  JDK_UPDATE_VERSION=321
   BUILD_VERSION=b01
   MILESTONE=fcs
   if test "x${MILESTONE}" = "xfcs"; then
