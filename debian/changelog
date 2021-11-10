@@ -1,3 +1,40 @@
+openjdk-7 (7u321-2.6.28-0+deb8u1) jessie-security; urgency=medium
+
+  * New upstream release.
+  * IcedTea release 2.6.28 (based on 7u321).
+  * Security fixes:
+    - JDK-8130183, CVE-2021-35588: InnerClasses: VM permits wrong Throw
+      ClassFormatError if InnerClasses attribute's inner_class_info_index is 0
+    - JDK-8161016: Strange behavior of URLConnection with proxy
+    - JDK-8163326, CVE-2021-35550: Update the default enabled cipher
+      suites preference
+    - JDK-8254967, CVE-2021-35565: com.sun.net.HttpsServer spins on TLS
+      session close
+    - JDK-8263314: Enhance XML Dsig modes
+    - JDK-8265167, CVE-2021-35556: Richer Text Editors
+    - JDK-8265574: Improve handling of sheets
+    - JDK-8265580, CVE-2021-35559: Enhanced style for RTF kit
+    - JDK-8265776: Improve Stream handling for SSL
+    - JDK-8266097, CVE-2021-35561: Better hashing support
+    - JDK-8266103: Better specified spec values
+    - JDK-8266109: More Resilient Classloading
+    - JDK-8266115: More Manifest Jar Loading
+    - JDK-8266137, CVE-2021-35564: Improve Keystore integrity
+    - JDK-8267086: ArrayIndexOutOfBoundsException in
+      java.security.KeyFactory.generatePublic
+    - JDK-8267712: Better LDAP reference processing
+    - JDK-8267735, CVE-2021-35586: Better BMP support
+    - JDK-8268506: More Manifest Digests
+    - JDK-8269618, CVE-2021-35603: Better session identification
+    - JDK-8269624: Enhance method selection support
+    - JDK-8270398: Enhance canonicalization
+    - JDK-8270404: Better canonicalization
+  * debian/patches/remove-disabled-curves.diff:
+    - removed, fixed upstream.
+  * Refresh patches.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 08 Nov 2021 11:18:18 +0100
+
 openjdk-7 (7u311-2.6.27-0+deb8u2) jessie-security; urgency=medium
 
   * Don't attempt to disable removed elliptic curves in java.security.

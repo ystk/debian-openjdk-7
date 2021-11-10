@@ -2,8 +2,8 @@
 
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -2809,9 +2809,12 @@ AC_DEFUN_ONCE([IT_ENABLE_SUNEC],
-   if test x"${ENABLE_SUNEC}" = "xyes"; then
+@@ -2809,9 +2809,12 @@ AC_DEFUN_ONCE([IT_ENABLE_NSS_SUNEC],
+   if test x"${ENABLE_NSS_SUNEC}" = "xyes"; then
      PKG_CHECK_MODULES(NSS_SOFTOKN, nss-softokn >= 3.16.1, [NSS_SOFTOKN_FOUND=yes], [NSS_SOFTOKN_FOUND=no])
      PKG_CHECK_MODULES(NSS_JAVA, nss-java, [NSS_JAVA_FOUND=yes], [NSS_JAVA_FOUND=no])
 +    NSS_SOFTOKN_FOUND=yes

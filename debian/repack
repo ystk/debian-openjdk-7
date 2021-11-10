@@ -74,10 +74,10 @@ tar -xf "${old_orig_file}" -C "${deb_orig_path}/${orig_basename}" --strip-compon
 printf "Packing OpenJDK components together\n"
 
 printf "Fetching OpenJDK modules tarballs\n"
-wget -P "${deb_orig_path}/${orig_basename}" -e robots=off -L -r -np -nd -N -A "*.tar.bz2" http://icedtea.wildebeest.org/download/drops/icedtea7/${icedtea_version}/
+wget -P "${deb_orig_path}/${orig_basename}" -e robots=off -L -r -np -nd -N -A "*.tar.bz2" https://icedtea.classpath.org/download/drops/icedtea7/${icedtea_version}/
 
 printf "Fetching JamVM tarball\n"
-wget -P "${deb_orig_path}/${orig_basename}" -q -nd -N http://icedtea.classpath.org/download/drops/jamvm/jamvm-2.0.0.tar.gz
+wget -P "${deb_orig_path}/${orig_basename}" -q -nd -N https://icedtea.classpath.org/download/drops/jamvm/jamvm-2.0.0.tar.gz
 
 printf "Copying IcedTea Sound tarball\n"
 cp "${deb_orig_path}"/icedtea-sound-*.tar.xz "${deb_orig_path}/${orig_basename}"

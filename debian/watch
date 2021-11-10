@@ -22,5 +22,5 @@ opts="dversionmangle=s/^7u\d+-//,uversionmangle=s/^[^2]\./0./,pgpsigurlmangle=s%
     http://icedtea.classpath.org/download/source/icedtea-([\d\.]*).tar.xz \
     debian
 opts="component=icedtea-sound,pgpsigurlmangle=s%$%.sig%" \
-    http://icedtea.wildebeest.org/download/source/icedtea-sound-([\d\.]+).tar.xz \
+    http://icedtea.classpath.org/download/source/icedtea-sound-([\d\.]+).tar.xz \
     1.0 debian/repack
